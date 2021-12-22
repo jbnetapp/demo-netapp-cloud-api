@@ -370,7 +370,7 @@ def cloudsync_get_relations (API_token, API_accountID):
 
 
 #################################################################################################
-def cloudsync_sync_relations (API_token, API_accountID, relation_id):
+def cloudsync_sync_relation (API_token, API_accountID, relation_id):
 
     relations_info={}
     relations_info["status"]="unknown"
@@ -410,7 +410,7 @@ def cloudsync_sync_relations (API_token, API_accountID, relation_id):
               return relations_info
 
 #################################################################################################
-def cloudsync_delete_relations (API_token, API_accountID, relation_id):
+def cloudsync_delete_relation (API_token, API_accountID, relation_id):
 
     relations_info={}
     relations_info["status"]="unknown"

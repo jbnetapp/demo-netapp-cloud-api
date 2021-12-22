@@ -128,14 +128,14 @@ try:
 
     if args.sync_relation_id:
         print("Sync cloudsync relation ID: {0}".format(args.sync_relation_id))
-        relation_info=netapp_api_cloud.cloudsync_sync_relations(API_TOKEN, args.account_id,args.sync_relation_id)
+        relation_info=netapp_api_cloud.cloudsync_sync_relation(API_TOKEN, args.account_id,args.sync_relation_id)
         if (relation_info["status"] != "success"):
                    print_deb(relation_info["status"])
                    print("ERROR: {0}".format(relation_info["message"]))
 
     if args.delete_relation_id:
         print("Delete cloudsync relation ID: {0}".format(args.delete_relation_id))
-        relation_info=netapp_api_cloud.cloudsync_delete_relations(API_TOKEN, args.account_id,args.delete_relation_id)
+        relation_info=netapp_api_cloud.cloudsync_delete_relation(API_TOKEN, args.account_id,args.delete_relation_id)
         if (relation_info["status"] != "success"):
                    print_deb(relation_info["status"])
                    print("ERROR: {0}".format(relation_info["message"]))
