@@ -1,4 +1,4 @@
-## demo NetApp cloud API
+## Demo NetApp cloud API
 This a simple NetApp Cloud API. The script cloudsync.py is a simple Python script to show how to work with cloudsync. 
 
 **WARNING** Never used this script on production system the aim is only for LAB and Demo
