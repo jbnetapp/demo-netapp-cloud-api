@@ -1,16 +1,16 @@
 ## Demo NetApp cloud API
-This a simple NetApp Cloud API. The script cloudsync.py is a simple Python script to show how to work with cloudsync. 
+Use NetApp Cloud API. The script cloudsync.py is a simple Python script to show how to work with NetApp Cloud Sync API 
 
 **WARNING** Never used this script on production system the aim is only for LAB and Demo
 
-The script need to be used with **python 3**
+The script needs to be used with **python 3**
 
-The folowing python modules must be installed (windows):
+The following python modules must be installed (windows):
 ```
-pip install ssl
+pip install sslfollowing 
 pip install json
 pip install OpenSSL 
-pip insatll urllib3
+pip install urllib3
 pip install requests
 ```
 The folowing python modules must be installed (Linux):
@@ -21,29 +21,29 @@ python3 -m pip install requests
 ```
 
 # Setup the script
-## Create API configuratoin File with your NetApp Cloud Central Credential
+## Create API Configuration File with your NetApp Cloud Central Credential
 
-The configuration file **api.conf** must be store on the following directory base on your operating system:
-- On Linux the File must be save on **$HOME/NetAppCloud/api.conf**
-- On Windows the File must be save on **%homedrive%\%homepath%\NetAppCloud\api.conf**
+The configuration file **api.conf** must be store on the following directory depending on your operating system:
+- For Linux configuration file must be saved on **$HOME/NetAppCloud/api.conf**
+- For Windows configuration file must be saved on **%homedrive%%homepath%\NetAppCloud\api.conf**
 
-The configuration file **api.conf** must containt the following two section header:
-- [DEFAULT] to store default value
-- [API-LOGIN] to store you NetApp cloud Login information
+The configuration file **api.conf** must contain at least the following two section headers:
+- [DEFAULT] to store API default variables
+- [API-LOGIN] to store your NetApp Cloud Central Login Information
 
 NetApp Cloud Central Services use OAuth 2.0, an industry-standard protocol, for authorization. Communicating with an authenticated endpoint is a two step-process 
 - Acquire a JWT access token from the OAuth token endpoint.
 - Call an API endpoint with the JWT access token. 
 
 NetApp Cloud Central users can be:
-- Federated users (Active-Directory). 
-    - If your user is federated, you must use a **refresh token Access** to Acquire a JWT **access token** from the OAuth token endpoint.
+- Federated user (Active-Directory). 
+    - If your user is federated user, you must use a **refresh token Access** to Acquire a JWT **access token** from the OAuth token endpoint.
     - To get your **refresh token Access** login to the https://services.cloud.netapp.com/refresh-token 
         - Click on **Generate Refresh Token** or click on **Revoke Token(s)** 
         - <img src="Pictures/Refresh-Token-Generator.png" alt="NetApp Refresh Token" width="1100" height="350">
     - Create the Configuration File for federated users: 
         ```
-        #  cat $HOME/NetAppCloud/api.conf
+        # cat $HOME/NetAppCloud/api.conf
         [DEFAULT]
         version = 1
         update = 1
@@ -57,7 +57,7 @@ NetApp Cloud Central users can be:
 - Non-Federated users (Regular Access) you need to create username and password input in the configuration file
     - Create the configuration file for Regular Access:
         ```
-        #  cat $HOME/NetAppCloud/api.conf
+        # cat $HOME/NetAppCloud/api.conf
         [API_LOGIN]
         grant_type = password
         username = <YOUR EMAIL NETAPP CLOUD CENTRAL>
@@ -67,11 +67,23 @@ NetApp Cloud Central users can be:
         ```
 
 ## Get the JWT access token  
-When the configuration file contain user information the script can get your **JWT access token** and it will be automatically saved in your configuration file in a new section header [API_TOKEN]
+Now with the configuration file the script can get your **JWT access token** and the token is automatically saved in your configuration file in a new section header [API_TOKEN]. Example on Linux with a Federated user:
 
 Get the **JWT access token** :
 ```
 # python3 cloudsync.py --account-list
+# cat $HOME/NetAppCloud/api.conf
+[DEFAULT]
+version = 1
+update = 2
+
+[API_LOGIN]
+grant_type = refresh_token
+refresh_token = <YOUR_REFRESH_TOKEN_ACCESS>
+client_id = Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC
+
+[API_TOKEN]
+access_token = ********************************************************************************************************
 ```
 
 # Use the script
@@ -127,7 +139,7 @@ Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
 
 ```
 
-The relation is in RUNNING state
+To verify if the relation is in RUNNING state Print CloudSync Relation again:
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --print
 Print cloudsync relations:
@@ -141,7 +153,7 @@ type: Sync
 status: RUNNING
 ```
 
-if we Sync the Relation during a sync the script display the error message report return by cloudsync sync request: 
+if we Sync a CloudSync relation during a sync action the script display the error message report return by CloudSync  request: 
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --sync 61c2e054b10e1f362ede48e1
 Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
