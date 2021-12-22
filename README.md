@@ -1,5 +1,5 @@
 ## Demo NetApp cloud API
-Use NetApp Cloud API. The script cloudsync.py is a simple Python script to show how to work with NetApp Cloud Sync API 
+Use NetApp Cloud API. The script cloudsync.py is a simple Python script to show how to work with NetApp Cloud Sync API. The Cloud Sync API documentation is available here : https://api.cloudsync.netapp.com/docs/
 
 **WARNING** Never used this script on production system the aim is only for LAB and Demo
 
@@ -40,7 +40,7 @@ NetApp Cloud Central users can be:
     - If your user is federated user, you must use a **refresh token Access** to Acquire a JWT **access token** from the OAuth token endpoint.
     - To get your **refresh token Access** login to the https://services.cloud.netapp.com/refresh-token 
         - Click on **Generate Refresh Token** or click on **Revoke Token(s)** 
-        - <img src="Pictures/Refresh-Token-Generator.png" alt="NetApp Refresh Token" width="1100" height="350">
+        <img src="Pictures/Refresh-Token-Generator.png" alt="NetApp Refresh Token" width="1100" height="350">
     - Create the Configuration File for federated users: 
         ```
         # cat $HOME/NetAppCloud/api.conf
