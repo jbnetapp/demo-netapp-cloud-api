@@ -74,12 +74,10 @@ Get the **JWT access token** :
 # python3 cloudsync.py --account-list
 ```
 
-
-
 # Use the script
 Display help
 ```
- python3 cloudsync.py --help
+# python3 cloudsync.py --help
 usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID]
                     (--account-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations)
 
