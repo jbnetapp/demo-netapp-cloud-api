@@ -76,7 +76,7 @@ Now with the configuration file the script can get your **JWT access token** and
 
 Create a new **JWT access token** :
 ```
-# python3 cloudsync.py --create-newtoken
+# python3 cloudsync.py --get-new-token
 ```
 
 Check if your new **JWT access token** is valid and saved in your private **api.conf** configuration file.
@@ -85,18 +85,19 @@ Check if your new **JWT access token** is valid and saved in your private **api.
 Access Token is valide
 ```
 
-# Use the script
+# How to Use the CloudSync script:
 Display help
 ```
 # python3 cloudsync.py --help
-usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID]
-                    (--account-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations)
+usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID] [-j]
+                    (--account-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations | --check-token | --get-new-token)
 
 optional arguments:
   -h, --help            show this help message and exit
   -d, --debug           select debug mode
   --account-id ACCOUNT_ID
                         select the cloudmanager account name: ACCOUNT_NAME
+  -j, --json            select debug mode
   --account-list        print cloudsnyc accounts
   --create-relation CREATE_RELATION_FILE
                         create a new cloudsync relation from Json CREATE_RELATION_FILE
@@ -105,6 +106,8 @@ optional arguments:
   --sync-relation SYNC_RELATION_ID
                         sync the cloudsync relation with id SYNC_RELATION_ID
   --print-relations     print cloudsnyc relations
+  --check-token         print cloudsnyc accounts
+  --get-new-token       print cloudsnyc accounts
 ```
 
 Display NetApp Account list associate with your NetApp Central user
@@ -116,7 +119,14 @@ Demo_SIM account_id: [account-j3aZttuL]
 NetAppHCL account_id: [account-U0dbRcKS]
 ```
 
-Print CloudSync Relations list
+Create a new Cloud Sync Relation (Example using the local json file Blob to Blob relation from this git repository)
+```
+# python3 cloudsync.py  --account-id account-U0dbRcKS --create-relation ./new-cloudsync-relation-blob-to-blob-example.json
+New cloud Sync relationship successfully created
+```
+*To use the **JSON example file** the source **jbblob** and destinatoins **jblobcopy** Blobs must already exist in your **Azure** storage account and the storage account name **jbblobazure** must also exist.* For more information about the JSON syntax used: https://api.cloudsync.netapp.com/docs/
+
+Print Cloud Sync Relations list 
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --print
 Print cloudsync relations:
