@@ -82,7 +82,7 @@ Create a new **JWT access token** :
 Check if your new **JWT access token** is valid and saved in your private **api.conf** configuration file.
 ```
 # python3 cloudsync.py --check-token
-Access Token is valide
+Access Token is valid
 ```
 
 # How to Use the CloudSync script:
@@ -124,7 +124,7 @@ Create a new Cloud Sync Relation (Example using the local json file Blob to Blob
 # python3 cloudsync.py  --account-id account-U0dbRcKS --create-relation ./new-cloudsync-relation-blob-to-blob-example.json
 New cloud Sync relationship successfully created
 ```
-*To use the **JSON example file** the source **jbblob** and destinatoins **jblobcopy** Blobs must already exist in your **Azure** storage account and the storage account name **jbblobazure** must also exist.* For more information about the JSON syntax used: https://api.cloudsync.netapp.com/docs/
+*To use the **JSON example file** the source **jbblob** and the target **jblobcopy** Blobs must already exist in your **Azure** storage account and the storage account name **jbblobazure** must also exist.* For more information about the JSON syntax used: https://api.cloudsync.netapp.com/docs/
 
 Print Cloud Sync Relations list 
 ```
@@ -134,14 +134,14 @@ Print cloudsync relations:
 id: 61c2e054b10e1f362ede48e1
 account: xxxxxxxxxxxxxxxxxxxxxxxx
 dataBroker: 616d9c8d48301b1e6cdfe1df
-source: {'protocol': 'azure', 'azure': {'storageAccountName': 'jbdemostorageaccount', 'container': 'jbblob', 'prefix': 'DIR1', 'tags': [], 'provider': 'azure'}}
+source: {'protocol': 'azure', 'azure': {'storageAccountName': 'jbdemostorageaccount', 'container': 'jbblob', 'prefix': 'DIR', 'tags': [], 'provider': 'azure'}}
 target: {'protocol': 'azure', 'azure': {'storageAccountName': 'jbdemostorageaccount', 'container': 'jbblobcopy', 'prefix': '', 'tags': [], 'blobTier': 'HOT', 'provider': 'azure'}}
 type: Sync
 status: DONE
 
 ```
 
-Sync a CloudSync Relation 
+Sync a Cloud Sync Relation 
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --sync 61c2e054b10e1f362ede48e1
 Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
@@ -151,7 +151,7 @@ Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
 To verify if the relation is in RUNNING state Print CloudSync Relation again:
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --print
-Print cloudsync relations:
+Print cloud sync relations:
 
 id: 61c2e054b10e1f362ede48e1
 account: 5e528f4504a9a4d63d6962de
@@ -162,20 +162,20 @@ type: Sync
 status: RUNNING
 ```
 
-if we Sync a CloudSync relation during a sync action the script display the error message report return by CloudSync  request: 
+if you Sync agin the Cloud Sync relation during an existing sync action the script will display error message : 
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --sync 61c2e054b10e1f362ede48e1
 Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ERROR: {"code":400,"message":"A sync action is running right now, can not run another action"}
 ```
 
-Delete a CloudSync relation
+Delete a Cloud Sync relation
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --delete 61c2e054b10e1f362ede48e1 -d
 Delete cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ```
 
-Display a CloudSync relation in json format
+Display a Cloud Sync relation in JSON format
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --print --json
 [
