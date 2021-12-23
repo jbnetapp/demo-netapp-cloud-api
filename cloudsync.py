@@ -59,6 +59,8 @@ group.add_argument("--create-relation", dest='create_relation_file', help="creat
 group.add_argument("--delete-relation", dest='delete_relation_id', help="delete the cloudsync relation with id DELETE_RELATION_ID" )
 group.add_argument("--sync-relation", dest='sync_relation_id', help="sync the cloudsync relation with id SYNC_RELATION_ID" )
 group.add_argument("--print-relations", dest='print_relations', help="print cloudsnyc relations", action="store_true" )
+group.add_argument("--check-token", dest='check_token', help="print cloudsnyc accounts", action="store_true" )
+group.add_argument("--create-newtoken", dest='create_newtoken', help="print cloudsnyc accounts", action="store_true" )
 args = parser.parse_args()
 
 if args.debug:
@@ -74,15 +76,9 @@ try:
     # Get Token and cloud manager account informations 
     print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
     token_info=netapp_api_cloud.get_check_token(API_CONFIG_FILE)
-    if ( token_info["status"] == "unknown" ):
+    if ( token_info["status"] != "success" ):
          print("ERROR: {0}".format(token_info["message"]))
          exit(1)
-
-    if ( token_info["status"] != "success" ):
-         token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
-         if ( token_info["status"] != "success" ):
-              print("ERROR: {0}".format(token_info["message"]))
-              exit(1)
 
     API_TOKEN=token_info["token"]
 
@@ -139,6 +135,23 @@ try:
         if (relation_info["status"] != "success"):
                    print_deb(relation_info["status"])
                    print("ERROR: {0}".format(relation_info["message"]))
+
+    if args.check_token:
+         # Get Token and cloud manager account informations 
+         print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
+         token_info=netapp_api_cloud.get_check_token(API_CONFIG_FILE)
+         if ( token_info["status"] == "unknown" ):
+              print("ERROR: {0}".format(token_info["message"]))
+              exit(1)
+         print("Access Token is valide")
+         exit(0)
+
+    if args.create_newtoken:
+         # Create a new token
+         token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
+         if ( token_info["status"] != "success" ):
+              print("ERROR: {0}".format(token_info["message"]))
+              exit(1)
 
 except KeyboardInterrupt:
     print ("exit")
