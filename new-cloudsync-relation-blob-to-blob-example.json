@@ -1,0 +1,66 @@
+{
+  "isCM": "true",
+  "dataBrokerId": "616d9c8d48301b1e6cdfe1df",
+  "source": {
+    "protocol": "azure",
+    "azure": {
+      "container": "jbblob",
+      "storageAccountName": "jbblobazure",
+      "prefix": "DIR2",
+      "tags": [],
+      "blobTier": "HOT",
+      "provider": "azure"
+    }
+  },
+  "target": {
+    "protocol": "azure",
+    "azure": {
+      "container": "jbblobcopy",
+      "storageAccountName": "jbblobazure",
+      "prefix": "DST2", 
+      "tags": [],
+      "blobTier": "HOT",
+      "provider": "azure"
+    }
+  },
+  "settings": {
+    "gracePeriod": 30,
+    "deleteOnSource": false,
+    "deletOnTarget": true,
+    "objectTagging": false,
+    "retries": 3,
+    "copyAcl": false,
+    "fileTypes": {
+      "files": true,
+      "directories": true,
+      "symlinks": true
+    },
+    "compareBy": {
+      "uid": false,
+      "gid": false,
+      "mtime": true,
+      "mode": false 
+    },
+    "copyProperties": {
+      "metadata": false,
+      "tags": false
+    },
+    "files": {
+      "excludeExtensions": [],
+      "minSize": 0,
+      "maxSize": 9007199254740991,
+      "minDate": "1970-01-01",
+      "maxDate": null ,
+      "minCreationDate": "1970-01-01",
+      "maxCreationDate": null
+    },
+    "schedule": {
+      "syncInDays": 0,
+      "syncInHours": 1,
+      "syncInMinutes": 0,
+      "isEnabled": true,
+      "nextTime": "2021-12-24T09:00:00.000Z",
+      "syncWhenCreated": true
+    }
+  }
+}
