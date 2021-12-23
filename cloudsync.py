@@ -53,6 +53,7 @@ if ( os.path.isdir(API_DIR) != True ):
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--debug", dest='debug', help="select debug mode", action="store_true")
 parser.add_argument("--account-id", dest='account_id', help="select the cloudmanager account name: ACCOUNT_NAME")
+parser.add_argument("-j", "--json", dest='json', help="select debug mode", action="store_true")
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--account-list", dest='account_list', help="print cloudsnyc accounts", action="store_true" )
 group.add_argument("--create-relation", dest='create_relation_file', help="create a new cloudsync relation from Json CREATE_RELATION_FILE" )
@@ -96,28 +97,31 @@ try:
 
     if args.print_relations:
          if args.account_id :
-              print("Print cloudsync relations:") 
               relations_info=netapp_api_cloud.cloudsync_get_relations(API_TOKEN, args.account_id)
               print_deb(relations_info)
               if (relations_info["status"] == "success"):
-                   relations=json.loads(relations_info["relations"])
-                   for relation in relations:
-                        activity=relation["activity"]
-                        print("")
-                        print("id: {0}".format(relation["id"]))
-                        print("account: {0}".format(relation["account"]))
-                        print("dataBroker: {0}".format(relation["dataBroker"]))
-                        print("source: {0}".format(relation["source"]))
-                        print("target: {0}".format(relation["target"]))
-                        print("type: {0}".format(activity["type"]))
-                        print("status: {0}".format(activity["status"]))
-                        print("")
+                   if (args.json):
+                        relations=json.loads(relations_info["relations"])
+                        print(json.dumps(relations, indent=4))
+                   else:  
+                        print("Print cloudsync relations:") 
+                        relations=json.loads(relations_info["relations"])
+                        for relation in relations:
+                             activity=relation["activity"]
+                             print("")
+                             print("id: {0}".format(relation["id"]))
+                             print("account: {0}".format(relation["account"]))
+                             print("dataBroker: {0}".format(relation["dataBroker"]))
+                             print("source: {0}".format(relation["source"]))
+                             print("target: {0}".format(relation["target"]))
+                             print("type: {0}".format(activity["type"]))
+                             print("status: {0}".format(activity["status"]))
+                             print("")
               else:
                    print("ERROR: {0}".format(relations_info["message"]))
          else: 
-             print ("ERROR: Syntaxe : miss account_id ")
+             print("ERROR: Syntaxe : miss account_id ")
              exit(1)
-
 
     if args.create_relation_file:
         print("create new cloudsnyc relation form json file: {0}".format(args.create_relation_file))

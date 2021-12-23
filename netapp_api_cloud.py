@@ -354,6 +354,7 @@ def cloudsync_get_relations (API_token, API_accountID):
     if ( status_code == '200' ):
          relations_info["status"]="success"
          relations_info["message"]="ok"
+         relations_info["content"]=response.content
          relations_info["relations"]=response.text
          return relations_info
     else:
