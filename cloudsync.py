@@ -143,7 +143,7 @@ try:
          if ( token_info["status"] == "unknown" ):
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
-         print("Access Token is valide")
+         print("Access Token is valid")
          exit(0)
 
     if args.create_newtoken:
