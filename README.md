@@ -41,6 +41,18 @@ The configuration file **api.conf** must contain at least the following two sect
 - [API-LOGIN] to store your NetApp Cloud Central Login Information
 
 **NetApp Cloud Central user can be Federated or Non-Federated:**
+
+- **For Non-Federated users (Regular Access)** you need to create username and password input in the configuration file
+    - Create the configuration file for Regular Access:
+        ```
+        # cat $HOME/NetAppCloud/api.conf
+        [API_LOGIN]
+        grant_type = password
+        username = <YOUR EMAIL NETAPP CLOUD CENTRAL>
+        password = <YOUR PASSWORD >
+        audience = https://api.cloud.netapp.com
+        client_id = QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO        
+        ```
 - **For Federated user (ADFS, Microsfot AD, or SAML )** associate with your corporate email
     - If your user is federated user, you must use a **refresh token Access** to Acquire a JWT **access token** from the OAuth token endpoint.
     - To get your **refresh token Access** login to the https://services.cloud.netapp.com/refresh-token 
@@ -59,17 +71,7 @@ The configuration file **api.conf** must contain at least the following two sect
         client_id = Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC
         ```
 
-- **For Non-Federated users (Regular Access)** you need to create username and password input in the configuration file
-    - Create the configuration file for Regular Access:
-        ```
-        # cat $HOME/NetAppCloud/api.conf
-        [API_LOGIN]
-        grant_type = password
-        username = <YOUR EMAIL NETAPP CLOUD CENTRAL>
-        password = <YOUR PASSWORD >
-        audience = https://api.cloud.netapp.com
-        client_id = QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO        
-        ```
+
 
 ## Create the JWT access token  
 Now with the configuration file the script can get your **JWT access token** and the token is automatically saved in your configuration file in a new section header [API_TOKEN]. Example on Linux with a Federated user:
