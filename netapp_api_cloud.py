@@ -324,6 +324,48 @@ def get_accounts_list (API_token):
               return accounts_info
 
 #################################################################################################
+# NetApp Cloud Sync API
+#################################################################################################
+def cloudsync_create_relations (API_token, API_accountID, API_json):
+
+    relations_info={}
+
+    if ( API_token == '' ):
+         relations_info["status"]="failed"
+         relations_info["message"]="ERROR: miss token"
+         return relations_info
+
+    try:
+         url = URL_CLOUDSYNC + "/api/relationships-v2"
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-account-id": API_accountID }
+         response = requests.post(url, auth=BearerAuth(API_token), headers=headers, json=API_json)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         relations_info["status"]="failed"
+         relations_info["message"]=e
+         return relations_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         relations_info["status"]="success"
+         relations_info["message"]="ok"
+         relations_info["relations"]=response.text
+         return relations_info
+    else:
+              relations_info["status"]="failed"
+              relations_info["message"]=response.text
+              return relations_info
+
+#################################################################################################
+
+#################################################################################################
 def cloudsync_get_relations (API_token, API_accountID):
 
     relations_info={}
@@ -351,24 +393,15 @@ def cloudsync_get_relations (API_token, API_accountID):
     print_deb ("content: {0}".format(response.content))
     print_deb ("reason: {0}".format(response.reason))
 
-    if ( status_code == '200' ):
+    if ( response.ok ):
          relations_info["status"]="success"
          relations_info["message"]="ok"
-         relations_info["content"]=response.content
          relations_info["relations"]=response.text
          return relations_info
     else:
-         if ( status_code == '401' ):
               relations_info["status"]="failed"
               relations_info["message"]=response.text
-              content = json.loads(response.content)
-              print_deb(content)
               return relations_info
-         else:
-              relations_info["status"]="unknown"
-              relations_info["message"]=response.text
-              return relations_info
-
 
 #################################################################################################
 def cloudsync_sync_relation (API_token, API_accountID, relation_id):

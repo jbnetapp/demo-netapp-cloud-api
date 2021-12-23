@@ -61,7 +61,7 @@ group.add_argument("--delete-relation", dest='delete_relation_id', help="delete 
 group.add_argument("--sync-relation", dest='sync_relation_id', help="sync the cloudsync relation with id SYNC_RELATION_ID" )
 group.add_argument("--print-relations", dest='print_relations', help="print cloudsnyc relations", action="store_true" )
 group.add_argument("--check-token", dest='check_token', help="print cloudsnyc accounts", action="store_true" )
-group.add_argument("--create-newtoken", dest='create_newtoken', help="print cloudsnyc accounts", action="store_true" )
+group.add_argument("--get-new-token", dest='get_new_token', help="print cloudsnyc accounts", action="store_true" )
 args = parser.parse_args()
 
 if args.debug:
@@ -124,7 +124,20 @@ try:
              exit(1)
 
     if args.create_relation_file:
-        print("create new cloudsnyc relation form json file: {0}".format(args.create_relation_file))
+         print("create new cloudsnyc relation form json file: {0}".format(args.create_relation_file))
+         if (os.path.isfile(args.create_relation_file) != True ):
+             print("Error: {0} : file not found".format(args.create_relation_file))
+             exit(1)
+         f = open(args.create_relation_file)
+         new_relation_json=json.load(f)
+         print_deb(new_relation_json)
+         f.close
+
+         relations_info=netapp_api_cloud.cloudsync_create_relations(API_TOKEN, args.account_id, new_relation_json)
+         if (relations_info["status"] == "success"):
+              print("New cloud Sync relationship successfully created")
+         else:
+              print("ERROR: {0}".format(relations_info["message"]))
 
     if args.sync_relation_id:
         print("Sync cloudsync relation ID: {0}".format(args.sync_relation_id))
@@ -132,6 +145,7 @@ try:
         if (relation_info["status"] != "success"):
                    print_deb(relation_info["status"])
                    print("ERROR: {0}".format(relation_info["message"]))
+
 
     if args.delete_relation_id:
         print("Delete cloudsync relation ID: {0}".format(args.delete_relation_id))
@@ -150,7 +164,7 @@ try:
          print("Access Token is valid")
          exit(0)
 
-    if args.create_newtoken:
+    if args.get_new_token:
          # Create a new token
          token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
