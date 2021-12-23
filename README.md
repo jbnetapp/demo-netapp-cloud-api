@@ -122,7 +122,7 @@ Print CloudSync Relations list
 Print cloudsync relations:
 
 id: 61c2e054b10e1f362ede48e1
-account: 5e528f4504a9a4d63d6962de
+account: xxxxxxxxxxxxxxxxxxxxxxxx
 dataBroker: 616d9c8d48301b1e6cdfe1df
 source: {'protocol': 'azure', 'azure': {'storageAccountName': 'jbdemostorageaccount', 'container': 'jbblob', 'prefix': 'DIR1', 'tags': [], 'provider': 'azure'}}
 target: {'protocol': 'azure', 'azure': {'storageAccountName': 'jbdemostorageaccount', 'container': 'jbblobcopy', 'prefix': '', 'tags': [], 'blobTier': 'HOT', 'provider': 'azure'}}
@@ -165,7 +165,129 @@ Delete a CloudSync relation
 Delete cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ```
 
-Debug:
+Display a CloudSync relation in json format
+```
+# python3 cloudsync.py --account-id account-U0dbRcKS --print --json
+[
+    {
+        "account": "xxxxxxxxxxxxxxxxxxxxxxxx",
+        "dataBroker": "616d9c8d48301b1e6cdfe1df",
+        "source": {
+            "protocol": "azure",
+            "azure": {
+                "storageAccountName": "jbblobazure",
+                "container": "jbblob",
+                "prefix": "DIR1",
+                "tags": [],
+                "provider": "azure"
+            }
+        },
+        "target": {
+            "protocol": "azure",
+            "azure": {
+                "storageAccountName": "jbblobazure",
+                "container": "jbblobcopy",
+                "prefix": "DST1",
+                "tags": [],
+                "blobTier": "COOL",
+                "provider": "azure"
+            }
+        },
+        "settings": {
+            "gracePeriod": 30,
+            "deleteOnSource": false,
+            "deleteOnTarget": false,
+            "objectTagging": false,
+            "retries": 3,
+            "copyAcl": false,
+            "files": {
+                "excludeExtensions": [],
+                "maxSize": 9007199254740991,
+                "minSize": 0,
+                "minDate": "1970-01-01",
+                "maxDate": null,
+                "minCreationDate": "1970-01-01",
+                "maxCreationDate": null
+            },
+            "fileTypes": {
+                "files": true,
+                "directories": true,
+                "symlinks": true
+            },
+            "compareBy": {
+                "uid": false,
+                "gid": false,
+                "mode": false,
+                "mtime": true
+            },
+            "schedule": {
+                "syncInDays": 0,
+                "syncInHours": 1,
+                "syncInMinutes": 0,
+                "nextTime": "2021-12-24T09:00:00.000Z",
+                "isEnabled": true,
+                "syncWhenCreated": true
+            },
+            "copyProperties": {
+                "metadata": false,
+                "tags": false
+            }
+        },
+        "isQstack": false,
+        "isCm": true,
+        "phase": "Initial Copy",
+        "group": "616d9c8dcec9f8eef6a411fa",
+        "startTime": "2021-12-23T09:20:12.875Z",
+        "createdAt": 1640251212876,
+        "endTime": "2021-12-23T09:22:59.304Z",
+        "id": "61c43f4c86f2ee48a82a0813",
+        "relationshipId": "61c43f4c86f2ee48a82a0813",
+        "activity": {
+            "type": "Initial Copy",
+            "status": "DONE",
+            "errors": [],
+            "failureMessage": "",
+            "executionTime": 166429,
+            "startTime": "2021-12-23T09:20:12.875Z",
+            "endTime": "2021-12-23T09:22:59.304Z",
+            "bytesMarkedForCopy": 1243560,
+            "filesMarkedForCopy": 1,
+            "dirsMarkedForCopy": 0,
+            "filesCopied": 0,
+            "bytesCopied": 0,
+            "dirsCopied": 0,
+            "filesFailed": 1,
+            "bytesFailed": 1243560,
+            "dirsFailed": 0,
+            "filesMarkedForRemove": 0,
+            "bytesMarkedForRemove": 0,
+            "dirsMarkedForRemove": 0,
+            "filesRemoved": 0,
+            "bytesRemoved": 0,
+            "dirsRemoved": 0,
+            "bytesRemovedFailed": 0,
+            "filesRemovedFailed": 0,
+            "filesMarkedForIgnore": 0,
+            "dirsScanned": 0,
+            "filesScanned": 1,
+            "dirsFailedToScan": 0,
+            "bytesScanned": 1243560,
+            "progress": 100,
+            "lastMessageTime": "2021-12-23T09:22:59.307Z",
+            "topFiveMostCommonRelationshipErrors": [
+                {
+                    "step": "TRANSFER",
+                    "errorCode": "invalid_credentials",
+                    "counter": 1,
+                    "description": "source connection-string should be SAS Connection-string and not regular connection-string"
+                }
+            ]
+        }
+    }
+]
+```
+
+Debug mode:
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --account-list --debug
 DEBUG: [DEFAULT: <Section: DEFAULT> ]
