@@ -71,24 +71,18 @@ The configuration file **api.conf** must contain at least the following two sect
         client_id = QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO        
         ```
 
-## Get the JWT access token  
+## Create the JWT access token  
 Now with the configuration file the script can get your **JWT access token** and the token is automatically saved in your configuration file in a new section header [API_TOKEN]. Example on Linux with a Federated user:
 
-Get the **JWT access token** :
+Create a new **JWT access token** :
 ```
-# python3 cloudsync.py --account-list
-# cat $HOME/NetAppCloud/api.conf
-[DEFAULT]
-version = 1
-update = 2
+# python3 cloudsync.py --create-newtoken
+```
 
-[API_LOGIN]
-grant_type = refresh_token
-refresh_token = <YOUR_REFRESH_TOKEN_ACCESS>
-client_id = Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC
-
-[API_TOKEN]
-access_token = ********************************************************************************************************
+Check if your new **JWT access token** is valid and saved in your private **api.conf** configuration file.
+```
+# python3 cloudsync.py --check-token
+Access Token is valide
 ```
 
 # Use the script
