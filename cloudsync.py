@@ -74,12 +74,19 @@ try:
          print("ERROR: {0}".format(file_info["message"]))
          exit(1)
 
-    # Get Token and cloud manager account informations 
-    print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
-    token_info=netapp_api_cloud.get_check_token(API_CONFIG_FILE)
-    if ( token_info["status"] != "success" ):
-         print("ERROR: {0}".format(token_info["message"]))
-         exit(1)
+    if args.get_new_token:
+         # Create a new token
+         token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
+         if ( token_info["status"] != "success" ):
+              print("ERROR: {0}".format(token_info["message"]))
+              exit(1)
+    else: 
+         # Get Token and cloud manager account informations 
+         print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
+         token_info=netapp_api_cloud.get_check_token(API_CONFIG_FILE)
+         if ( token_info["status"] != "success" ):
+              print("ERROR: {0}".format(token_info["message"]))
+              exit(1)
 
     API_TOKEN=token_info["token"]
 
@@ -164,12 +171,6 @@ try:
          print("Access Token is valid")
          exit(0)
 
-    if args.get_new_token:
-         # Create a new token
-         token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
-         if ( token_info["status"] != "success" ):
-              print("ERROR: {0}".format(token_info["message"]))
-              exit(1)
 
 except KeyboardInterrupt:
     print ("exit")
