@@ -1,11 +1,9 @@
-## Demo NetApp cloud API
-Use NetApp Cloud API. The script cloudsync.py is a simple Python script to show how to work with NetApp Cloud Sync API. The Cloud Sync API documentation is available here : https://api.cloudsync.netapp.com/docs/
+# Demo NetApp cloud API
+Use NetApp Cloud API. This python scripts show how to work with NetApp Cloud API.
 
-**WARNING** Never used this script on production system the aim is only for LAB and Demo
+Thes scripts need to be used with **python 3**
 
-The script needs to be used with **python 3**
-
-The folowing python modules must be installed (Linux/Windows):
+The following python modules must be installed (Linux/Windows):
 ```
 python3 -m pip install pyopenssl
 python3 -m pip insatll urllib3
@@ -57,16 +55,19 @@ The configuration file **api.conf** contains the following section headers:
         ```
 
 ## Check your JWT access token  
-Check if your new **JWT access token** is valid and saved in your private **api.conf** configuration file.
+When using **cloudaccount.py** script with option --setup to create the configuration file the **JWT access token** is automatically saved in the section header [API_TOKEN]. To Check if your **JWT access token** is valid you can use --check-token option.
 ```
 # python3 cloudaccount.py --check-token
 Access Token is valid
 ```
 
-## Create the JWT access token  
-Now with the configuration file the script can get your **JWT access token** and the token is automatically saved in your configuration file in a new section header [API_TOKEN]. Example on Linux with a Federated user:
-
-Create a new **JWT access token** :
+## Get a new JWT access token  
+The **JWT access token** is limited in time and will expire after few days. If  **JWT access token** as expired a Code error **401** with message **TokenExpiredError: jwt expired** is return by the API:
+```
+# python3 cloudaccount.py --check-token
+ERROR: {"code":401,"message":"TokenExpiredError: jwt expired"}
+```
+To Get a new **JWT access token** :
 ```
 # python3 cloudaccount.py --get-new-token
 ```
@@ -76,8 +77,9 @@ Check if your new **JWT access token** is valid and saved in your private **api.
 # python3 cloudsync.py --check-token
 Access Token is valid
 ```
+# How to Use the CloudSync Script:
 
-# How to Use the CloudSync script:
+The script **cloudsync.py** show how to work with NetApp Cloud API Sync API. The Cloud Sync API documentation is available here : https://api.cloudsync.netapp.com/docs/
 
 ## Display NetApp Account list associate with your NetApp Central user
 ```
@@ -95,11 +97,11 @@ Example using the local [JSON file example file](https://github.com/jbnetapp/dem
 New cloud Sync relationship successfully created
 ```
 
-- **Remarque**  to use the [JSON example file](https://github.com/jbnetapp/demo-netapp-cloud-api/blob/main/new-cloudsync-relation-blob-to-blob-example.json) you must: 
+- **Remarque**  to use the [JSON example file](https://github.com/jbnetapp/demo-netapp-cloud-api/blob/main/Example/new-cloudsync-relation-blob-to-blob-example.json) you must: 
     - Change the dataBrokerId to your dataBorkerId. To get your dataBorkerId go to [cloudmanager](http://cloudmanager.netapp.com) -> sync -> Manager Data Broker -> Select your Data Broker and click on button **(>)** 
     - The source **jbblob** and the target **jblobcopy** Blobs must  exist in your **Azure** storage account 
     - The storage account name **jbblobazure** must also exist. 
-- For more information about the JSON syntax used: https://api.cloudsync.netapp.com/docs/ and to get your databorker
+- For more information about the JSON syntax used: https://api.cloudsync.netapp.com/docs/
 
 ## Print Cloud Sync Relations list 
 ```
