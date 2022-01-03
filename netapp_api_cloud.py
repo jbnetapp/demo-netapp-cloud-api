@@ -20,9 +20,13 @@ class BearerAuth(requests.auth.AuthBase):
 
 #################################################################################################
 # Global Parameters for ontap rest module 
+# https://docs.netapp.com/us-en/occm/api_sync.html
 #################################################################################################
-URL_CLOUDSYNC = "https://api.cloudsync.netapp.com"
-URL_CLOUDAUTH = "https://netapp-cloud-account.auth0.com"
+API_CLOUDSYNC = "https://api.cloudsync.netapp.com"
+API_CLOUDAUTH = "https://netapp-cloud-account.auth0.com"
+API_AUDIENCE = "https://api.cloud.netapp.com"
+API_ID_PASSWORD = "QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO" 
+API_ID_REFRESH_TOKEN = "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC"
 
 #################################################################################################
 # Debug 
@@ -37,6 +41,34 @@ def print_deb (debug_var):
         print("DEBUG: [", end="") 
         print(debug_var,end="]\n")
 
+#################################################################################################
+def create_API_config_file (API_config_file, API_account_info):
+    file_info={} 
+    file_info["status"]="unknown"
+
+    config = configparser.ConfigParser()
+    config['DEFAULT'] = {'version' : '1', 'update' : '1'}
+    config['API_LOGIN'] = {}
+    config['API_TOKEN'] = {}
+    config['API_LOGIN']['grant_type'] = API_account_info["grant_type"] 
+    if ( API_account_info["grant_type"] == "refresh_token" ):
+         config['API_LOGIN']['refresh_token'] = API_account_info["refresh_token"]
+         config['API_LOGIN']['client_id'] = API_ID_REFRESH_TOKEN
+    else:
+         config['API_LOGIN']['username'] = API_account_info["username"]
+         config['API_LOGIN']['password'] = API_account_info["password"]
+         config['API_LOGIN']['audience'] = API_AUDIENCE
+         config['API_LOGIN']['client_id'] = API_ID_PASSWORD
+    try:
+         with open(API_config_file, 'w') as configfile:
+              config.write(configfile)
+    except configparser.Error as e:
+         file_info["status"]="failed"
+         file_info["message"]=e
+         return file_info
+    file_info["status"]="success"
+    file_info["message"]="ok"
+    return file_info
 #################################################################################################
 def check_API_config_file (API_config_file):
 
@@ -165,7 +197,7 @@ def create_new_token (API_config_file):
 
     print_deb(data)
     try:
-         url = URL_CLOUDAUTH + "/oauth/token"
+         url = API_CLOUDAUTH + "/oauth/token"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {'Content-type': 'application/json'} 
@@ -248,7 +280,7 @@ def get_check_token (API_config_file):
          return token_info
 
     try:
-         url = URL_CLOUDSYNC + "/api/accounts"
+         url = API_CLOUDSYNC + "/api/accounts"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {'Content-type': 'application/json'} 
@@ -289,7 +321,7 @@ def get_accounts_list (API_token):
          return accounts_info
 
     try:
-         url = URL_CLOUDSYNC + "/api/accounts"
+         url = API_CLOUDSYNC + "/api/accounts"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {'Content-type': 'application/json'} 
@@ -336,7 +368,7 @@ def cloudsync_create_relations (API_token, API_accountID, API_json):
          return relations_info
 
     try:
-         url = URL_CLOUDSYNC + "/api/relationships-v2"
+         url = API_CLOUDSYNC + "/api/relationships-v2"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-account-id": API_accountID }
@@ -376,7 +408,7 @@ def cloudsync_get_relations (API_token, API_accountID):
          return relations_info
 
     try:
-         url = URL_CLOUDSYNC + "/api/relationships-v2"
+         url = API_CLOUDSYNC + "/api/relationships-v2"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-account-id": API_accountID }
@@ -415,7 +447,7 @@ def cloudsync_sync_relation (API_token, API_accountID, relation_id):
          return relations_info
 
     try:
-         url = URL_CLOUDSYNC + "/api/relationships/" + relation_id + "/sync"
+         url = API_CLOUDSYNC + "/api/relationships/" + relation_id + "/sync"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-account-id": API_accountID }
@@ -455,7 +487,7 @@ def cloudsync_delete_relation (API_token, API_accountID, relation_id):
          return relations_info
 
     try:
-         url = URL_CLOUDSYNC + "/api/relationships/" + relation_id
+         url = API_CLOUDSYNC + "/api/relationships/" + relation_id
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-account-id": API_accountID }

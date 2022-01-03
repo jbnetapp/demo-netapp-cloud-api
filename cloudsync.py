@@ -60,8 +60,8 @@ group.add_argument("--create-relation", dest='create_relation_file', help="creat
 group.add_argument("--delete-relation", dest='delete_relation_id', help="delete the cloudsync relation with id DELETE_RELATION_ID" )
 group.add_argument("--sync-relation", dest='sync_relation_id', help="sync the cloudsync relation with id SYNC_RELATION_ID" )
 group.add_argument("--print-relations", dest='print_relations', help="print cloudsnyc relations", action="store_true" )
-group.add_argument("--check-token", dest='check_token', help="print cloudsnyc accounts", action="store_true" )
-group.add_argument("--get-new-token", dest='get_new_token', help="print cloudsnyc accounts", action="store_true" )
+group.add_argument("--check-token", dest='check_token', help="Check NetApp Cloud access token", action="store_true" )
+group.add_argument("--get-new-token", dest='get_new_token', help="get new NetApp cloud access token", action="store_true" )
 args = parser.parse_args()
 
 if args.debug:
