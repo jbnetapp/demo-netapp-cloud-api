@@ -32,7 +32,7 @@ def print_deb (debug_var):
 #####################################################################
 from sys import platform
 if (platform == "win32") :
-    print_deb("Ah No - Not another Win32 system !")
+    print_deb("Another Win32 system")
     username=os.environ.get('username')
     homedrive=os.environ.get('homedrive')
     homepath=os.environ.get('homepath')
