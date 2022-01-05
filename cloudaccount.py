@@ -109,7 +109,7 @@ try:
     else: 
          # Get Token and cloud manager account informations 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
-         token_info=netapp_api_cloud.get_check_token(API_CONFIG_FILE)
+         token_info=netapp_api_cloud.occm_get_check_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
@@ -120,17 +120,17 @@ try:
     # args options 
     if args.account_list:
          print("Print NetApp Account list:")
-         accounts_info=netapp_api_cloud.get_accounts_list(API_TOKEN)
+         accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
          print_deb(accounts_info)
          if (accounts_info["status"] == "success"):
               accounts=json.loads(accounts_info["accounts"])
               for account in accounts:
-                   print("{0} account_id: [{1}]".format(account["name"], account["accountId"]))
+                   print("Name:[{0}] account_id:[{1}] Serial:[{2}]".format(account["accountName"], account["accountPublicId"], account["accountSerial"]))
 
     if args.check_token:
          # Get Token and cloud manager account informations 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
-         token_info=netapp_api_cloud.get_check_token(API_CONFIG_FILE)
+         token_info=netapp_api_cloud.occm_get_check_token(API_CONFIG_FILE)
          if ( token_info["status"] == "unknown" ):
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)

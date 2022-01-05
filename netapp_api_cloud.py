@@ -22,6 +22,7 @@ class BearerAuth(requests.auth.AuthBase):
 # Global Parameters for ontap rest module 
 # https://docs.netapp.com/us-en/occm/api_sync.html
 #################################################################################################
+API_OCCM = "https://cloudmanager.cloud.netapp.com"
 API_CLOUDSYNC = "https://api.cloudsync.netapp.com"
 API_CLOUDAUTH = "https://netapp-cloud-account.auth0.com"
 API_AUDIENCE = "https://api.cloud.netapp.com"
@@ -119,6 +120,8 @@ def check_API_config_file (API_config_file):
     file_info["status"]="success"
     return file_info
 
+#################################################################################################
+# Token management API
 #################################################################################################
 def create_new_token (API_config_file):
 
@@ -249,7 +252,114 @@ def create_new_token (API_config_file):
           return token_info
  
 #################################################################################################
-def get_check_token (API_config_file):
+def occm_get_check_token (API_config_file):
+   
+    token_info={}
+    token_info["status"]="unknown"
+
+    if (os.path.isfile(API_config_file) != True ):
+         token_info["status"]="failed"
+         token_info["message"]="ERROR: {0} file not found".format(API_config_file)
+         return token_info 
+ 
+    config = configparser.ConfigParser()
+    try:
+         config.read(API_config_file)
+    except configparser.Error as e:
+         token_info["message"]=e
+         return token_info 
+
+    # Get token form the configuration file 
+    try:
+         token=config['API_TOKEN']['access_token']; print_deb("access_token: {0} ".format(token))
+    except KeyError as e:
+         token_info["status"]="failed"
+         token_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
+         return token_info 
+
+    if ( token == '' ):
+         token_info["status"]="failed"
+         token_info["message"]="ERROR: access_token empty in configuration file {0}".format(API_config_file)
+         return token_info
+
+    try:
+         url = API_OCCM + "/tenancy/account"
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {'Content-type': 'application/json'} 
+         response = requests.get(url, auth=BearerAuth(token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         token_info["status"]="failed"
+         token_info["message"]=e
+         return token_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( status_code == '200' ):
+         token_info["status"]="success"
+         token_info["message"]="ok"
+         token_info["accounts"]=response.text
+         token_info["token"]=token
+         return token_info
+    else:
+         token_info["status"]="failed"
+         token_info["message"]=response.text
+         return token_info
+#################################################################################################
+def occm_get_accounts_list (API_token):
+   
+    accounts_info={}
+    accounts_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         accounts_info["status"]="failed"
+         accounts_info["message"]="ERROR: miss token"
+         return accounts_info
+
+    try:
+         url = API_OCCM + "/tenancy/account"
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {'Content-type': 'application/json'} 
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         accounts_info["status"]="failed"
+         accounts_info["message"]=e
+         return accounts_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( status_code == '200' ):
+         accounts_info["status"]="success"
+         accounts_info["message"]="ok"
+         accounts_info["accounts"]=response.text
+         accounts_info["token"]=API_token
+         return accounts_info
+    else:
+         if ( status_code == '401' ):
+              accounts_info["status"]="failed"
+              accounts_info["message"]=response.text
+              content = json.loads(response.content)
+              return accounts_info
+         else:
+              accounts_info["status"]="unknown"
+              accounts_info["message"]=response.text
+              return accounts_info
+
+#################################################################################################
+# Cloudsync API
+#################################################################################################
+def cloudsync_get_check_token (API_config_file):
    
     token_info={}
     token_info["status"]="unknown"
@@ -310,7 +420,7 @@ def get_check_token (API_config_file):
          return token_info
 
 #################################################################################################
-def get_accounts_list (API_token):
+def cloudsync_get_accounts_list (API_token):
    
     accounts_info={}
     accounts_info["status"]="unknown"
