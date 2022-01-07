@@ -123,6 +123,7 @@ try:
                              print("target: {0}".format(relation["target"]))
                              print("type: {0}".format(activity["type"]))
                              print("status: {0}".format(activity["status"]))
+                             print("status: {0}".format(activity["progress"]))
                              print("")
               else:
                    print("ERROR: {0}".format(relations_info["message"]))
