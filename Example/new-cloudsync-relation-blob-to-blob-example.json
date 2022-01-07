@@ -59,7 +59,6 @@
       "syncInHours": 1,
       "syncInMinutes": 0,
       "isEnabled": true,
-      "nextTime": "2021-12-24T09:00:00.000Z",
       "syncWhenCreated": true
     }
   }
