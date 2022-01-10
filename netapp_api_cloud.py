@@ -26,8 +26,8 @@ API_OCCM = "https://cloudmanager.cloud.netapp.com"
 API_CLOUDSYNC = "https://api.cloudsync.netapp.com"
 API_CLOUDAUTH = "https://netapp-cloud-account.auth0.com"
 API_AUDIENCE = "https://api.cloud.netapp.com"
-API_ID_PASSWORD = "QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO" 
-API_ID_REFRESH_TOKEN = "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC"
+CLIENT_ID_REGULAR = "QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO" 
+CLIENT_ID_REFRESH_TOKEN = "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC"
 
 #################################################################################################
 # Debug 
@@ -54,12 +54,12 @@ def create_API_config_file (API_config_file, API_account_info):
     config['API_LOGIN']['grant_type'] = API_account_info["grant_type"] 
     if ( API_account_info["grant_type"] == "refresh_token" ):
          config['API_LOGIN']['refresh_token'] = API_account_info["refresh_token"]
-         config['API_LOGIN']['client_id'] = API_ID_REFRESH_TOKEN
+         config['API_LOGIN']['client_id'] = CLIENT_ID_REFRESH_TOKEN
     else:
          config['API_LOGIN']['username'] = API_account_info["username"]
          config['API_LOGIN']['password'] = API_account_info["password"]
          config['API_LOGIN']['audience'] = API_AUDIENCE
-         config['API_LOGIN']['client_id'] = API_ID_PASSWORD
+         config['API_LOGIN']['client_id'] = CLIENT_ID_REGULAR
     try:
          with open(API_config_file, 'w') as configfile:
               config.write(configfile)
