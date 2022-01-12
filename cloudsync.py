@@ -51,17 +51,17 @@ if ( os.path.isdir(API_DIR) != True ):
 # Main
 #####################################################################
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--debug", dest='debug', help="select debug mode", action="store_true")
-parser.add_argument("--account-id", dest='account_id', help="select the cloudmanager account name: ACCOUNT_NAME")
-parser.add_argument("-j", "--json", dest='json', help="select debug mode", action="store_true")
+parser.add_argument("-d", "--debug", dest='debug', help="debug mode", action="store_true")
+parser.add_argument("--account-id", dest='account_id', help="select NetApp Cloud account ID")
+parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--account-list", dest='account_list', help="print cloudsnyc accounts", action="store_true" )
-group.add_argument("--create-relation", dest='create_relation_file', help="create a new cloudsync relation from Json CREATE_RELATION_FILE" )
-group.add_argument("--delete-relation", dest='delete_relation_id', help="delete the cloudsync relation with id DELETE_RELATION_ID" )
-group.add_argument("--sync-relation", dest='sync_relation_id', help="sync the cloudsync relation with id SYNC_RELATION_ID" )
-group.add_argument("--print-relations", dest='print_relations', help="print cloudsnyc relations", action="store_true" )
-group.add_argument("--check-token", dest='check_token', help="Check NetApp Cloud access token", action="store_true" )
-group.add_argument("--get-new-token", dest='get_new_token', help="get new NetApp cloud access token", action="store_true" )
+group.add_argument("--create-relation", dest='create_relation_file', help="create new cloudsync relation from json file" )
+group.add_argument("--delete-relation", dest='delete_relation_id', help="delete a cloudsync relation" )
+group.add_argument("--sync-relation", dest='sync_relation_id', help="sync a cloudsync relation" )
+group.add_argument("--print-relations", dest='print_relations', help="print cloudsnyc relations list", action="store_true" )
+group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
+group.add_argument("--get-new-token", dest='get_new_token', help="get a new access token", action="store_true" )
 args = parser.parse_args()
 
 if args.debug:
@@ -83,7 +83,7 @@ try:
     else: 
          # Get Token and cloud manager account informations 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
-         token_info=netapp_api_cloud.cloudsync_get_check_token(API_CONFIG_FILE)
+         token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
@@ -94,17 +94,37 @@ try:
 
     # args options 
     if args.account_list:
+
+         account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+         if (account_info["status"] == "success"):
+              default_account_id = account_info["default_account_id"] 
+         else:
+              default_account_id = ""
          print("Print NetApp Account list:")
          accounts_info=netapp_api_cloud.cloudsync_get_accounts_list(API_TOKEN)
          print_deb(accounts_info)
+
          if (accounts_info["status"] == "success"):
               accounts=json.loads(accounts_info["accounts"])
               for account in accounts:
-                   print("{0} account_id: [{1}]".format(account["name"], account["accountId"]))
+                   if ( account["accountId"] == default_account_id ):
+                        print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["name"], account["accountId"]))
+                   else:
+                        print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["name"], account["accountId"]))
 
     if args.print_relations:
-         if args.account_id :
-              relations_info=netapp_api_cloud.cloudsync_get_relations(API_TOKEN, args.account_id)
+
+         account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+         if (account_info["status"] == "success"):
+              account_id = account_info["default_account_id"] 
+         else:
+              account_id = ""
+
+         if args.account_id:
+              account_id = args.account_id 
+
+         if ( account_id != "" ):
+              relations_info=netapp_api_cloud.cloudsync_get_relations(API_TOKEN, account_id)
               print_deb(relations_info)
               if (relations_info["status"] == "success"):
                    if (args.json):
@@ -125,13 +145,21 @@ try:
                              print("status: {0}".format(activity["status"]))
                              print("status: {0}".format(activity["progress"]))
                              print("")
-              else:
-                   print("ERROR: {0}".format(relations_info["message"]))
          else: 
              print("ERROR: Syntaxe : miss account_id ")
              exit(1)
 
     if args.create_relation_file:
+
+         account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+         if (account_info["status"] == "success"):
+              account_id = account_info["default_account_id"] 
+         else:
+              account_id = ""
+
+         if args.account_id:
+              account_id = args.account_id 
+
          print("create new cloudsnyc relation form json file: {0}".format(args.create_relation_file))
          if (os.path.isfile(args.create_relation_file) != True ):
              print("Error: {0} : file not found".format(args.create_relation_file))
@@ -141,37 +169,56 @@ try:
          print_deb(new_relation_json)
          f.close
 
-         relations_info=netapp_api_cloud.cloudsync_create_relations(API_TOKEN, args.account_id, new_relation_json)
+         relations_info=netapp_api_cloud.cloudsync_create_relations(API_TOKEN, account_id, new_relation_json)
          if (relations_info["status"] == "success"):
               print("New cloud Sync relationship successfully created")
          else:
               print("ERROR: {0}".format(relations_info["message"]))
 
     if args.sync_relation_id:
-        print("Sync cloudsync relation ID: {0}".format(args.sync_relation_id))
-        relation_info=netapp_api_cloud.cloudsync_sync_relation(API_TOKEN, args.account_id,args.sync_relation_id)
-        if (relation_info["status"] != "success"):
-                   print_deb(relation_info["status"])
-                   print("ERROR: {0}".format(relation_info["message"]))
+
+         account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+         if (account_info["status"] == "success"):
+              account_id = account_info["default_account_id"] 
+         else:
+              account_id = ""
+
+         if args.account_id:
+              account_id = args.account_id 
+
+         print("Sync cloudsync relation ID: {0}".format(args.sync_relation_id))
+         relation_info=netapp_api_cloud.cloudsync_sync_relation(API_TOKEN, account_id,args.sync_relation_id)
+         if (relation_info["status"] != "success"):
+              print_deb(relation_info["status"])
+              print("ERROR: {0}".format(relation_info["message"]))
 
 
     if args.delete_relation_id:
-        print("Delete cloudsync relation ID: {0}".format(args.delete_relation_id))
-        relation_info=netapp_api_cloud.cloudsync_delete_relation(API_TOKEN, args.account_id,args.delete_relation_id)
-        if (relation_info["status"] != "success"):
-                   print_deb(relation_info["status"])
-                   print("ERROR: {0}".format(relation_info["message"]))
+
+         account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+         if (account_info["status"] == "success"):
+              account_id = account_info["default_account_id"] 
+         else:
+              account_id = ""
+
+         if args.account_id:
+              account_id = args.account_id 
+
+         print("Delete cloudsync relation ID: {0}".format(args.delete_relation_id))
+         relation_info=netapp_api_cloud.cloudsync_delete_relation(API_TOKEN, account_id,args.delete_relation_id)
+         if (relation_info["status"] != "success"):
+              print_deb(relation_info["status"])
+              print("ERROR: {0}".format(relation_info["message"]))
 
     if args.check_token:
          # Get Token and cloud manager account informations 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
-         token_info=netapp_api_cloud.cloudsync_get_check_token(API_CONFIG_FILE)
+         token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] == "unknown" ):
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
          print("Access Token is valid")
          exit(0)
-
 
 except KeyboardInterrupt:
     print ("exit")

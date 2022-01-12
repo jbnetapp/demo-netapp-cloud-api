@@ -51,13 +51,14 @@ if ( os.path.isdir(API_DIR) != True ):
 # Main
 #####################################################################
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--debug", dest='debug', help="select debug mode", action="store_true")
-parser.add_argument("-j", "--json", dest='json', help="select debug mode", action="store_true")
+parser.add_argument("-d", "--debug", dest='debug', help="debug mode", action="store_true")
+parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
 group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument("--setup", dest='setup', help="Setup cloudsnyc API", action="store_true" )
-group.add_argument("--account-list", dest='account_list', help="print NetApp cloud accounts", action="store_true" )
-group.add_argument("--check-token", dest='check_token', help="Check NetApp Cloud access token", action="store_true" )
-group.add_argument("--get-new-token", dest='get_new_token', help="Get new NetApp Cloud access token", action="store_true" )
+group.add_argument("--setup", dest='setup', help="setup NetApp cloud API connection", action="store_true" )
+group.add_argument("--account-list", dest='account_list', help="print NetApp cloud accounts list", action="store_true" )
+group.add_argument("--set-default-account", dest='default_account_id', help="set default NetApp Cloud account")
+group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
+group.add_argument("--get-new-token", dest='get_new_token', help="get new NetApp Cloud access token", action="store_true" )
 args = parser.parse_args()
 
 if args.debug:
@@ -109,7 +110,7 @@ try:
     else: 
          # Get Token and cloud manager account informations 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
-         token_info=netapp_api_cloud.occm_get_check_token(API_CONFIG_FILE)
+         token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
@@ -117,26 +118,49 @@ try:
     API_TOKEN=token_info["token"]
     print_deb("API_TOKEN: {0}".format(API_TOKEN))
 
+
     # args options 
     if args.account_list:
+         account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+         if (account_info["status"] == "success"):
+              default_account_id = account_info["default_account_id"] 
+         else:
+              default_account_id = ""
          print("Print NetApp Account list:")
          accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
          print_deb(accounts_info)
          if (accounts_info["status"] == "success"):
               accounts=json.loads(accounts_info["accounts"])
               for account in accounts:
-                   print("Name:[{0}] account_id:[{1}] Serial:[{2}]".format(account["accountName"], account["accountPublicId"], account["accountSerial"]))
+                   if ( account["accountPublicId"] == default_account_id ):
+                        print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["accountName"], account["accountPublicId"]))
+                   else:
+                        print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["accountName"], account["accountPublicId"]))
 
     if args.check_token:
          # Get Token and cloud manager account informations 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
-         token_info=netapp_api_cloud.occm_get_check_token(API_CONFIG_FILE)
+         token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] == "unknown" ):
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
          print("Access Token is valid")
          exit(0)
 
+    if args.default_account_id:
+         # Set default Account_id
+         print_deb("Set Default Acccount: {0}".format(args.default_account_id))
+         accounts_info=netapp_api_cloud.occm_set_default_account(API_TOKEN, API_CONFIG_FILE, args.default_account_id)
+         if (accounts_info["status"] == "success"):
+              accounts=json.loads(accounts_info["accounts"])
+              for account in accounts:
+                   if ( account["accountPublicId"] == accounts_info["default"] ):
+                         print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["accountName"], account["accountPublicId"],))
+                   else:
+                         print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["accountName"], account["accountPublicId"],))
+         else:
+              print("ERROR: {0}".format(accounts_info["message"]))
+              exit(1)
 
 except KeyboardInterrupt:
     print ("exit")

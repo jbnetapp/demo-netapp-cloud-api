@@ -121,6 +121,36 @@ def check_API_config_file (API_config_file):
     return file_info
 
 #################################################################################################
+def get_default_account(API_config_file):
+    account_info={}
+    account_info["status"]="unknow"
+
+    if (os.path.isfile(API_config_file) != True ):
+         account_info["status"]="failed"
+         account_info["message"]="ERROR: {0} file not found".format(API_config_file)
+         return account_info 
+
+    config = configparser.ConfigParser()
+
+    try:
+         config.read(API_config_file)
+    except configparser.Error as e:
+         account_info["message"]=e
+         return account_info
+
+    try:
+        default_account_id=config['API_LOGIN']['default_account_id']; print_deb("grant_type: {0} ".format(default_account_id))
+    except KeyError as e:
+         account_info["status"]="failed"
+         account_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
+         return account_info 
+     
+    account_info["status"]="success"
+    account_info["default_account_id"]=default_account_id
+
+    return account_info 
+
+#################################################################################################
 # Token management API
 #################################################################################################
 def create_new_token (API_config_file):
@@ -141,6 +171,7 @@ def create_new_token (API_config_file):
     except configparser.Error as e:
          token_info["message"]=e
          return token_info
+
     try:
          update=int(config['DEFAULT']['update']); update+=1
     except KeyError as e:
@@ -252,7 +283,7 @@ def create_new_token (API_config_file):
           return token_info
  
 #################################################################################################
-def occm_get_check_token (API_config_file):
+def check_current_token (API_config_file):
    
     token_info={}
     token_info["status"]="unknown"
@@ -310,6 +341,56 @@ def occm_get_check_token (API_config_file):
          token_info["status"]="failed"
          token_info["message"]=response.text
          return token_info
+
+#################################################################################################
+def occm_set_default_account (API_token, API_config_file, API_accountID):
+    accounts_found=False
+    accounts_info={}
+
+    accounts_info=occm_get_accounts_list(API_token)
+    if (accounts_info["status"] == "success"):
+         accounts=json.loads(accounts_info["accounts"])
+         for account in accounts:
+             if ( account["accountPublicId"] == API_accountID ):
+                  accounts_found=True
+    if ( accounts_found == True ):
+         accounts_info["default"]=API_accountID
+         # Save Default Account in configuration file 
+         if (os.path.isfile(API_config_file) != True ):
+              accounts_info["status"]="failed"
+              accounts_info["message"]="{0} Configuration file not found".format(API_config_file)
+              return accounts_info
+          
+         config = configparser.ConfigParser()
+
+         try:
+              config.read(API_config_file)
+         except configparser.Error as e:
+              accounts_info["message"]=e
+              return accounts_info
+         try:
+              update=int(config['DEFAULT']['update']); update+=1
+         except KeyError as e:
+              update = 0       
+
+         config['DEFAULT']['update'] = "{0}".format(update)
+         config['API_LOGIN']['default_account_id'] = API_accountID
+
+         try:
+              with open(API_config_file, 'w') as configfile:
+                  config.write(configfile)
+         except configparser.Error as e:
+              accounts_info["status"]="failed"
+              accounts_info["message"]=e
+         return accounts_info           
+
+    else:
+         accounts_info["status"]="failed"
+         accounts_info["message"]="account_id {0} not found".format(API_accountID)
+         accounts_info["default"]=""
+
+    return accounts_info
+
 #################################################################################################
 def occm_get_accounts_list (API_token):
    
@@ -358,67 +439,6 @@ def occm_get_accounts_list (API_token):
 
 #################################################################################################
 # Cloudsync API
-#################################################################################################
-def cloudsync_get_check_token (API_config_file):
-   
-    token_info={}
-    token_info["status"]="unknown"
-
-    if (os.path.isfile(API_config_file) != True ):
-         token_info["status"]="failed"
-         token_info["message"]="ERROR: {0} file not found".format(API_config_file)
-         return token_info 
- 
-    config = configparser.ConfigParser()
-    try:
-         config.read(API_config_file)
-    except configparser.Error as e:
-         token_info["message"]=e
-         return token_info 
-
-    # Get token form the configuration file 
-    try:
-         token=config['API_TOKEN']['access_token']; print_deb("access_token: {0} ".format(token))
-    except KeyError as e:
-         token_info["status"]="failed"
-         token_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
-         return token_info 
-
-    if ( token == '' ):
-         token_info["status"]="failed"
-         token_info["message"]="ERROR: access_token empty in configuration file {0}".format(API_config_file)
-         return token_info
-
-    try:
-         url = API_CLOUDSYNC + "/api/accounts"
-         print_deb("url: {0} ".format(url))
-         response={}
-         headers = {'Content-type': 'application/json'} 
-         response = requests.get(url, auth=BearerAuth(token), headers=headers)
-    except BaseException as e:
-         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
-         token_info["status"]="failed"
-         token_info["message"]=e
-         return token_info 
-
-    status_code=format(response.status_code)
-    print_deb("status_code: {0}".format(status_code))
-    print_deb ("text: {0}".format(response.text))
-    print_deb ("content: {0}".format(response.content))
-    print_deb ("reason: {0}".format(response.reason))
-
-    if ( status_code == '200' ):
-         token_info["status"]="success"
-         token_info["message"]="ok"
-         token_info["accounts"]=response.text
-         token_info["token"]=token
-         return token_info
-    else:
-         token_info["status"]="failed"
-         token_info["message"]=response.text
-         content = json.loads(response.content)
-         return token_info
-
 #################################################################################################
 def cloudsync_get_accounts_list (API_token):
    
@@ -504,8 +524,6 @@ def cloudsync_create_relations (API_token, API_accountID, API_json):
               relations_info["status"]="failed"
               relations_info["message"]=response.text
               return relations_info
-
-#################################################################################################
 
 #################################################################################################
 def cloudsync_get_relations (API_token, API_accountID):
