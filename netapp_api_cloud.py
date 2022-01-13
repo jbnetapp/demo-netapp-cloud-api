@@ -430,7 +430,6 @@ def occm_get_accounts_list (API_token):
          if ( status_code == '401' ):
               accounts_info["status"]="failed"
               accounts_info["message"]=response.text
-              content = json.loads(response.content)
               return accounts_info
          else:
               accounts_info["status"]="unknown"
@@ -478,7 +477,6 @@ def cloudsync_get_accounts_list (API_token):
          if ( status_code == '401' ):
               accounts_info["status"]="failed"
               accounts_info["message"]=response.text
-              content = json.loads(response.content)
               return accounts_info
          else:
               accounts_info["status"]="unknown"
@@ -486,7 +484,49 @@ def cloudsync_get_accounts_list (API_token):
               return accounts_info
 
 #################################################################################################
-# NetApp Cloud Sync API
+def cloudsync_get_databrokers_list (API_token, API_accountID):
+   
+    databrokers_info={}
+    databrokers_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         databrokers_info["status"]="failed"
+         databrokers_info["message"]="ERROR: miss token"
+         return databrokers_info
+
+    try:
+         url = API_CLOUDSYNC + "/api/data-brokers"
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-account-id": API_accountID }
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         databrokers_info["status"]="failed"
+         databrokers_info["message"]=e
+         return databrokers_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( status_code == '200' ):
+         databrokers_info["status"]="success"
+         databrokers_info["message"]="ok"
+         databrokers_info["databrokers"]=response.text
+         return databrokers_info
+    else:
+         if ( status_code == '401' ):
+              databrokers_info["status"]="failed"
+              databrokers_info["message"]=response.text
+              return databrokers_info
+         else:
+              databrokers_info["status"]="unknown"
+              databrokers_info["message"]=response.text
+              return databrokers_info
+
 #################################################################################################
 def cloudsync_create_relations (API_token, API_accountID, API_json):
 
