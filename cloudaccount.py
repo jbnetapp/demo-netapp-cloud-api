@@ -131,11 +131,14 @@ try:
          print_deb(accounts_info)
          if (accounts_info["status"] == "success"):
               accounts=json.loads(accounts_info["accounts"])
-              for account in accounts:
-                   if ( account["accountPublicId"] == default_account_id ):
-                        print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["accountName"], account["accountPublicId"]))
-                   else:
-                        print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["accountName"], account["accountPublicId"]))
+              if (args.json):
+                   print(json.dumps(accounts, indent=4))
+              else:
+                   for account in accounts:
+                        if ( account["accountPublicId"] == default_account_id ):
+                             print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["accountName"], account["accountPublicId"]))
+                        else:
+                             print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["accountName"], account["accountPublicId"]))
 
     if args.check_token:
          # Get Token and cloud manager account informations 
