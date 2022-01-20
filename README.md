@@ -81,7 +81,32 @@ Access Token is valid
 
 The script **cloudsync.py** show how to work with NetApp Cloud API Sync API. The Cloud Sync API documentation is available here : https://api.cloudsync.netapp.com/docs/
 
-## Display NetApp Account list associate with your NetApp Central user
+## Display CloudSnyc Script help option
+```
+# python3 cloudsync.py --help
+usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID] [-j]
+                    (--account-list | --data-broker-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations | --check-token | --get-new-token)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --debug           debug mode
+  --account-id ACCOUNT_ID
+                        select NetApp Cloud account ID
+  -j, --json            print in json format
+  --account-list        print cloudsnyc accounts
+  --data-broker-list    print cloudsync data-brokers
+  --create-relation CREATE_RELATION_FILE
+                        create new cloudsync relation from json file
+  --delete-relation DELETE_RELATION_ID
+                        delete a cloudsync relation
+  --sync-relation SYNC_RELATION_ID
+                        sync a cloudsync relation
+  --print-relations     print cloudsnyc relations list
+  --check-token         check NetApp Cloud access token
+  --get-new-token       get a new access token
+```
+
+## Example: Display NetApp Account list associate with your NetApp Central user
 ```
 # python3 cloudsync.py --account-list
 Print NetApp Account list:
@@ -90,7 +115,14 @@ Demo_SIM account_id: [account-j3aZttuL]
 NetAppHCL account_id: [account-U0dbRcKS]
 ```
 
-## Create a new Cloud Sync Relation 
+## Example: Display your CloudSync Databrokers
+```
+# python3 cloudsync.py --data-broker-list
+Print NetApp data-borkers list:
+Name:[vmazjb1] ID:[616d9c8d48301b1e6cdfe1df] PrivateIP:[172.30.31.5] TransferRate:[1753.016465568962] Status:[COMPLETE]
+```
+
+## Example: Create a new Cloud Sync Relation 
 Example using the local [JSON file example file](https://github.com/jbnetapp/demo-netapp-cloud-api/blob/main/Example/new-cloudsync-relation-blob-to-blob-example.json) from this git repository to create a Cloud Sync relation between two Azure blobs.
 ```
 # python3 cloudsync.py  --account-id account-U0dbRcKS --create-relation ./Example/new-cloudsync-relation-blob-to-blob-example.json
@@ -98,12 +130,14 @@ New cloud Sync relationship successfully created
 ```
 
 - **Remarque**  to use the [JSON example file](https://github.com/jbnetapp/demo-netapp-cloud-api/blob/main/Example/new-cloudsync-relation-blob-to-blob-example.json) you must: 
-    - Change the dataBrokerId to your dataBorkerId. To get your dataBorkerId go to [cloudmanager](http://cloudmanager.netapp.com) -> sync -> Manager Data Broker -> Select your Data Broker and click on button **(>)** 
+    - Change the dataBrokerId with your one of your dataBorkerId. To get your dataBrokerID you can:
+      - Use th script **cloudsny.py** with the option **--data-borker-list**  (see example above)  
+      - Go to [cloudmanager](http://cloudmanager.netapp.com) -> sync -> Manager Data Broker -> Select your Data Broker and click on button **(>)** 
     - The source **jbblob** and the target **jblobcopy** Blobs must  exist in your **Azure** storage account 
     - The storage account name **jbblobazure** must also exist. 
 - For more information about the JSON syntax used: https://api.cloudsync.netapp.com/docs/
 
-## Print Cloud Sync Relations list 
+## Example: Print Cloud Sync Relations list 
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --print
 Print cloudsync relations:
@@ -118,7 +152,7 @@ status: DONE
 
 ```
 
-## Sync a Cloud Sync Relation 
+## Example: Sync a Cloud Sync Relation 
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --sync 61c2e054b10e1f362ede48e1
 Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
@@ -146,13 +180,13 @@ Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ERROR: {"code":400,"message":"A sync action is running right now, can not run another action"}
 ```
 
-## Delete a Cloud Sync relation
+## Example: Delete a Cloud Sync relation
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --delete 61c2e054b10e1f362ede48e1 -d
 Delete cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ```
 
-## Display a Cloud Sync relation in JSON format
+## Example: Display a Cloud Sync relation in JSON format
 ```
 # python3 cloudsync.py --account-id account-U0dbRcKS --print --json
 [
@@ -273,31 +307,6 @@ Delete cloudsync relation ID: 61c2e054b10e1f362ede48e1
     }
 ]
 ```
-
-## Display help
-```
-# python3 cloudsync.py --help
-usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID] [-j]
-                    (--account-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations | --check-token | --get-new-token)
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -d, --debug           select debug mode
-  --account-id ACCOUNT_ID
-                        select the cloudmanager account name: ACCOUNT_NAME
-  -j, --json            select debug mode
-  --account-list        print cloudsnyc accounts
-  --create-relation CREATE_RELATION_FILE
-                        create a new cloudsync relation from Json CREATE_RELATION_FILE
-  --delete-relation DELETE_RELATION_ID
-                        delete the cloudsync relation with id DELETE_RELATION_ID
-  --sync-relation SYNC_RELATION_ID
-                        sync the cloudsync relation with id SYNC_RELATION_ID
-  --print-relations     print cloudsnyc relations
-  --check-token         print cloudsnyc accounts
-  --get-new-token       print cloudsnyc accounts
-```
-
 
 ## Debug mode:
 ```
