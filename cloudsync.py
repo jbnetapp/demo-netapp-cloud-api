@@ -132,7 +132,7 @@ try:
                    else:
                         print("Print NetApp data-borkers list:")
                         for databroker in databrokers:
-                             print("Name:[{0}] ID:[{1}] PrivateIP:[{2}]".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"]))
+                             print("Name:[{0}] ID:[{1}] PrivateIP:[{2}] TransferRate:[{3}] Status:[{4}] ".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"], databroker["transferRate"],databroker["status"]))
          else:
               print("ERROR: Syntaxe : miss account_id ")
               exit(1)
