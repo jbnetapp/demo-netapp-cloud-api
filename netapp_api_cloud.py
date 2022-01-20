@@ -1,5 +1,5 @@
 #################################################################################################
-# Version 03
+# API Cloud NetApp ersion 03
 # jerome.blanchet@netapp.com
 #################################################################################################
 import ssl
@@ -195,6 +195,7 @@ def create_new_token (API_config_file):
               token_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
               return token_info 
          
+         # Create data  Request to get the token with password 
          data = {
               "grant_type": grant_type,
               "username": username,
@@ -213,8 +214,7 @@ def create_new_token (API_config_file):
                    token_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
                    return token_info 
 
-              # Add Request to get the token with refresh_token 
-
+              # Create data Request to get the token with refresh_token 
               data = {
                    "grant_type": grant_type,
                    "refresh_token": refresh_token,
@@ -228,7 +228,6 @@ def create_new_token (API_config_file):
               return token_info
 
     # sent the oauth token request
-
     print_deb(data)
     try:
          url = API_CLOUDAUTH + "/oauth/token"

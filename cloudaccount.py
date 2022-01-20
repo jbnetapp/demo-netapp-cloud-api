@@ -90,25 +90,53 @@ try:
               account_info["username"] = username 
               account_info["password"] = password 
 
-         print_deb(account_info) 
+         print_deb(account_info)
          file_info = netapp_api_cloud.create_API_config_file(API_CONFIG_FILE, account_info)
          if ( file_info["status"] != "success" ):
               print("ERROR: {0}".format(file_info["message"]))
               exit(1)
+
+         # Create New Token during setup
+         token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
+         if ( token_info["status"] != "success" ):
+              print("ERROR: {0}".format(token_info["message"]))
+              exit(1)
+         API_TOKEN=token_info["token"]
+
+         # Set Default Account during setup
+         accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
+         if (accounts_info["status"] != "success"):
+              print("ERROR: {0}".format(accounts_info["message"]))
+         accounts=json.loads(accounts_info["accounts"])
+         if (len(accounts) == 1):
+              account=accounts[0]
+              accounts_info=netapp_api_cloud.occm_set_default_account(API_TOKEN, API_CONFIG_FILE,account["accountPublicId"])
+              if (accounts_info["status"] != "success"):
+                   print("ERROR: {0}".format(accounts_info["message"]))
+         else:
+              for account in accounts:
+                   print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"]))
+              accounts_info["status"] = ""
+              while ( accounts_info["status"] != "success" ) :
+                   default_account_id=input('Please enter your selected default account_id : ')
+                   accounts_info=netapp_api_cloud.occm_set_default_account(API_TOKEN, API_CONFIG_FILE,default_account_id)
+                   if (accounts_info["status"] != "success"):
+                        print("ERROR: {0}".format(accounts_info["message"]))
     else: 
          file_info = netapp_api_cloud.check_API_config_file(API_CONFIG_FILE)
          if ( file_info["status"] != "success" ):
               print("ERROR: {0}".format(file_info["message"]))
               exit(1)
 
-    if (args.get_new_token or args.setup):
+    # Get the API_TOKEN 
+    if args.get_new_token:
          # Create a new token
          token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
     else: 
-         # Get Token and cloud manager account informations 
+         # Get Token information from configuration file 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
@@ -118,7 +146,6 @@ try:
     API_TOKEN=token_info["token"]
     print_deb("API_TOKEN: {0}".format(API_TOKEN))
 
-
     # args options 
     if args.account_list:
          account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
@@ -126,11 +153,11 @@ try:
               default_account_id = account_info["default_account_id"] 
          else:
               default_account_id = ""
-         print("Print NetApp Account list:")
          accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
          print_deb(accounts_info)
          if (accounts_info["status"] == "success"):
               accounts=json.loads(accounts_info["accounts"])
+              print("Print NetApp Account list[{0}]:".format(len(accounts)))
               if (args.json):
                    print(json.dumps(accounts, indent=4))
               else:
