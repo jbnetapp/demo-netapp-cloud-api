@@ -134,7 +134,7 @@ try:
                         for databroker in databrokers:
                              print("Name:[{0}] ID:[{1}] PrivateIP:[{2}] TransferRate:[{3}] Status:[{4}] ".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"], databroker["transferRate"],databroker["status"]))
          else:
-              print("ERROR: Syntaxe : miss account_id ")
+              print("ERROR: Syntax : miss account_id ")
               exit(1)
 
     if args.print_relations:
@@ -161,7 +161,7 @@ try:
                              print("status: {0}".format(activity["progress"]))
                              print("")
          else: 
-             print("ERROR: Syntaxe : miss account_id ")
+             print("ERROR: Syntax : miss account_id ")
              exit(1)
 
     if args.create_relation_file:
@@ -181,7 +181,7 @@ try:
               else:
                    print("ERROR: {0}".format(relations_info["message"]))
          else: 
-             print("ERROR: Syntaxe : miss account_id ")
+             print("ERROR: Syntax : miss account_id ")
              exit(1)
 
     if args.sync_relation_id:
@@ -193,7 +193,7 @@ try:
                    print_deb(relation_info["status"])
                    print("ERROR: {0}".format(relation_info["message"]))
          else: 
-             print("ERROR: Syntaxe : miss account_id ")
+             print("ERROR: Syntax : miss account_id ")
              exit(1)
 
 
@@ -206,7 +206,7 @@ try:
                    print_deb(relation_info["status"])
                    print("ERROR: {0}".format(relation_info["message"]))
          else: 
-             print("ERROR: Syntaxe : miss account_id ")
+             print("ERROR: Syntax : miss account_id ")
              exit(1)
 
     if args.check_token:
