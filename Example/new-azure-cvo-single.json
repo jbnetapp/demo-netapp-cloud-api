@@ -1,0 +1,36 @@
+{
+  "name": "cvoaz01",
+  "tenantId": "workspace-I3dGp368",
+  "region": "eastus2",
+  "packageName": "azure_poc",
+  "dataEncryptionType": "AZURE",
+  "capacityTier": "Blob",
+  "vsaMetadata": {
+    "ontapVersion": "ONTAP-9.10.1RC1.T1.azure",
+    "licenseType": "capacity-paygo",
+    "instanceType": "Standard_E4s_v3",
+    "capacityPackageName": "Freemium"
+  },
+  "nssAccount": "51a40337-7f94-42b3-aa42-7e7d0818bc1c",
+  "writingSpeedState": "NORMAL",
+  "subnetId": "/subscriptions/398e471c-3b42-4ae7-9b59-ce5bb5e6108d/resourceGroups/HCLARMVNET2RG/providers/Microsoft.Network/virtualNetworks/HCL-ARM-VNET/subnets/Subnet4",
+  "svmPassword": "Netapp234",
+  "vnetId": "/subscriptions/398e471c-3b42-4ae7-9b59-ce5bb5e6108d/resourceGroups/HCLARMVNET2RG/providers/Microsoft.Network/virtualNetworks/HCL-ARM-VNET",
+  "cidr": "172.30.16.0/20",
+  "ontapEncryptionParameters": null,
+  "skipSnapshots": false,
+  "diskSize": {
+    "size": 500,
+    "unit": "GB",
+    "_identifier": "500 GB"
+  },
+  "storageType": "Premium_LRS",
+  "azureTags": [],
+  "subscriptionId": "398e471c-3b42-4ae7-9b59-ce5bb5e6108d",
+  "cloudProviderAccount": "CloudProviderAccount-vyS9Rw8j",
+  "backupVolumesToCbs": false,
+  "enableCompliance": false,
+  "enableMonitoring": false,
+  "availabilityZone": 1,
+  "resourceGroup": "cvoaz01-rg"
+}

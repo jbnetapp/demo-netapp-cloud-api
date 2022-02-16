@@ -26,6 +26,7 @@ API_OCCM = "https://cloudmanager.cloud.netapp.com"
 API_CLOUDSYNC = "https://api.cloudsync.netapp.com"
 API_CLOUDAUTH = "https://netapp-cloud-account.auth0.com"
 API_AUDIENCE = "https://api.cloud.netapp.com"
+API_SERVICES = "https://api.services.cloud.netapp.com"
 CLIENT_ID_REGULAR = "QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO" 
 CLIENT_ID_REFRESH_TOKEN = "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC"
 
@@ -434,6 +435,92 @@ def occm_get_accounts_list (API_token):
               accounts_info["status"]="unknown"
               accounts_info["message"]=response.text
               return accounts_info
+
+#################################################################################################
+def occm_get_occms_list (API_token, API_accountID):
+   
+    occms_info={}
+    occms_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         occms_info["status"]="failed"
+         occms_info["message"]="ERROR: miss token"
+         return occms_info
+
+    try:
+         url = API_SERVICES + "/occm/list-occms/" + API_accountID
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {'Content-type': 'application/json'} 
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         occms_info["status"]="failed"
+         occms_info["message"]=e
+         return occms_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( status_code == '200' ):
+         occms_info["status"]="success"
+         occms_info["message"]="ok"
+         occms_info["data"]=response.text
+         occms_info["token"]=API_token
+         return occms_info
+    else:
+         if ( status_code == '401' ):
+              occms_info["status"]="failed"
+              occms_info["message"]=response.text
+              return occms_info
+         else:
+              occms_info["status"]="unknown"
+              occms_info["message"]=response.text
+              return occms_info
+
+#################################################################################################
+# CVO Azure API
+#################################################################################################
+def cvo_azure_get_vsa_list (API_token, API_aggentID):
+    cvos_info={}
+    cvos_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         cvos_info["status"]="failed"
+         cvos_info["message"]="ERROR: miss token"
+         return cvos_info
+
+    try:
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments"
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-agent-id": API_aggentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvos_info["status"]="failed"
+         cvos_info["message"]=e
+         return cvos_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvos_info["status"]="success"
+         cvos_info["message"]="ok"
+         cvos_info["data"]=response.text
+         return cvos_info
+    else:
+              cvos_info["status"]="failed"
+              cvos_info["message"]=response.text
+              return cvos_info
 
 #################################################################################################
 # Cloudsync API
