@@ -206,7 +206,7 @@ try:
          cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.delete_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
-              cvo=json.loads(cvo_info["text"])
+              cvo=json.loads(cvo_info["cvo"])
               if (args.json):
                    print(json.dumps(cvo, indent=4))
               else:
