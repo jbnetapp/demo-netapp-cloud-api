@@ -1,6 +1,6 @@
 {
   "name": "cvoaz01",
-  "tenantId": "YOUR_NETAPP_WORKSPACE_ID}",
+  "tenantId": "{YOUR_NETAPP_WORKSPACE_ID}",
   "region": "eastus2",
   "packageName": "azure_poc",
   "dataEncryptionType": "AZURE",
@@ -11,7 +11,7 @@
     "instanceType": "Standard_E4s_v3",
     "capacityPackageName": "Freemium"
   },
-  "nssAccount": "51a40337-7f94-42b3-aa42-7e7d0818bc1c",
+  "nssAccount": "{YOUR_NSS_ACCOUNT_ID}",
   "writingSpeedState": "NORMAL",
   "subnetId": "/subscriptions/{YOUR_AZURE_SUBCRIPTION_ID}/resourceGroups/{YOUR_RG_NAME}/providers/Microsoft.Network/virtualNetworks/{YOUR_VNET}/subnets/{YOUR_SUBNET}",
   "svmPassword": "Netapp234",
@@ -26,8 +26,8 @@
   },
   "storageType": "Premium_LRS",
   "azureTags": [],
-  "subscriptionId": "398e471c-3b42-4ae7-9b59-ce5bb5e6108d",
-  "cloudProviderAccount": "CloudProviderAccount-vyS9Rw8j",
+  "subscriptionId": "{YOUR_AZURE_SUBSCRIPOINT_ID}",
+  "cloudProviderAccount": "{YOUR_AZURE_ACCOUNT_ID}",
   "backupVolumesToCbs": false,
   "enableCompliance": false,
   "enableMonitoring": false,

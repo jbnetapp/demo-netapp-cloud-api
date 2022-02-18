@@ -57,6 +57,7 @@ parser.add_argument("--agent-id", dest='agent_id', help="select NetApp Cloud Age
 parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--account-list", dest='account_list', help="print cloud central accounts", action="store_true" )
+group.add_argument("--cloud-account-list", dest='cloud_account_list', help="print cloud central accounts", action="store_true" )
 group.add_argument("--agent-list", dest='agent_list', help="print Agent list", action="store_true" )
 group.add_argument("--cvo-list", dest='list_cvo', help="list Azure CVO", action="store_true" )
 group.add_argument("--cvo-create-single", dest='create_cvo_file', help="create new Azure CVO" )
@@ -131,14 +132,36 @@ try:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)
 
+    if args.cloud_account_list:
+         print("Print NetApp Cloud Account list:")
+         accounts_info=netapp_api_cloud.occm_get_cloud_accounts_list(API_TOKEN,account_id,agent_id)
+         print_deb(accounts_info)
+         if (accounts_info["status"] == "success"):
+              accounts=json.loads(accounts_info["accounts"])
+              print("Print NetApp Account list[{0}]:".format(len(accounts)))
+              if (args.json):
+                   print(json.dumps(accounts, indent=4))
+              else:
+                   for providers_accounts in accounts:
+                        provider="{0}".format(providers_accounts)
+                        provider_accounts=accounts[provider]
+                        count=len(provider_accounts)
+                        if ( count == 0 ):
+                             print("provider: [{0}] ".format(provider))
+                        else:
+                             for account in provider_accounts:
+                                  print("provider:[{0}] Name:[{1}] ID:[{2}] Type[{3}]".format(provider,account["accountName"], account["publicId"], account["accountType"]))
+         else:
+              print("ERROR: {0}".format(accounts_info["message"]))
+              exit(1)
 
     if args.agent_list:
          print("Print NetApp OCCM Agent List")
          agents_info=netapp_api_cloud.occm_get_occms_list(API_TOKEN, account_id)
          print_deb(agents_info)
          if (agents_info["status"] == "success"):
-              text=json.loads(agents_info["occms"])
-              agents=text["occms"]
+              occms=json.loads(agents_info["occms"])
+              agents=occms["occms"]
               print("Print NetApp OCCM Agent list[{0}]:".format(len(agents)))
               if (args.json):
                    print(json.dumps(agents, indent=4))

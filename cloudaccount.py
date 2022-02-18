@@ -53,9 +53,11 @@ if ( os.path.isdir(API_DIR) != True ):
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--debug", dest='debug', help="debug mode", action="store_true")
 parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
+parser.add_argument("--account-id", dest='account_id', help="select NetApp Cloud account ID")
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--setup", dest='setup', help="setup NetApp cloud API connection", action="store_true" )
 group.add_argument("--account-list", dest='account_list', help="print NetApp cloud accounts list", action="store_true" )
+group.add_argument("--workspace-list", dest='workspace_list', help="print NetApp cloud accounts list", action="store_true" )
 group.add_argument("--set-default-account", dest='default_account_id', help="set default NetApp Cloud account")
 group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
 group.add_argument("--get-new-token", dest='get_new_token', help="get new NetApp Cloud access token", action="store_true" )
@@ -66,7 +68,20 @@ if args.debug:
       netapp_api_cloud.Debug = True 
 
 try:
+
+    # Get Account Information from the config file
+    account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+    if (account_info["status"] == "success"):
+         account_id = account_info["default_account_id"] 
+    else:
+         account_id = ""
+
+    # args options 
+    if args.account_id:
+         account_id = args.account_id 
+
     if args.setup:
+
          # Create API configuration file
          account_info = {}
          if (os.path.isfile(API_CONFIG_FILE) == True ):
@@ -128,26 +143,28 @@ try:
               print("ERROR: {0}".format(file_info["message"]))
               exit(1)
 
-    # Get the API_TOKEN 
     if args.get_new_token:
-         # Create a new token
+
          token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
-         if ( token_info["status"] != "success" ):
+         if ( token_info["status"] == "success" ):
+              API_TOKEN=token_info["token"]
+              print_deb("API_TOKEN: {0}".format(API_TOKEN))
+         else:
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
     else: 
-         # Get Token information from configuration file 
+
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
-         if ( token_info["status"] != "success" ):
+         if ( token_info["status"] == "success" ):
+              API_TOKEN=token_info["token"]
+              print_deb("API_TOKEN: {0}".format(API_TOKEN))
+         else:
               print("ERROR: {0}".format(token_info["message"]))
               exit(1)
 
-    API_TOKEN=token_info["token"]
-    print_deb("API_TOKEN: {0}".format(API_TOKEN))
-
-    # args options 
     if args.account_list:
+
          account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
          if (account_info["status"] == "success"):
               default_account_id = account_info["default_account_id"] 
@@ -166,6 +183,27 @@ try:
                              print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["accountName"], account["accountPublicId"]))
                         else:
                              print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["accountName"], account["accountPublicId"]))
+         else:
+              print("ERROR: {0}".format(accounts_info["message"]))
+              exit(1)
+
+#ASP
+    if args.workspace_list:
+
+         workspaces_info=netapp_api_cloud.occm_get_workspaces_list(API_TOKEN,account_id)
+         print_deb(workspaces_info)
+         if (workspaces_info["status"] == "success"):
+              workspaces=json.loads(workspaces_info["accounts"])
+              print("Print NetApp Workspaceslist[{0}]:".format(len(workspaces)))
+              if (args.json):
+                   print(json.dumps(workspaces, indent=4))
+              else:
+                   for workspace in workspaces:
+                        print("Name:[{0}] id:[{1}]".format(workspace["workspaceName"], workspace["workspacePublicId"]))
+         else:
+              print("ERROR: {0}".format(workspaces_info["message"]))
+              exit(1)
+#ASP
 
     if args.check_token:
          # Get Token and cloud manager account informations 

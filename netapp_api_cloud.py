@@ -437,14 +437,49 @@ def occm_get_accounts_list (API_token):
          accounts_info["token"]=API_token
          return accounts_info
     else:
-         if ( status_code == '401' ):
-              accounts_info["status"]="failed"
-              accounts_info["message"]=response.text
-              return accounts_info
-         else:
-              accounts_info["status"]="unknown"
-              accounts_info["message"]=response.text
-              return accounts_info
+         accounts_info["status"]="failed"
+         accounts_info["message"]=response.text
+         return accounts_info
+
+#################################################################################################
+def occm_get_workspaces_list (API_token, API_accountID):
+   
+    print_deb("FUNCTION: occm_get_workspaces_list")
+    workspaces_info={}
+    workspaces_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         workspaces_info["status"]="failed"
+         workspaces_info["message"]="ERROR: miss token"
+         return workspaces_info
+
+    try:
+         url = API_OCCM + "/tenancy/account/" + API_accountID + "/workspace"
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {'Content-type': 'application/json'} 
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         workspaces_info["status"]="failed"
+         workspaces_info["message"]=e
+         return workspaces_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( status_code == '200' ):
+         workspaces_info["status"]="success"
+         workspaces_info["message"]="ok"
+         workspaces_info["accounts"]=response.text
+         return workspaces_info
+    else:
+         workspaces_info["status"]="failed"
+         workspaces_info["message"]=response.text
+         return workspaces_info
 
 #################################################################################################
 def occm_get_occms_list (API_token, API_accountID):
@@ -462,7 +497,7 @@ def occm_get_occms_list (API_token, API_accountID):
          url = API_SERVICES + "/occm/list-occms/" + API_accountID
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {'Content-type': 'application/json'} 
+         headers = {'Content-type': 'application/json'}
          response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
          print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
@@ -482,19 +517,54 @@ def occm_get_occms_list (API_token, API_accountID):
          occms_info["occms"]=response.text
          return occms_info
     else:
-         if ( status_code == '401' ):
-              occms_info["status"]="failed"
-              occms_info["message"]=response.text
-              return occms_info
-         else:
-              occms_info["status"]="unknown"
-              occms_info["message"]=response.text
-              return occms_info
+         occms_info["status"]="failed"
+         occms_info["message"]=response.text
+         return occms_info
+
+#################################################################################################
+def occm_get_cloud_accounts_list (API_token, API_accountID, API_agentID):
+   
+    print_deb("FUNCTION: occm_get_cloud_accounts_list")
+    cloudaccounts_info={}
+    cloudaccounts_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         cloudaccounts_info["status"]="failed"
+         cloudaccounts_info["message"]="ERROR: miss token"
+         return cloudaccounts_info
+
+    try:
+         url = API_OCCM + "/occm/api/accounts"
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-agent-id": API_agentID , "X-Tenancy-Account-Id": API_accountID }
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cloudaccounts_info["status"]="failed"
+         cloudaccounts_info["message"]=e
+         return cloudaccounts_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( status_code == '200' ):
+         cloudaccounts_info["status"]="success"
+         cloudaccounts_info["message"]="ok"
+         cloudaccounts_info["accounts"]=response.text
+         return cloudaccounts_info
+    else:
+         cloudaccounts_info["status"]="failed"
+         cloudaccounts_info["message"]=response.text
+         return cloudaccounts_info
 
 #################################################################################################
 # CVO Azure API
 #################################################################################################
-def cvo_azure_get_vsa_list (API_token, API_aggentID):
+def cvo_azure_get_vsa_list (API_token, API_agentID):
 
     print_deb("FUNCTION: cvo_azure_get_vsa_list")
     cvos_info={}
@@ -509,7 +579,7 @@ def cvo_azure_get_vsa_list (API_token, API_aggentID):
          url = API_OCCM + "/occm/api/azure/vsa/working-environments"
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_aggentID }
+         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
@@ -535,7 +605,7 @@ def cvo_azure_get_vsa_list (API_token, API_aggentID):
               return cvos_info
 
 #################################################################################################
-def cvo_azure_get_vsa (API_token, API_aggentID, vsa_id):
+def cvo_azure_get_vsa (API_token, API_agentID, vsa_id):
 
     print_deb("FUNCTION: cvo_azure_get_vsa")
     cvo_info={}
@@ -550,7 +620,7 @@ def cvo_azure_get_vsa (API_token, API_aggentID, vsa_id):
          url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_aggentID }
+         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
@@ -576,7 +646,7 @@ def cvo_azure_get_vsa (API_token, API_aggentID, vsa_id):
               return cvo_info
 
 #################################################################################################
-def cvo_azure_create_new_single (API_token, API_aggentID, API_json):
+def cvo_azure_create_new_single (API_token, API_agentID, API_json):
 
     print_deb("FUNCTION: cvo_azure_create_new_single")
     cvo_info={}
@@ -591,7 +661,7 @@ def cvo_azure_create_new_single (API_token, API_aggentID, API_json):
          url = API_OCCM + "/occm/api/azure/vsa/working-environments"
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_aggentID }
+         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.post(url, auth=BearerAuth(API_token), headers=headers,json=API_json)
     except BaseException as e:
@@ -617,7 +687,7 @@ def cvo_azure_create_new_single (API_token, API_aggentID, API_json):
          return cvo_info
 
 #################################################################################################
-def cvo_azure_delete_vsa (API_token, API_aggentID, vsa_id):
+def cvo_azure_delete_vsa (API_token, API_agentID, vsa_id):
 
     print_deb("FUNCTION: cvo_azure_delete_vsa")
     cvos_info={}
@@ -632,7 +702,7 @@ def cvo_azure_delete_vsa (API_token, API_aggentID, vsa_id):
          url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_aggentID }
+         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.delete(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
@@ -696,14 +766,9 @@ def cloudsync_get_accounts_list (API_token):
          accounts_info["token"]=API_token
          return accounts_info
     else:
-         if ( status_code == '401' ):
-              accounts_info["status"]="failed"
-              accounts_info["message"]=response.text
-              return accounts_info
-         else:
-              accounts_info["status"]="unknown"
-              accounts_info["message"]=response.text
-              return accounts_info
+         accounts_info["status"]="failed"
+         accounts_info["message"]=response.text
+         return accounts_info
 
 #################################################################################################
 def cloudsync_get_databrokers_list (API_token, API_accountID):
@@ -741,14 +806,9 @@ def cloudsync_get_databrokers_list (API_token, API_accountID):
          databrokers_info["databrokers"]=response.text
          return databrokers_info
     else:
-         if ( status_code == '401' ):
-              databrokers_info["status"]="failed"
-              databrokers_info["message"]=response.text
-              return databrokers_info
-         else:
-              databrokers_info["status"]="unknown"
-              databrokers_info["message"]=response.text
-              return databrokers_info
+         databrokers_info["status"]="failed"
+         databrokers_info["message"]=response.text
+         return databrokers_info
 
 #################################################################################################
 def cloudsync_create_relations (API_token, API_accountID, API_json):
