@@ -45,6 +45,8 @@ def print_deb (debug_var):
 
 #################################################################################################
 def create_API_config_file (API_config_file, API_account_info):
+
+    print_deb("FUNCTION: create_API_config_file")
     file_info={} 
     file_info["status"]="unknown"
 
@@ -74,6 +76,7 @@ def create_API_config_file (API_config_file, API_account_info):
 #################################################################################################
 def check_API_config_file (API_config_file):
 
+    print_deb("FUNCTION: check_API_config_file")
     file_info={} 
     file_info["status"]="unknown"
     
@@ -123,6 +126,8 @@ def check_API_config_file (API_config_file):
 
 #################################################################################################
 def get_default_account(API_config_file):
+
+    print_deb("FUNCTION: get_default_account")
     account_info={}
     account_info["status"]="unknow"
 
@@ -156,6 +161,7 @@ def get_default_account(API_config_file):
 #################################################################################################
 def create_new_token (API_config_file):
 
+    print_deb("FUNCTION: create_new_token")
     token_info={} 
     token_info["status"]="unknown"
 
@@ -285,6 +291,7 @@ def create_new_token (API_config_file):
 #################################################################################################
 def check_current_token (API_config_file):
    
+    print_deb("FUNCTION: check_current_token")
     token_info={}
     token_info["status"]="unknown"
 
@@ -344,6 +351,8 @@ def check_current_token (API_config_file):
 
 #################################################################################################
 def occm_set_default_account (API_token, API_config_file, API_accountID):
+    
+    print_deb("FUNCTION: occm_set_default_account")
     accounts_found=False
     accounts_info={}
 
@@ -394,6 +403,7 @@ def occm_set_default_account (API_token, API_config_file, API_accountID):
 #################################################################################################
 def occm_get_accounts_list (API_token):
    
+    print_deb("FUNCTION: occm_get_account_list")
     accounts_info={}
     accounts_info["status"]="unknown"
 
@@ -439,6 +449,7 @@ def occm_get_accounts_list (API_token):
 #################################################################################################
 def occm_get_occms_list (API_token, API_accountID):
    
+    print_deb("FUNCTION: occm_get_occms_list")
     occms_info={}
     occms_info["status"]="unknown"
 
@@ -468,8 +479,7 @@ def occm_get_occms_list (API_token, API_accountID):
     if ( status_code == '200' ):
          occms_info["status"]="success"
          occms_info["message"]="ok"
-         occms_info["data"]=response.text
-         occms_info["token"]=API_token
+         occms_info["occms"]=response.text
          return occms_info
     else:
          if ( status_code == '401' ):
@@ -485,6 +495,8 @@ def occm_get_occms_list (API_token, API_accountID):
 # CVO Azure API
 #################################################################################################
 def cvo_azure_get_vsa_list (API_token, API_aggentID):
+
+    print_deb("FUNCTION: cvo_azure_get_vsa_list")
     cvos_info={}
     cvos_info["status"]="unknown"
 
@@ -515,7 +527,130 @@ def cvo_azure_get_vsa_list (API_token, API_aggentID):
     if ( response.ok ):
          cvos_info["status"]="success"
          cvos_info["message"]="ok"
-         cvos_info["data"]=response.text
+         cvos_info["cvos"]=response.text
+         return cvos_info
+    else:
+              cvos_info["status"]="failed"
+              cvos_info["message"]=response.text
+              return cvos_info
+
+#################################################################################################
+def cvo_azure_get_vsa (API_token, API_aggentID, vsa_id):
+
+    print_deb("FUNCTION: cvo_azure_get_vsa")
+    cvo_info={}
+    cvo_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         cvo_info["status"]="failed"
+         cvo_info["message"]="ERROR: miss token"
+         return cvo_info
+
+    try:
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-agent-id": API_aggentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvo_info["status"]="failed"
+         cvo_info["message"]=e
+         return cvo_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvo_info["status"]="success"
+         cvo_info["message"]="ok"
+         cvo_info["cvo"]=response.text
+         return cvo_info
+    else:
+              cvo_info["status"]="failed"
+              cvo_info["message"]=response.text
+              return cvo_info
+
+#################################################################################################
+def cvo_azure_create_new_single (API_token, API_aggentID, API_json):
+
+    print_deb("FUNCTION: cvo_azure_create_new_single")
+    cvo_info={}
+    cvo_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         cvo_info["status"]="failed"
+         cvo_info["message"]="ERROR: miss token"
+         return cvo_info
+
+    try:
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments"
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-agent-id": API_aggentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.post(url, auth=BearerAuth(API_token), headers=headers,json=API_json)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvo_info["status"]="failed"
+         cvo_info["message"]=e
+         return cvo_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvo_info["status"]="success"
+         cvo_info["message"]="ok"
+         cvo_info["cvo"]=response.text
+         return cvo_info
+    else:
+         cvo_info["status"]="failed"
+         cvo_info["message"]=response.text
+         return cvo_info
+
+#################################################################################################
+def cvo_azure_delete_vsa (API_token, API_aggentID, vsa_id):
+
+    print_deb("FUNCTION: cvo_azure_delete_vsa")
+    cvos_info={}
+    cvos_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         cvos_info["status"]="failed"
+         cvos_info["message"]="ERROR: miss token"
+         return cvos_info
+
+    try:
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-agent-id": API_aggentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.delete(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvos_info["status"]="failed"
+         cvos_info["message"]=e
+         return cvos_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvos_info["status"]="success"
+         cvos_info["message"]="ok"
+         cvos_info["cvo"]=response.text
          return cvos_info
     else:
               cvos_info["status"]="failed"
@@ -527,6 +662,7 @@ def cvo_azure_get_vsa_list (API_token, API_aggentID):
 #################################################################################################
 def cloudsync_get_accounts_list (API_token):
    
+    print_deb("FUNCTION: cloudsync_get_accounts_list")
     accounts_info={}
     accounts_info["status"]="unknown"
 
@@ -572,6 +708,7 @@ def cloudsync_get_accounts_list (API_token):
 #################################################################################################
 def cloudsync_get_databrokers_list (API_token, API_accountID):
    
+    print_deb("FUNCTION: cloudsync_get_databrokers_list")
     databrokers_info={}
     databrokers_info["status"]="unknown"
 
@@ -616,6 +753,7 @@ def cloudsync_get_databrokers_list (API_token, API_accountID):
 #################################################################################################
 def cloudsync_create_relations (API_token, API_accountID, API_json):
 
+    print_deb("FUNCTION: cloudsync_create_relations")
     relations_info={}
 
     if ( API_token == '' ):
@@ -654,6 +792,7 @@ def cloudsync_create_relations (API_token, API_accountID, API_json):
 #################################################################################################
 def cloudsync_get_relations (API_token, API_accountID):
 
+    print_deb("FUNCTION: cloudsync_get_relations")
     relations_info={}
 
     if ( API_token == '' ):
@@ -692,6 +831,7 @@ def cloudsync_get_relations (API_token, API_accountID):
 #################################################################################################
 def cloudsync_sync_relation (API_token, API_accountID, relation_id):
 
+    print_deb("FUNCTION: cloudsync_sync_relation")
     relations_info={}
     relations_info["status"]="unknown"
 
@@ -732,6 +872,7 @@ def cloudsync_sync_relation (API_token, API_accountID, relation_id):
 #################################################################################################
 def cloudsync_delete_relation (API_token, API_accountID, relation_id):
 
+    print_deb("FUNCTION: cloudsync_delete_relation")
     relations_info={}
     relations_info["status"]="unknown"
 

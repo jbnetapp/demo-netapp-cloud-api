@@ -137,8 +137,8 @@ try:
          agents_info=netapp_api_cloud.occm_get_occms_list(API_TOKEN, account_id)
          print_deb(agents_info)
          if (agents_info["status"] == "success"):
-              data=json.loads(agents_info["data"])
-              agents=data["occms"]
+              text=json.loads(agents_info["occms"])
+              agents=text["occms"]
               print("Print NetApp OCCM Agent list[{0}]:".format(len(agents)))
               if (args.json):
                    print(json.dumps(agents, indent=4))
@@ -157,7 +157,7 @@ try:
          cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id)
          print_deb(cvos_info)
          if (cvos_info["status"] == "success"):
-              cvos=json.loads(cvos_info["data"])
+              cvos=json.loads(cvos_info["cvos"])
               print("Print NetApp Azure CVO list[{0}]:".format(len(cvos)))
               if (args.json):
                    print(json.dumps(cvos, indent=4))
@@ -169,14 +169,67 @@ try:
               exit(1)
 
     if args.create_cvo_file:
-         # Get Token and cloud manager account informations 
+         print("Print NetApp Azure CVO List")
+         if ( agent_id == "" ):
+             print("ERROR: Syntax: miss agent_id")
+             exit(1)
+
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_file))
+         if (os.path.isfile(args.create_cvo_file) != True ):
+              print("Error: {0} : file not found".format(args.create_cvo_file))
+              exit(1)
+         f = open(args.create_cvo_file)
+         new_cvo_json=json.load(f)
+         print_deb(new_cvo_json)
+         f.close
+
+         cvo_info=netapp_api_cloud.cvo_azure_create_new_single(API_TOKEN, agent_id, new_cvo_json)
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              cvo=json.loads(cvo_info["cvo"])
+              if (args.json):
+                   print(json.dumps(cvo, indent=4))
+              else:
+                   print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+         else:
+              print("ERROR: {0}".format(cvos_info["message"]))
+              exit(1)
     
     if args.create_cvo_ha_file:
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_ha_file))
 
     if args.delete_cvo_id:
-         print_deb("Delete CVO ID: {0}".format(args.delete_cvo_id))
+         print("Delete CVO ID: {0}".format(args.delete_cvo_id))
+         if ( agent_id == "" ):
+             print("ERROR: Syntax: miss agent_id")
+             exit(1)
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.delete_cvo_id)
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              cvo=json.loads(cvo_info["text"])
+              if (args.json):
+                   print(json.dumps(cvo, indent=4))
+              else:
+                   cvo_name=cvo["name"]
+                   print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+         
+         answer = ''
+         while ( answer != "y" and answer != "n" ):
+              answer=input('WARNING: do you want to delete the CVO [{0}] ? [y/n] : '.format(cvo["name"]))
+
+         if ( answer != "y"):
+              exit(0)
+
+         cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, agent_id, args.delete_cvo_id)
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              print("CVO Name:[{0}] deleted".format(cvo_name))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
 
     if args.check_token:
          # Get Token and cloud manager account informations 
