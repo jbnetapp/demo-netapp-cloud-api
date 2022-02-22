@@ -11,7 +11,6 @@
     "instanceType": "Standard_E4s_v3",
     "capacityPackageName": "Freemium"
   },
-  "nssAccount": "{YOUR_NSS_ACCOUNT_ID}",
   "writingSpeedState": "NORMAL",
   "subnetId": "/subscriptions/{YOUR_AZURE_SUBCRIPTION_ID}/resourceGroups/{YOUR_RG_NAME}/providers/Microsoft.Network/virtualNetworks/{YOUR_VNET}/subnets/{YOUR_SUBNET}",
   "svmPassword": "Netapp234",

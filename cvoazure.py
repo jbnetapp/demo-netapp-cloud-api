@@ -215,7 +215,7 @@ try:
               else:
                    print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
-              print("ERROR: {0}".format(cvos_info["message"]))
+              print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
     
     if args.create_cvo_ha_file:
