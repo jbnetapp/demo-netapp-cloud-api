@@ -728,6 +728,55 @@ def cvo_azure_delete_vsa (API_token, API_agentID, vsa_id):
               return cvos_info
 
 #################################################################################################
+def cvo_azure_action_vsa (API_token, API_agentID, vsa_id, action):
+
+    print_deb("FUNCTION: cvo_azure_stop_vsa")
+    cvos_info={}
+    cvos_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         cvos_info["status"]="failed"
+         cvos_info["message"]="ERROR: miss token"
+         return cvos_info
+
+    if ( action == "start" ):
+        url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "/start"
+    else:  
+        if ( action == "stop" ):
+             url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "/stop"
+        else: 
+             cvos_info["message"]="ERROR: cvo_azure_action_vsa: action: bad argument"
+             return cvos_info
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.post(url, auth=BearerAuth(API_token), headers=headers)
+
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvos_info["status"]="failed"
+         cvos_info["message"]=e
+         return cvos_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvos_info["status"]="success"
+         cvos_info["message"]="ok"
+         cvos_info["cvo"]=response.text
+         return cvos_info
+    else:
+              cvos_info["status"]="failed"
+              cvos_info["message"]=response.text
+              return cvos_info
+
+#################################################################################################
 # Cloudsync API
 #################################################################################################
 def cloudsync_get_accounts_list (API_token):

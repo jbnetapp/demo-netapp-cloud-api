@@ -61,7 +61,8 @@ group.add_argument("--cloud-account-list", dest='cloud_account_list', help="prin
 group.add_argument("--agent-list", dest='agent_list', help="print Agent list", action="store_true" )
 group.add_argument("--cvo-list", dest='list_cvo', help="list Azure CVO", action="store_true" )
 group.add_argument("--cvo-create-single", dest='create_cvo_file', help="create new Azure CVO" )
-group.add_argument("--cvo-create-ha", dest='create_cvo_ha_file', help="create new Azure CVO-HA" )
+group.add_argument("--cvo-start", dest='start_cvo_id', help="stop an Azure CVO " )
+group.add_argument("--cvo-stop", dest='stop_cvo_id', help="stop an Azure CVO " )
 group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an Azure CVO " )
 group.add_argument("--cvo-get", dest='get_cvo_id', help="delete an Azure CVO " )
 group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
@@ -243,9 +244,72 @@ try:
          else:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
-    
-    if args.create_cvo_ha_file:
-         print_deb("Create new CVO using file: {0}".format(args.create_cvo_ha_file))
+
+    if args.start_cvo_id:
+         print("Stop CVO ID: {0}".format(args.start_cvo_id))
+         if ( agent_id == "" ):
+             print("ERROR: Syntax: miss agent_id")
+             exit(1)
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.start_cvo_id)
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              cvo=json.loads(cvo_info["cvo"])
+              if (args.json):
+                   print(json.dumps(cvo, indent=4))
+              else:
+                   cvo_name=cvo["name"]
+                   print("Name:[{0}] id:[{1}] HA:[{2}] status:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+         
+         answer = ''
+         while ( answer != "y" and answer != "n" ):
+              answer=input('Do you want to start CVO [{0}] ? [y/n] : '.format(cvo["name"]))
+
+         if ( answer != "y"):
+              exit(0)
+
+         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.start_cvo_id,"start")
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              print("CVO Name:[{0}] started".format(cvo_name))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+
+    if args.stop_cvo_id:
+         print("Stop CVO ID: {0}".format(args.stop_cvo_id))
+         if ( agent_id == "" ):
+             print("ERROR: Syntax: miss agent_id")
+             exit(1)
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.stop_cvo_id)
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              cvo=json.loads(cvo_info["cvo"])
+              if (args.json):
+                   print(json.dumps(cvo, indent=4))
+              else:
+                   cvo_name=cvo["name"]
+                   print("Name:[{0}] id:[{1}] HA:[{2}] status:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+         
+         answer = ''
+         while ( answer != "y" and answer != "n" ):
+              answer=input('WARNING: do you want to stop CVO [{0}] ? [y/n] : '.format(cvo["name"]))
+
+         if ( answer != "y"):
+              exit(0)
+
+         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.stop_cvo_id,"stop")
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              print("CVO Name:[{0}] stopped".format(cvo_name))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
 
     if args.delete_cvo_id:
          print("Delete CVO ID: {0}".format(args.delete_cvo_id))
