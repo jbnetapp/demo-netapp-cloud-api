@@ -55,7 +55,7 @@ parser.add_argument("-d", "--debug", dest='debug', help="debug mode", action="st
 parser.add_argument("--account-id", dest='account_id', help="select NetApp Cloud account ID")
 parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
 group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument("--account-list", dest='account_list', help="print cloudsnyc accounts", action="store_true" )
+group.add_argument("--account-list", dest='account_list', help="print accounts list", action="store_true" )
 group.add_argument("--data-broker-list", dest='databroker_list', help="print cloudsync data-brokers", action="store_true" )
 group.add_argument("--create-relation", dest='create_relation_file', help="create new cloudsync relation from json file" )
 group.add_argument("--delete-relation", dest='delete_relation_id', help="delete a cloudsync relation" )

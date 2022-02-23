@@ -52,19 +52,20 @@ if ( os.path.isdir(API_DIR) != True ):
 #####################################################################
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--debug", dest='debug', help="debug mode", action="store_true")
-parser.add_argument("--account-id", dest='account_id', help="select NetApp Cloud account ID")
-parser.add_argument("--agent-id", dest='agent_id', help="select NetApp Cloud Agent ID")
+parser.add_argument("--account-id", dest='account_id', help="select account ID")
+parser.add_argument("--agent-id", dest='agent_id', help="select Cloud Manager Agent ID")
 parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
 group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument("--account-list", dest='account_list', help="print cloud central accounts", action="store_true" )
-group.add_argument("--cloud-account-list", dest='cloud_account_list', help="print cloud central accounts", action="store_true" )
-group.add_argument("--agent-list", dest='agent_list', help="print Agent list", action="store_true" )
-group.add_argument("--cvo-list", dest='list_cvo', help="list Azure CVO", action="store_true" )
-group.add_argument("--cvo-create-single", dest='create_cvo_file', help="create new Azure CVO" )
-group.add_argument("--cvo-start", dest='start_cvo_id', help="stop an Azure CVO " )
-group.add_argument("--cvo-stop", dest='stop_cvo_id', help="stop an Azure CVO " )
-group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an Azure CVO " )
-group.add_argument("--cvo-get", dest='get_cvo_id', help="delete an Azure CVO " )
+group.add_argument("--account-list", dest='account_list', help="print accounts list", action="store_true" )
+group.add_argument("--cloud-account-list", dest='cloud_account_list', help="print cloud accounts list", action="store_true" )
+group.add_argument("--agent-list", dest='agent_list', help="print cloud manager agents list", action="store_true" )
+group.add_argument("--cvo-list", dest='list_cvo', help="list all Azure Cloud Volumes ONTAP working environments", action="store_true" )
+group.add_argument("--cvo-create-single", dest='create_cvo_file', help="create a new Azure Cloud Volumes ONTAP working environment")
+group.add_argument("--cvo-create-ha", dest='create_cvo_ha_file', help="create a new Azure HA Cloud Volumes ONTAP working environment")
+group.add_argument("--cvo-start", dest='start_cvo_id', help="start an existing Azure Cloud Volumes ONTAP working environment " )
+group.add_argument("--cvo-stop", dest='stop_cvo_id', help="stop an existing Azure Cloud Volumes ONTAP working environment" )
+group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an existing Azure Cloud Volumes ONTAP working environment" )
+group.add_argument("--cvo-get", dest='get_cvo_id', help="get an existing Azure Cloud Volumes ONTAP working environment details" )
 group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
 group.add_argument("--get-new-token", dest='get_new_token', help="get a new access token", action="store_true" )
 
@@ -105,15 +106,18 @@ try:
     else:
          account_id = ""
 
+    # Agent ID set to null
     agent_id = ""
 
-    # args options 
+    # Arg --account-id ID
     if args.account_id:
          account_id = args.account_id 
 
+    # Arg --agent-id ID 
     if args.agent_id:
          agent_id = args.agent_id 
 
+    # Arg --account-list: Print cloud central accounts 
     if args.account_list:
          default_account_id = account_id 
          print("Print NetApp Account list:")
@@ -134,7 +138,11 @@ try:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)
 
+    # Arg --cloud-account-list: Print cloud Account registered 
     if args.cloud_account_list:
+         if (agent_id == ""):
+              print("Error: Miss argument --agent-id")
+              exit(1)
          print("Print NetApp Cloud Account list:")
          accounts_info=netapp_api_cloud.occm_get_cloud_accounts_list(API_TOKEN,account_id,agent_id)
          print_deb(accounts_info)
@@ -157,8 +165,9 @@ try:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)
 
+    # Arg --agent-list: Print cloud Manager Agents list 
     if args.agent_list:
-         print("Print NetApp OCCM Agent List")
+         print("Print Cloud Manager Agents List")
          agents_info=netapp_api_cloud.occm_get_occms_list(API_TOKEN, account_id)
          print_deb(agents_info)
          if (agents_info["status"] == "success"):
@@ -174,12 +183,14 @@ try:
               print("ERROR: {0}".format(agents_info["message"]))
               exit(1)
 
+    # Arg --cvo-list: Print Azure Cloud Volumes ONTAP list
     if args.list_cvo:
-         print("Print NetApp Azure CVO List")
+         print("Print Azure Cloud Volumes ONTAP List")
          if ( agent_id == "" ):
              print("ERROR: Syntax: miss agent_id")
              exit(1)
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id)
+         isHA=False
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
          print_deb(cvos_info)
          if (cvos_info["status"] == "success"):
               cvos=json.loads(cvos_info["cvos"])
@@ -193,12 +204,31 @@ try:
               print("ERROR: {0}".format(cvos_info["message"]))
               exit(1)
 
+    # Arg --get-list: Print details of Azure Cloud Volumes ONTAP working environment
     if args.get_cvo_id:
-         print("Print NetApp Azure CVO ID:{0}".format(args.get_cvo_id))
+         print("Print details of Azure Cloud Volumes ONTAP working environment ID:{0}".format(args.get_cvo_id))
          if ( agent_id == "" ):
              print("ERROR: Syntax: miss agent_id")
              exit(1)
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.get_cvo_id)
+         
+         isHA=False
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         print_deb(cvos_info)
+         cvo_found=False
+         if (cvos_info["status"] == "success"):
+              cvos=json.loads(cvos_info["cvos"])
+              for cvo in cvos:
+                   if ( cvo["publicId"] == args.get_cvo_id ):
+                        isHA=cvo["isHA"]
+                        cvo_found=True
+              if ( cvo_found != True ):
+                  print("ERROR: Azure Cloud volume ONTAP working environment ID:{0} not found".format(args.get_cvo_id))
+                  exit(1)
+         else:
+              print("ERROR: {0}".format(cvos_info["message"]))
+              exit(1)
+         
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.get_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -207,6 +237,7 @@ try:
               else:
                    cvo_name=cvo["name"]
                    cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
+                   cvo_mgmt_ip = "" 
                    for cvo_node in cvo_nodes:
                         cvo_lifs = cvo_node["lifs"]
                         for cvo_lif in cvo_lifs:
@@ -217,9 +248,9 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-
+    # Arg --cvo-create-single: Create a new Azure Cloud Volumes ONTAP working environment 
     if args.create_cvo_file:
-         print("Print Create a new Azure CVO")
+         print("Creates a new Azure Cloud Volumes ONTAP working environment")
          if ( agent_id == "" ):
              print("ERROR: Syntax: miss agent_id")
              exit(1)
@@ -233,7 +264,8 @@ try:
          print_deb(new_cvo_json)
          f.close
 
-         cvo_info=netapp_api_cloud.cvo_azure_create_new_single(API_TOKEN, agent_id, new_cvo_json)
+         isHA = False
+         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -245,12 +277,61 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-    if args.start_cvo_id:
-         print("Stop CVO ID: {0}".format(args.start_cvo_id))
+
+    # Arg --cvo-create-ha: Create a new Azure HA Cloud Volumes ONTAP working environment 
+    if args.create_cvo_ha_file:
+         print("Creates a new Azure HA Cloud Volumes ONTAP working environment")
          if ( agent_id == "" ):
              print("ERROR: Syntax: miss agent_id")
              exit(1)
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.start_cvo_id)
+
+         print_deb("Create new CVO using file: {0}".format(args.create_cvo_ha_file))
+         if (os.path.isfile(args.create_cvo_ha_file) != True ):
+              print("Error: {0} : file not found".format(args.create_cvo_ha_file))
+              exit(1)
+         f = open(args.create_cvo_ha_file)
+         new_cvo_json=json.load(f)
+         print_deb(new_cvo_json)
+         f.close
+
+         isHA = True 
+         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, agent_id, isHA, new_cvo_json)
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              cvo=json.loads(cvo_info["cvo"])
+              if (args.json):
+                   print(json.dumps(cvo, indent=4))
+              else:
+                   print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+
+    # Arg --cvo-start: Start an Azure Cloud Volumes ONTAP working environment
+    if args.start_cvo_id:
+         print("Start Azure Cloud volumes ONTAP working environment ID: {0}".format(args.start_cvo_id))
+         if ( agent_id == "" ):
+             print("ERROR: Syntax: miss agent_id")
+             exit(1)
+
+         isHA=False
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         print_deb(cvos_info)
+         cvo_found=False
+         if (cvos_info["status"] == "success"):
+              cvos=json.loads(cvos_info["cvos"])
+              for cvo in cvos:
+                   if ( cvo["publicId"] == args.start_cvo_id ):
+                        isHA=cvo["isHA"]
+                        cvo_found=True
+              if ( cvo_found != True ):
+                  print("ERROR: Azure Cloud volume ONTAP working environment ID:{0} not found".format(args.start_cvo_id))
+                  exit(1)
+         else:
+              print("ERROR: {0}".format(cvos_info["message"]))
+              exit(1)
+
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.start_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -270,7 +351,7 @@ try:
          if ( answer != "y"):
               exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.start_cvo_id,"start")
+         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.start_cvo_id, isHA, "start")
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               print("CVO Name:[{0}] started".format(cvo_name))
@@ -278,12 +359,31 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
+    # Arg --cvo-stop: Stop an Azure Cloud Volumes ONTAP working environment
     if args.stop_cvo_id:
-         print("Stop CVO ID: {0}".format(args.stop_cvo_id))
+         print("Stop Azure Cloud volumes ONTAP working environment ID: {0}".format(args.stop_cvo_id))
          if ( agent_id == "" ):
              print("ERROR: Syntax: miss agent_id")
              exit(1)
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.stop_cvo_id)
+
+         isHA=False
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         print_deb(cvos_info)
+         cvo_found=False
+         if (cvos_info["status"] == "success"):
+              cvos=json.loads(cvos_info["cvos"])
+              for cvo in cvos:
+                   if ( cvo["publicId"] == args.stop_cvo_id ):
+                        isHA=cvo["isHA"]
+                        cvo_found=True
+              if ( cvo_found != True ):
+                  print("ERROR: Azure Cloud volume ONTAP working environment ID:{0} not found".format(args.stop_cvo_id))
+                  exit(1)
+         else:
+              print("ERROR: {0}".format(cvos_info["message"]))
+              exit(1)
+
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.stop_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -303,7 +403,7 @@ try:
          if ( answer != "y"):
               exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.stop_cvo_id,"stop")
+         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.stop_cvo_id, isHA, "stop")
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               print("CVO Name:[{0}] stopped".format(cvo_name))
@@ -311,12 +411,31 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
+    # Arg --cvo-stop: Delete an Azure Cloud Volumes ONTAP working environment
     if args.delete_cvo_id:
-         print("Delete CVO ID: {0}".format(args.delete_cvo_id))
+         print("Delete Azure cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_id))
          if ( agent_id == "" ):
              print("ERROR: Syntax: miss agent_id")
              exit(1)
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.delete_cvo_id)
+
+         isHA=False
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         print_deb(cvos_info)
+         cvo_found=False
+         if (cvos_info["status"] == "success"):
+              cvos=json.loads(cvos_info["cvos"])
+              for cvo in cvos:
+                   if ( cvo["publicId"] == args.delete_cvo_id ):
+                        isHA=cvo["isHA"]
+                        cvo_found=True
+              if ( cvo_found != True ):
+                  print("ERROR: Azure Cloud volume ONTAP working environment ID:{0} not found".format(args.delete_cvo_id))
+                  exit(1)
+         else:
+              print("ERROR: {0}".format(cvos_info["message"]))
+              exit(1)
+
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.delete_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -336,7 +455,7 @@ try:
          if ( answer != "y"):
               exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, agent_id, args.delete_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, agent_id, isHA, args.delete_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               print("CVO Name:[{0}] deleted".format(cvo_name))
@@ -344,6 +463,7 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
+    # Arg --check-token: Check if API token is still valid 
     if args.check_token:
          # Get Token and cloud manager account informations 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))

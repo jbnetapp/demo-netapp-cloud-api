@@ -564,7 +564,7 @@ def occm_get_cloud_accounts_list (API_token, API_accountID, API_agentID):
 #################################################################################################
 # CVO Azure API
 #################################################################################################
-def cvo_azure_get_vsa_list (API_token, API_agentID):
+def cvo_azure_get_vsa_list (API_token, API_agentID, isHA):
 
     print_deb("FUNCTION: cvo_azure_get_vsa_list")
     cvos_info={}
@@ -575,8 +575,11 @@ def cvo_azure_get_vsa_list (API_token, API_agentID):
          cvos_info["message"]="ERROR: miss token"
          return cvos_info
 
+    if ( isHA == True ):
+         url = API_OCCM + "/occm/api/azure/ha/working-environments?fields=status"
+    else:
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments?fields=status"
     try:
-         url = API_OCCM + "/occm/api/azure/vsa/working-environments?fields=*"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
@@ -605,7 +608,7 @@ def cvo_azure_get_vsa_list (API_token, API_agentID):
               return cvos_info
 
 #################################################################################################
-def cvo_azure_get_vsa (API_token, API_agentID, vsa_id):
+def cvo_azure_get_vsa (API_token, API_agentID, isHA, vsa_id):
 
     print_deb("FUNCTION: cvo_azure_get_vsa")
     cvo_info={}
@@ -616,8 +619,12 @@ def cvo_azure_get_vsa (API_token, API_agentID, vsa_id):
          cvo_info["message"]="ERROR: miss token"
          return cvo_info
 
-    try:
+    if( isHA == True ):
+         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + vsa_id + "?fields=*"
+    else:
          url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "?fields=*"
+
+    try:
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
@@ -646,7 +653,7 @@ def cvo_azure_get_vsa (API_token, API_agentID, vsa_id):
               return cvo_info
 
 #################################################################################################
-def cvo_azure_create_new_single (API_token, API_agentID, API_json):
+def cvo_azure_create_new (API_token, API_agentID, isHA, API_json ):
 
     print_deb("FUNCTION: cvo_azure_create_new_single")
     cvo_info={}
@@ -656,9 +663,13 @@ def cvo_azure_create_new_single (API_token, API_agentID, API_json):
          cvo_info["status"]="failed"
          cvo_info["message"]="ERROR: miss token"
          return cvo_info
+    
+    if ( isHA == True ):
+         url = API_OCCM + "/occm/api/azure/ha/working-environments"
+    else:
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments"
 
     try:
-         url = API_OCCM + "/occm/api/azure/vsa/working-environments"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
@@ -687,7 +698,7 @@ def cvo_azure_create_new_single (API_token, API_agentID, API_json):
          return cvo_info
 
 #################################################################################################
-def cvo_azure_delete_vsa (API_token, API_agentID, vsa_id):
+def cvo_azure_delete_vsa (API_token, API_agentID, isHA, vsa_id):
 
     print_deb("FUNCTION: cvo_azure_delete_vsa")
     cvos_info={}
@@ -698,8 +709,12 @@ def cvo_azure_delete_vsa (API_token, API_agentID, vsa_id):
          cvos_info["message"]="ERROR: miss token"
          return cvos_info
 
-    try:
+    if ( isHA == True ):
+         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + vsa_id
+    else:
          url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id
+
+    try:
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
@@ -728,7 +743,7 @@ def cvo_azure_delete_vsa (API_token, API_agentID, vsa_id):
               return cvos_info
 
 #################################################################################################
-def cvo_azure_action_vsa (API_token, API_agentID, vsa_id, action):
+def cvo_azure_action_vsa (API_token, API_agentID, vsa_id, isHA, action):
 
     print_deb("FUNCTION: cvo_azure_stop_vsa")
     cvos_info={}
@@ -739,14 +754,24 @@ def cvo_azure_action_vsa (API_token, API_agentID, vsa_id, action):
          cvos_info["message"]="ERROR: miss token"
          return cvos_info
 
+    if ( isHA == True ):
+        API_PATH = "/occm/api/azure/ha/working-environments/"
+    else: 
+        API_PATH = "/occm/api/azure/vsa/working-environments/"
+
     if ( action == "start" ):
-        url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "/start"
-    else:  
-        if ( action == "stop" ):
-             url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "/stop"
-        else: 
-             cvos_info["message"]="ERROR: cvo_azure_action_vsa: action: bad argument"
-             return cvos_info
+        url = API_OCCM + API_PATH + vsa_id + "/start"
+        action_check=True
+
+    if ( action == "stop" ):
+        url = API_OCCM + API_PATH + vsa_id + "/stop"
+        action_check=True
+
+    if (action_check != True ):
+         cvos_info["status"]="failed"
+         cvos_info["message"]="ERROR: bad action [{0}]".format(action)
+         return cvos_info
+
     try:
          print_deb("url: {0} ".format(url))
          response={}
@@ -772,9 +797,9 @@ def cvo_azure_action_vsa (API_token, API_agentID, vsa_id, action):
          cvos_info["cvo"]=response.text
          return cvos_info
     else:
-              cvos_info["status"]="failed"
-              cvos_info["message"]=response.text
-              return cvos_info
+         cvos_info["status"]="failed"
+         cvos_info["message"]=response.text
+         return cvos_info
 
 #################################################################################################
 # Cloudsync API
