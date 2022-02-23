@@ -63,6 +63,7 @@ group.add_argument("--cvo-list", dest='list_cvo', help="list Azure CVO", action=
 group.add_argument("--cvo-create-single", dest='create_cvo_file', help="create new Azure CVO" )
 group.add_argument("--cvo-create-ha", dest='create_cvo_ha_file', help="create new Azure CVO-HA" )
 group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an Azure CVO " )
+group.add_argument("--cvo-get", dest='get_cvo_id', help="delete an Azure CVO " )
 group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
 group.add_argument("--get-new-token", dest='get_new_token', help="get a new access token", action="store_true" )
 
@@ -186,13 +187,38 @@ try:
                    print(json.dumps(cvos, indent=4))
               else:
                    for cvo in cvos:
-                       print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                       print("Name:[{0}][{1}] id:[{2}] HA:[{3}] status[{4}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
          else:
               print("ERROR: {0}".format(cvos_info["message"]))
               exit(1)
 
+    if args.get_cvo_id:
+         print("Print NetApp Azure CVO ID:{0}".format(args.get_cvo_id))
+         if ( agent_id == "" ):
+             print("ERROR: Syntax: miss agent_id")
+             exit(1)
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, args.get_cvo_id)
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              cvo=json.loads(cvo_info["cvo"])
+              if (args.json):
+                   print(json.dumps(cvo, indent=4))
+              else:
+                   cvo_name=cvo["name"]
+                   cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
+                   for cvo_node in cvo_nodes:
+                        cvo_lifs = cvo_node["lifs"]
+                        for cvo_lif in cvo_lifs:
+                             if (cvo_lif["lifType"] == "Cluster Management"):
+                                 cvo_mgmt_ip = cvo_lif["ip"] 
+                   print("Name:[{0}][{1}] HA:[{2}] svm:[{3}] status[{4}] mgmt[{5}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+
+
     if args.create_cvo_file:
-         print("Print NetApp Azure CVO List")
+         print("Print Create a new Azure CVO")
          if ( agent_id == "" ):
              print("ERROR: Syntax: miss agent_id")
              exit(1)

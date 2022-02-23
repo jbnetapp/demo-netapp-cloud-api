@@ -576,7 +576,7 @@ def cvo_azure_get_vsa_list (API_token, API_agentID):
          return cvos_info
 
     try:
-         url = API_OCCM + "/occm/api/azure/vsa/working-environments"
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments?fields=*"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
@@ -617,7 +617,7 @@ def cvo_azure_get_vsa (API_token, API_agentID, vsa_id):
          return cvo_info
 
     try:
-         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "?fields=*"
          print_deb("url: {0} ".format(url))
          response={}
          headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
