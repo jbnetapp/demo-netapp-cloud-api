@@ -100,10 +100,11 @@ try:
     else:
          account_id = ""
 
-    # args options 
+    # Arg --account-id select an account_id
     if args.account_id:
          account_id = args.account_id 
 
+    # Arg --account-list: print account list
     if args.account_list:
 
          default_account_id = account_id 
@@ -119,98 +120,107 @@ try:
                    else:
                         print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["name"], account["accountId"]))
 
+    # Arg --data-borker-list: print cloudsync databroker list
     if args.databroker_list:
 
-         if ( account_id != "" ):
-              databrokers_info=netapp_api_cloud.cloudsync_get_databrokers_list(API_TOKEN, account_id)
-              print_deb(databrokers_info)
-
-              if (databrokers_info["status"] == "success"):
-                   databrokers=json.loads(databrokers_info["databrokers"])
-                   if (args.json):
-                        print(json.dumps(databrokers, indent=4))
-                   else:
-                        print("Print NetApp data-borkers list:")
-                        for databroker in databrokers:
-                             print("Name:[{0}] ID:[{1}] PrivateIP:[{2}] TransferRate:[{3}] Status:[{4}] ".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"], databroker["transferRate"],databroker["status"]))
-         else:
-              print("ERROR: Syntax : miss account_id ")
+         if ( account_id == "" ):
+              print("ERROR: Syntax : miss account_id or current-account-id not set in configuration file")
               exit(1)
 
+         databrokers_info=netapp_api_cloud.cloudsync_get_databrokers_list(API_TOKEN, account_id)
+         print_deb(databrokers_info)
+
+         if (databrokers_info["status"] == "success"):
+              databrokers=json.loads(databrokers_info["databrokers"])
+              if (args.json):
+                   print(json.dumps(databrokers, indent=4))
+              else:
+                   print("Print NetApp data-borkers list:")
+                   for databroker in databrokers:
+                        print("Name:[{0}] ID:[{1}] PrivateIP:[{2}] TransferRate:[{3}] Status:[{4}] ".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"], databroker["transferRate"],databroker["status"]))
+
+    # Arg --print-relations: print all cloudsync current relations
     if args.print_relations:
 
-         if ( account_id != "" ):
-              relations_info=netapp_api_cloud.cloudsync_get_relations(API_TOKEN, account_id)
-              print_deb(relations_info)
-              if (relations_info["status"] == "success"):
-                   relations=json.loads(relations_info["relations"])
-                   if (args.json):
-                        print(json.dumps(relations, indent=4))
-                   else:  
-                        print("Print cloudsync relations:") 
-                        for relation in relations:
-                             activity=relation["activity"]
-                             print("")
-                             print("id: {0}".format(relation["id"]))
-                             print("account: {0}".format(relation["account"]))
-                             print("dataBroker: {0}".format(relation["dataBroker"]))
-                             print("source: {0}".format(relation["source"]))
-                             print("target: {0}".format(relation["target"]))
-                             print("type: {0}".format(activity["type"]))
-                             print("status: {0}".format(activity["status"]))
-                             print("status: {0}".format(activity["progress"]))
-                             print("")
-         else: 
-             print("ERROR: Syntax : miss account_id ")
-             exit(1)
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
 
+         relations_info=netapp_api_cloud.cloudsync_get_relations(API_TOKEN, account_id)
+         print_deb(relations_info)
+         if (relations_info["status"] == "success"):
+              relations=json.loads(relations_info["relations"])
+              if (args.json):
+                   print(json.dumps(relations, indent=4))
+              else:  
+                   print("Print cloudsync relations:") 
+                   for relation in relations:
+                        activity=relation["activity"]
+                        print("")
+                        print("id: {0}".format(relation["id"]))
+                        print("account: {0}".format(relation["account"]))
+                        print("dataBroker: {0}".format(relation["dataBroker"]))
+                        print("source: {0}".format(relation["source"]))
+                        print("target: {0}".format(relation["target"]))
+                        print("type: {0}".format(activity["type"]))
+                        print("status: {0}".format(activity["status"]))
+                        print("status: {0}".format(activity["progress"]))
+                        print("")
+
+    # Arg --create-relations: create a new cloudsync relation with create_relation_file JSON file
     if args.create_relation_file:
-         if ( account_id != "" ):
-              print("create new cloudsnyc relation form json file: {0}".format(args.create_relation_file))
-              if (os.path.isfile(args.create_relation_file) != True ):
-                  print("Error: {0} : file not found".format(args.create_relation_file))
-                  exit(1)
-              f = open(args.create_relation_file)
-              new_relation_json=json.load(f)
-              print_deb(new_relation_json)
-              f.close
 
-              relations_info=netapp_api_cloud.cloudsync_create_relations(API_TOKEN, account_id, new_relation_json)
-              if (relations_info["status"] == "success"):
-                   print("New cloud Sync relationship successfully created")
-              else:
-                   print("ERROR: {0}".format(relations_info["message"]))
-         else: 
-             print("ERROR: Syntax : miss account_id ")
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
+         print("create new cloudsnyc relation form json file: {0}".format(args.create_relation_file))
+         if (os.path.isfile(args.create_relation_file) != True ):
+             print("Error: {0} : file not found".format(args.create_relation_file))
              exit(1)
+         f = open(args.create_relation_file)
+         new_relation_json=json.load(f)
+         print_deb(new_relation_json)
+         f.close
 
+         relations_info=netapp_api_cloud.cloudsync_create_relations(API_TOKEN, account_id, new_relation_json)
+         if (relations_info["status"] == "success"):
+              print("New cloud Sync relationship successfully created")
+         else:
+              print("ERROR: {0}".format(relations_info["message"]))
+
+    # Arg --sync-relation: sync an existing cloudsync relation
     if args.sync_relation_id:
 
-         if ( account_id != "" ):
-              print("Sync cloudsync relation ID: {0}".format(args.sync_relation_id))
-              relation_info=netapp_api_cloud.cloudsync_sync_relation(API_TOKEN, account_id,args.sync_relation_id)
-              if (relation_info["status"] != "success"):
-                   print_deb(relation_info["status"])
-                   print("ERROR: {0}".format(relation_info["message"]))
-         else: 
-             print("ERROR: Syntax : miss account_id ")
-             exit(1)
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
 
+         print("Sync cloudsync relation ID: {0}".format(args.sync_relation_id))
+         relation_info=netapp_api_cloud.cloudsync_sync_relation(API_TOKEN, account_id,args.sync_relation_id)
+         if (relation_info["status"] != "success"):
+              print_deb(relation_info["status"])
+              print("ERROR: {0}".format(relation_info["message"]))
+         else:
+              print("relation ID: {0} synchronization in progresss".format(args.sync_relation_id))
 
+    # Arg --delete-relation: delete an existing cloudsync relation
     if args.delete_relation_id:
 
-         if ( account_id != "" ):
-              print("Delete cloudsync relation ID: {0}".format(args.delete_relation_id))
-              relation_info=netapp_api_cloud.cloudsync_delete_relation(API_TOKEN, account_id,args.delete_relation_id)
-              if (relation_info["status"] != "success"):
-                   print_deb(relation_info["status"])
-                   print("ERROR: {0}".format(relation_info["message"]))
-         else: 
-             print("ERROR: Syntax : miss account_id ")
-             exit(1)
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
 
+         print("Delete cloudsync relation ID: {0}".format(args.delete_relation_id))
+         relation_info=netapp_api_cloud.cloudsync_delete_relation(API_TOKEN, account_id,args.delete_relation_id)
+         if (relation_info["status"] != "success"):
+              print_deb(relation_info["status"])
+              print("ERROR: {0}".format(relation_info["message"]))
+         else:
+              print("relation ID: {0} deleted".format(args.deleted_relation_id))
+
+    # Arg --check-token: Check if the current token is valide
     if args.check_token:
-         # Get Token and cloud manager account informations 
          print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] == "unknown" ):

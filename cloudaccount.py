@@ -10,7 +10,7 @@ import configparser
 import json
 import os
 
-RELEASE='0.3'
+RELEASE='0.4'
 #####################################################################
 # Local API 
 #####################################################################
@@ -80,6 +80,7 @@ try:
     if args.account_id:
          account_id = args.account_id 
 
+    # Arg --setup : Configure NetApp Cloud Scripts
     if args.setup:
 
          # Create API configuration file
@@ -118,7 +119,7 @@ try:
               exit(1)
          API_TOKEN=token_info["token"]
 
-         # Set Default Account during setup
+         # Select Account during setup
          accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
          if (accounts_info["status"] != "success"):
               print("ERROR: {0}".format(accounts_info["message"]))
@@ -133,7 +134,7 @@ try:
                    print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"]))
               accounts_info["status"] = ""
               while ( accounts_info["status"] != "success" ) :
-                   default_account_id=input('Please enter your selected default account_id : ')
+                   default_account_id=input('Please select your current working account_id : ')
                    accounts_info=netapp_api_cloud.occm_set_default_account(API_TOKEN, API_CONFIG_FILE,default_account_id)
                    if (accounts_info["status"] != "success"):
                         print("ERROR: {0}".format(accounts_info["message"]))

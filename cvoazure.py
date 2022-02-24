@@ -10,7 +10,7 @@ import configparser
 import json
 import os
 
-RELEASE='0.0'
+RELEASE='0.4'
 #####################################################################
 # Local API 
 #####################################################################
@@ -99,14 +99,14 @@ try:
 
     print_deb("API_TOKEN: {0}".format(API_TOKEN))
 
-    # Get Account Information from the config file
+    # Get Current Account_id from config file
     account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
     if (account_info["status"] == "success"):
          account_id = account_info["default_account_id"] 
     else:
          account_id = ""
 
-    # Agent ID set to null
+    # Get Current Cloud Manager agent_id from config file
     agent_id = ""
 
     # Arg --account-id ID
@@ -140,9 +140,15 @@ try:
 
     # Arg --cloud-account-list: Print cloud Account registered 
     if args.cloud_account_list:
-         if (agent_id == ""):
-              print("Error: Miss argument --agent-id")
+         
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
               exit(1)
+
+         if (agent_id == ""):
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
          print("Print NetApp Cloud Account list:")
          accounts_info=netapp_api_cloud.occm_get_cloud_accounts_list(API_TOKEN,account_id,agent_id)
          print_deb(accounts_info)
@@ -167,6 +173,11 @@ try:
 
     # Arg --agent-list: Print cloud Manager Agents list 
     if args.agent_list:
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
          print("Print Cloud Manager Agents List")
          agents_info=netapp_api_cloud.occm_get_occms_list(API_TOKEN, account_id)
          print_deb(agents_info)
@@ -185,10 +196,17 @@ try:
 
     # Arg --cvo-list: Print Azure Cloud Volumes ONTAP list
     if args.list_cvo:
-         print("Print Azure Cloud Volumes ONTAP List")
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
          if ( agent_id == "" ):
-             print("ERROR: Syntax: miss agent_id")
-             exit(1)
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         print("Print Azure Cloud Volumes ONTAP List")
+
          isHA=False
          cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
          print_deb(cvos_info)
@@ -206,11 +224,17 @@ try:
 
     # Arg --get-list: Print details of Azure Cloud Volumes ONTAP working environment
     if args.get_cvo_id:
-         print("Print details of Azure Cloud Volumes ONTAP working environment ID:{0}".format(args.get_cvo_id))
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
          if ( agent_id == "" ):
-             print("ERROR: Syntax: miss agent_id")
-             exit(1)
-         
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         print("Print details of Azure Cloud Volumes ONTAP working environment ID:{0}".format(args.get_cvo_id))
+
          isHA=False
          cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
          print_deb(cvos_info)
@@ -250,10 +274,16 @@ try:
 
     # Arg --cvo-create-single: Create a new Azure Cloud Volumes ONTAP working environment 
     if args.create_cvo_file:
-         print("Creates a new Azure Cloud Volumes ONTAP working environment")
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
          if ( agent_id == "" ):
-             print("ERROR: Syntax: miss agent_id")
-             exit(1)
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         print("Creates a new Azure Cloud Volumes ONTAP working environment")
 
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_file))
          if (os.path.isfile(args.create_cvo_file) != True ):
@@ -280,10 +310,16 @@ try:
 
     # Arg --cvo-create-ha: Create a new Azure HA Cloud Volumes ONTAP working environment 
     if args.create_cvo_ha_file:
-         print("Creates a new Azure HA Cloud Volumes ONTAP working environment")
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
          if ( agent_id == "" ):
-             print("ERROR: Syntax: miss agent_id")
-             exit(1)
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         print("Creates a new Azure HA Cloud Volumes ONTAP working environment")
 
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_ha_file))
          if (os.path.isfile(args.create_cvo_ha_file) != True ):
@@ -309,10 +345,16 @@ try:
 
     # Arg --cvo-start: Start an Azure Cloud Volumes ONTAP working environment
     if args.start_cvo_id:
-         print("Start Azure Cloud volumes ONTAP working environment ID: {0}".format(args.start_cvo_id))
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
          if ( agent_id == "" ):
-             print("ERROR: Syntax: miss agent_id")
-             exit(1)
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         print("Start Azure Cloud volumes ONTAP working environment ID: {0}".format(args.start_cvo_id))
 
          isHA=False
          cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
@@ -361,10 +403,16 @@ try:
 
     # Arg --cvo-stop: Stop an Azure Cloud Volumes ONTAP working environment
     if args.stop_cvo_id:
-         print("Stop Azure Cloud volumes ONTAP working environment ID: {0}".format(args.stop_cvo_id))
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
          if ( agent_id == "" ):
-             print("ERROR: Syntax: miss agent_id")
-             exit(1)
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         print("Stop Azure Cloud volumes ONTAP working environment ID: {0}".format(args.stop_cvo_id))
 
          isHA=False
          cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
@@ -413,10 +461,16 @@ try:
 
     # Arg --cvo-stop: Delete an Azure Cloud Volumes ONTAP working environment
     if args.delete_cvo_id:
-         print("Delete Azure cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_id))
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
          if ( agent_id == "" ):
-             print("ERROR: Syntax: miss agent_id")
-             exit(1)
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         print("Delete Azure cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_id))
 
          isHA=False
          cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
