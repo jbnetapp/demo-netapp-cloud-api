@@ -10,7 +10,7 @@ import configparser
 import json
 import os
 
-RELEASE='0.4'
+RELEASE='0.5'
 #####################################################################
 # Local API 
 #####################################################################
@@ -55,14 +55,14 @@ parser.add_argument("-d", "--debug", dest='debug', help="debug mode", action="st
 parser.add_argument("--account-id", dest='account_id', help="select NetApp Cloud account ID")
 parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
 group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument("--account-list", dest='account_list', help="print accounts list", action="store_true" )
-group.add_argument("--data-broker-list", dest='databroker_list', help="print cloudsync data-brokers", action="store_true" )
-group.add_argument("--create-relation", dest='create_relation_file', help="create new cloudsync relation from json file" )
-group.add_argument("--delete-relation", dest='delete_relation_id', help="delete a cloudsync relation" )
-group.add_argument("--sync-relation", dest='sync_relation_id', help="sync a cloudsync relation" )
-group.add_argument("--print-relations", dest='print_relations', help="print cloudsnyc relations list", action="store_true" )
-group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
-group.add_argument("--get-new-token", dest='get_new_token', help="get a new access token", action="store_true" )
+group.add_argument("--account-list", dest='account_list', help="print accounts list", action="store_true")
+group.add_argument("--data-broker-list", dest='databroker_list', help="print cloudsync data-brokers", action="store_true")
+group.add_argument("--create-relation", dest='create_relation_file', help="create new cloudsync relation from json file")
+group.add_argument("--delete-relation", dest='delete_relation_id', help="delete a cloudsync relation")
+group.add_argument("--sync-relation", dest='sync_relation_id', help="sync a cloudsync relation")
+group.add_argument("--print-relations", dest='print_relations', help="print cloudsnyc relations list", action="store_true")
+group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true")
+group.add_argument("--get-new-token", dest='get_new_token', help="get a new access token", action="store_true")
 args = parser.parse_args()
 
 if args.debug:
@@ -94,9 +94,9 @@ try:
     print_deb("API_TOKEN: {0}".format(API_TOKEN))
 
     # Get Account Information from the config file
-    account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+    account_info=netapp_api_cloud.get_current_account(API_CONFIG_FILE)
     if (account_info["status"] == "success"):
-         account_id = account_info["default_account_id"] 
+         account_id = account_info["current_account_id"] 
     else:
          account_id = ""
 
@@ -107,7 +107,7 @@ try:
     # Arg --account-list: print account list
     if args.account_list:
 
-         default_account_id = account_id 
+         current_account_id = account_id 
          print("Print NetApp Account list:")
          accounts_info=netapp_api_cloud.cloudsync_get_accounts_list(API_TOKEN)
          print_deb(accounts_info)
@@ -115,10 +115,10 @@ try:
          if (accounts_info["status"] == "success"):
               accounts=json.loads(accounts_info["accounts"])
               for account in accounts:
-                   if ( account["accountId"] == default_account_id ):
-                        print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["name"], account["accountId"]))
+                   if ( account["accountId"] == current_account_id ):
+                        print("Name:[{0}] account_id:[{1}] Current:[X]".format(account["name"], account["accountId"]))
                    else:
-                        print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["name"], account["accountId"]))
+                        print("Name:[{0}] account_id:[{1}]".format(account["name"], account["accountId"]))
 
     # Arg --data-borker-list: print cloudsync databroker list
     if args.databroker_list:
@@ -217,7 +217,7 @@ try:
               print_deb(relation_info["status"])
               print("ERROR: {0}".format(relation_info["message"]))
          else:
-              print("relation ID: {0} deleted".format(args.deleted_relation_id))
+              print("relation ID: {0} deleted".format(args.delete_relation_id))
 
     # Arg --check-token: Check if the current token is valide
     if args.check_token:

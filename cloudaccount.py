@@ -10,7 +10,7 @@ import configparser
 import json
 import os
 
-RELEASE='0.4'
+RELEASE='0.5'
 #####################################################################
 # Local API 
 #####################################################################
@@ -58,7 +58,7 @@ group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--setup", dest='setup', help="setup NetApp cloud API connection", action="store_true" )
 group.add_argument("--account-list", dest='account_list', help="print NetApp cloud accounts list", action="store_true" )
 group.add_argument("--workspace-list", dest='workspace_list', help="print NetApp cloud accounts list", action="store_true" )
-group.add_argument("--set-default-account", dest='default_account_id', help="set default NetApp Cloud account")
+group.add_argument("--switch-account", dest='switch_account_id', help="switch account")
 group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
 group.add_argument("--get-new-token", dest='get_new_token', help="get new NetApp Cloud access token", action="store_true" )
 args = parser.parse_args()
@@ -70,9 +70,9 @@ if args.debug:
 try:
 
     # Get Account Information from the config file
-    account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+    account_info=netapp_api_cloud.get_current_account(API_CONFIG_FILE)
     if (account_info["status"] == "success"):
-         account_id = account_info["default_account_id"] 
+         account_id = account_info["current_account_id"] 
     else:
          account_id = ""
 
@@ -126,7 +126,7 @@ try:
          accounts=json.loads(accounts_info["accounts"])
          if (len(accounts) == 1):
               account=accounts[0]
-              accounts_info=netapp_api_cloud.occm_set_default_account(API_TOKEN, API_CONFIG_FILE,account["accountPublicId"])
+              accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE,account["accountPublicId"])
               if (accounts_info["status"] != "success"):
                    print("ERROR: {0}".format(accounts_info["message"]))
          else:
@@ -134,8 +134,8 @@ try:
                    print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"]))
               accounts_info["status"] = ""
               while ( accounts_info["status"] != "success" ) :
-                   default_account_id=input('Please select your current working account_id : ')
-                   accounts_info=netapp_api_cloud.occm_set_default_account(API_TOKEN, API_CONFIG_FILE,default_account_id)
+                   current_account_id=input('Please select your current working account_id : ')
+                   accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE,current_account_id)
                    if (accounts_info["status"] != "success"):
                         print("ERROR: {0}".format(accounts_info["message"]))
     else: 
@@ -166,11 +166,11 @@ try:
 
     if args.account_list:
 
-         account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+         account_info=netapp_api_cloud.get_current_account(API_CONFIG_FILE)
          if (account_info["status"] == "success"):
-              default_account_id = account_info["default_account_id"] 
+              current_account_id = account_info["current_account_id"] 
          else:
-              default_account_id = ""
+              current_account_id = ""
          accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
          print_deb(accounts_info)
          if (accounts_info["status"] == "success"):
@@ -180,15 +180,14 @@ try:
                    print(json.dumps(accounts, indent=4))
               else:
                    for account in accounts:
-                        if ( account["accountPublicId"] == default_account_id ):
-                             print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["accountName"], account["accountPublicId"]))
+                        if ( account["accountPublicId"] == current_account_id ):
+                             print("Name:[{0}] account_id:[{1}] Current:[X]".format(account["accountName"], account["accountPublicId"]))
                         else:
-                             print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["accountName"], account["accountPublicId"]))
+                             print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"]))
          else:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)
 
-#ASP
     if args.workspace_list:
 
          workspaces_info=netapp_api_cloud.occm_get_workspaces_list(API_TOKEN,account_id)
@@ -204,7 +203,6 @@ try:
          else:
               print("ERROR: {0}".format(workspaces_info["message"]))
               exit(1)
-#ASP
 
     if args.check_token:
          # Get Token and cloud manager account informations 
@@ -216,17 +214,17 @@ try:
          print("Access Token is valid")
          exit(0)
 
-    if args.default_account_id:
+    if args.switch_account_id:
          # Set default Account_id
-         print_deb("Set Default Acccount: {0}".format(args.default_account_id))
-         accounts_info=netapp_api_cloud.occm_set_default_account(API_TOKEN, API_CONFIG_FILE, args.default_account_id)
+         print_deb("Swich to account: {0}".format(args.switch_account_id))
+         accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE, args.switch_account_id)
          if (accounts_info["status"] == "success"):
               accounts=json.loads(accounts_info["accounts"])
               for account in accounts:
                    if ( account["accountPublicId"] == accounts_info["default"] ):
-                         print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["accountName"], account["accountPublicId"],))
+                         print("Name:[{0}] account_id:[{1}] Current:[X]".format(account["accountName"], account["accountPublicId"],))
                    else:
-                         print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["accountName"], account["accountPublicId"],))
+                         print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"],))
          else:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)

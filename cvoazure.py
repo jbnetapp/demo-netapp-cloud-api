@@ -10,7 +10,7 @@ import configparser
 import json
 import os
 
-RELEASE='0.4'
+RELEASE='0.5'
 #####################################################################
 # Local API 
 #####################################################################
@@ -100,9 +100,9 @@ try:
     print_deb("API_TOKEN: {0}".format(API_TOKEN))
 
     # Get Current Account_id from config file
-    account_info=netapp_api_cloud.get_default_account(API_CONFIG_FILE)
+    account_info=netapp_api_cloud.get_current_account(API_CONFIG_FILE)
     if (account_info["status"] == "success"):
-         account_id = account_info["default_account_id"] 
+         account_id = account_info["current_account_id"] 
     else:
          account_id = ""
 
@@ -119,7 +119,7 @@ try:
 
     # Arg --account-list: Print cloud central accounts 
     if args.account_list:
-         default_account_id = account_id 
+         current_account_id = account_id 
          print("Print NetApp Account list:")
          accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
          print_deb(accounts_info)
@@ -130,10 +130,10 @@ try:
                    print(json.dumps(accounts, indent=4))
               else:
                    for account in accounts:
-                        if ( account["accountPublicId"] == default_account_id ):
-                             print("Name:[{0}] account_id:[{1}] Default:[X]".format(account["accountName"], account["accountPublicId"]))
+                        if ( account["accountPublicId"] == current_account_id ):
+                             print("Name:[{0}] account_id:[{1}] Current:[X]".format(account["accountName"], account["accountPublicId"]))
                         else:
-                             print("Name:[{0}] account_id:[{1}] Default:[ ]".format(account["accountName"], account["accountPublicId"]))
+                             print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"]))
          else:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)

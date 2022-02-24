@@ -143,7 +143,7 @@ New cloud Sync relationship successfully created
 Print cloudsync relations:
 
 id: 61c2e054b10e1f362ede48e1
-account: xxxxxxxxxxxxxxxxxxxxxxxx
+account: 5e528f4504a9a4d63d6962de
 dataBroker: 616d9c8d48301b1e6cdfe1df
 source: {'protocol': 'azure', 'azure': {'storageAccountName': 'jbdemostorageaccount', 'container': 'jbblob', 'prefix': 'DIR', 'tags': [], 'provider': 'azure'}}
 target: {'protocol': 'azure', 'azure': {'storageAccountName': 'jbdemostorageaccount', 'container': 'jbblobcopy', 'prefix': '', 'tags': [], 'blobTier': 'HOT', 'provider': 'azure'}}
@@ -191,7 +191,7 @@ Delete cloudsync relation ID: 61c2e054b10e1f362ede48e1
 # python3 cloudsync.py --account-id account-U0dbRcKS --print --json
 [
     {
-        "account": "xxxxxxxxxxxxxxxxxxxxxxxx",
+        "account": 5e528f4504a9a4d63d6962de
         "dataBroker": "616d9c8d48301b1e6cdfe1df",
         "source": {
             "protocol": "azure",

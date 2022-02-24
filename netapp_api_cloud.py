@@ -1,5 +1,5 @@
 #################################################################################################
-# API Cloud NetApp Version 04
+# API Cloud NetApp Version 0.5
 # jerome.blanchet@netapp.com
 #################################################################################################
 import ssl
@@ -29,7 +29,7 @@ API_AUDIENCE = "https://api.cloud.netapp.com"
 API_SERVICES = "https://api.services.cloud.netapp.com"
 CLIENT_ID_REGULAR = "QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO" 
 CLIENT_ID_REFRESH_TOKEN = "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC"
-
+API_RELEASE='0.5'
 #################################################################################################
 # Debug 
 #################################################################################################
@@ -125,9 +125,9 @@ def check_API_config_file (API_config_file):
     return file_info
 
 #################################################################################################
-def get_default_account(API_config_file):
+def get_current_account(API_config_file):
 
-    print_deb("FUNCTION: get_default_account")
+    print_deb("FUNCTION: get_current_account")
     account_info={}
     account_info["status"]="unknow"
 
@@ -145,14 +145,14 @@ def get_default_account(API_config_file):
          return account_info
 
     try:
-        default_account_id=config['API_LOGIN']['default_account_id']; print_deb("grant_type: {0} ".format(default_account_id))
+        current_account_id=config['API_LOGIN']['current_account_id']; print_deb("grant_type: {0} ".format(current_account_id))
     except KeyError as e:
          account_info["status"]="failed"
          account_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
          return account_info 
      
     account_info["status"]="success"
-    account_info["default_account_id"]=default_account_id
+    account_info["current_account_id"]=current_account_id
 
     return account_info 
 
@@ -350,9 +350,9 @@ def check_current_token (API_config_file):
          return token_info
 
 #################################################################################################
-def occm_set_default_account (API_token, API_config_file, API_accountID):
+def set_current_account (API_token, API_config_file, API_accountID):
     
-    print_deb("FUNCTION: occm_set_default_account")
+    print_deb("FUNCTION: set_current_account")
     accounts_found=False
     accounts_info={}
 
@@ -383,7 +383,7 @@ def occm_set_default_account (API_token, API_config_file, API_accountID):
               update = 0       
 
          config['DEFAULT']['update'] = "{0}".format(update)
-         config['API_LOGIN']['default_account_id'] = API_accountID
+         config['API_LOGIN']['current_account_id'] = API_accountID
 
          try:
               with open(API_config_file, 'w') as configfile:
