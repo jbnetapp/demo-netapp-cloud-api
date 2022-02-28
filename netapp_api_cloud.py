@@ -351,7 +351,7 @@ def check_current_token (API_config_file):
 
 #################################################################################################
 def set_current_account (API_token, API_config_file, API_accountID):
-    
+
     print_deb("FUNCTION: set_current_account")
     accounts_found=False
     accounts_info={}
@@ -399,6 +399,21 @@ def set_current_account (API_token, API_config_file, API_accountID):
          accounts_info["default"]=""
 
     return accounts_info
+
+#################################################################################################
+def occm_get_accountName (API_token, API_accountID):
+    print_deb("FUNCTION: set_current_account")
+    accountName=""
+    accounts_info={}
+
+    accounts_info=occm_get_accounts_list(API_token)
+    if (accounts_info["status"] == "success"):
+         accounts=json.loads(accounts_info["accounts"])
+         for account in accounts:
+             if ( account["accountPublicId"] == API_accountID ):
+                  accountName=account["accountName"] 
+
+    return accountName 
 
 #################################################################################################
 def occm_get_accounts_list (API_token):

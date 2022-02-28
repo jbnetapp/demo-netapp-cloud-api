@@ -57,10 +57,10 @@ parser.add_argument("--account-id", dest='account_id', help="select NetApp Cloud
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--setup", dest='setup', help="setup NetApp cloud API connection", action="store_true" )
 group.add_argument("--account-list", dest='account_list', help="print NetApp cloud accounts list", action="store_true" )
+group.add_argument("--account-switch", dest='switch_account_id', help="switch account")
 group.add_argument("--workspace-list", dest='workspace_list', help="print NetApp cloud accounts list", action="store_true" )
-group.add_argument("--switch-account", dest='switch_account_id', help="switch account")
-group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
-group.add_argument("--get-new-token", dest='get_new_token', help="get new NetApp Cloud access token", action="store_true" )
+group.add_argument("--token-check", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
+group.add_argument("--token-get-new", dest='get_new_token', help="get new NetApp Cloud access token", action="store_true" )
 args = parser.parse_args()
 
 if args.debug:

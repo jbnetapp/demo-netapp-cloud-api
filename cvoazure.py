@@ -113,6 +113,15 @@ try:
     if args.account_id:
          account_id = args.account_id 
 
+    accountName = netapp_api_cloud.occm_get_accountName(API_TOKEN,account_id)
+    if ( accountName == ""):
+         print("ERRRO: Account {0} not found".format(account_id))
+         exit(1)
+    if ( accountName == "Demo_SIM"):
+         print("ERROR: API not supported with Account [Demo_SIM] [{0}]".format(account_id))
+         print("ERROR: Please switch to another Account")
+         exit(1)
+
     # Arg --agent-id ID 
     if args.agent_id:
          agent_id = args.agent_id 

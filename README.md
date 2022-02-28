@@ -55,26 +55,26 @@ The configuration file **api.conf** contains the following section headers:
         ```
 
 ## Check your JWT access token  
-When using **cloudaccount.py** script with option --setup to create the configuration file the **JWT access token** is automatically saved in the section header [API_TOKEN]. To Check if your **JWT access token** is valid you can use --check-token option.
+When using **cloudaccount.py** script with option --setup to create the configuration file the **JWT access token** is automatically saved in the section header [API_TOKEN]. To Check if your **JWT access token** is valid you can use --token-check option.
 ```
-# python3 cloudaccount.py --check-token
+# python3 cloudaccount.py --token-check
 Access Token is valid
 ```
 
 ## Get a new JWT access token  
 The **JWT access token** is limited in time and will expire after few days. If  **JWT access token** as expired a Code error **401** with message **TokenExpiredError: jwt expired** is return by the API:
 ```
-# python3 cloudaccount.py --check-token
+# python3 cloudaccount.py --token-check
 ERROR: {"code":401,"message":"TokenExpiredError: jwt expired"}
 ```
 To Get a new **JWT access token** :
 ```
-# python3 cloudaccount.py --get-new-token
+# python3 cloudaccount.py --token-get-new
 ```
 
 Check if your new **JWT access token** is valid and saved in your private **api.conf** configuration file.
 ```
-# python3 cloudsync.py --check-token
+# python3 cloudsync.py --token-check
 Access Token is valid
 ```
 # How to Use the CloudSync Script:
@@ -85,7 +85,7 @@ The script **cloudsync.py** show how to work with NetApp Cloud API Sync API. The
 ```
 # python3 cloudsync.py --help
 usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID] [-j]
-                    (--account-list | --data-broker-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations | --check-token | --get-new-token)
+                    (--account-list | --data-broker-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations | --token-check | --token-get-new)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -102,8 +102,8 @@ optional arguments:
   --sync-relation SYNC_RELATION_ID
                         sync a cloudsync relation
   --print-relations     print cloudsnyc relations list
-  --check-token         check NetApp Cloud access token
-  --get-new-token       get a new access token
+  --token-check         check NetApp Cloud access token
+  --token-get-new       get a new access token
 ```
 
 ## Example: Display NetApp Account list associate with your NetApp Central user
