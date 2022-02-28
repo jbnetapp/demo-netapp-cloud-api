@@ -66,8 +66,8 @@ group.add_argument("--cvo-start", dest='start_cvo_id', help="start an existing A
 group.add_argument("--cvo-stop", dest='stop_cvo_id', help="stop an existing Azure Cloud Volumes ONTAP working environment" )
 group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an existing Azure Cloud Volumes ONTAP working environment" )
 group.add_argument("--cvo-get", dest='get_cvo_id', help="get an existing Azure Cloud Volumes ONTAP working environment details" )
-group.add_argument("--check-token", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
-group.add_argument("--get-new-token", dest='get_new_token', help="get a new access token", action="store_true" )
+group.add_argument("--token-check", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
+group.add_argument("--token-get-new", dest='get_new_token', help="get a new access token", action="store_true" )
 
 args = parser.parse_args()
 
