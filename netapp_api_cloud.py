@@ -973,14 +973,14 @@ def cloudsync_get_relations (API_token, API_accountID):
          relations_info["relations"]=response.text
          return relations_info
     else:
-              relations_info["status"]="failed"
-              relations_info["message"]=response.text
-              return relations_info
+         relations_info["status"]="failed"
+         relations_info["message"]=response.text
+         return relations_info
 
 #################################################################################################
 def cloudsync_get_relation (API_token, API_accountID, relation_id):
 
-    print_deb("FUNCTION: cloudsync_get_relations")
+    print_deb("FUNCTION: cloudsync_get_relation")
     relation_info={}
 
     if ( API_token == '' ):
@@ -1012,9 +1012,9 @@ def cloudsync_get_relation (API_token, API_accountID, relation_id):
          relation_info["relation"]=response.text
          return relation_info
     else:
-              relation_info["status"]="failed"
-              relation_info["message"]=response.text
-              return relation_info
+         relation_info["status"]="failed"
+         relation_info["message"]=response.text
+         return relation_info
 
 #################################################################################################
 def cloudsync_sync_relation (API_token, API_accountID, relation_id):
