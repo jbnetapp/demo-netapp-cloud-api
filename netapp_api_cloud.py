@@ -978,16 +978,55 @@ def cloudsync_get_relations (API_token, API_accountID):
               return relations_info
 
 #################################################################################################
+def cloudsync_get_relation (API_token, API_accountID, relation_id):
+
+    print_deb("FUNCTION: cloudsync_get_relations")
+    relation_info={}
+
+    if ( API_token == '' ):
+         relation_info["status"]="failed"
+         relation_info["message"]="ERROR: miss token"
+         return relation_info
+
+    try:
+         url = API_CLOUDSYNC + "/api/relationships-v2/" + relation_id
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-account-id": API_accountID }
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         relation_info["status"]="failed"
+         relation_info["message"]=e
+         return relation_info
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         relation_info["status"]="success"
+         relation_info["message"]="ok"
+         relation_info["relation"]=response.text
+         return relation_info
+    else:
+              relation_info["status"]="failed"
+              relation_info["message"]=response.text
+              return relation_info
+
+#################################################################################################
 def cloudsync_sync_relation (API_token, API_accountID, relation_id):
 
     print_deb("FUNCTION: cloudsync_sync_relation")
-    relations_info={}
-    relations_info["status"]="unknown"
+    relation_info={}
+    relation_info["status"]="unknown"
 
     if ( API_token == '' ):
-         relations_info["status"]="failed"
-         relations_info["message"]="ERROR: miss token"
-         return relations_info
+         relation_info["status"]="failed"
+         relation_info["message"]="ERROR: miss token"
+         return relation_info
 
     try:
          url = API_CLOUDSYNC + "/api/relationships/" + relation_id + "/sync"
@@ -997,9 +1036,9 @@ def cloudsync_sync_relation (API_token, API_accountID, relation_id):
          response = requests.put(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
          print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
-         relations_info["status"]="failed"
-         relations_info["message"]=e
-         return relations_info 
+         relation_info["status"]="failed"
+         relation_info["message"]=e
+         return relation_info
 
     status_code=format(response.status_code)
     print_deb("status_code: {0}".format(status_code))
@@ -1009,26 +1048,26 @@ def cloudsync_sync_relation (API_token, API_accountID, relation_id):
     print_deb ("reason: {0}".format(response.reason))
 
     if ( response.ok ):
-         relations_info["status"]="success"
-         relations_info["message"]="ok"
-         relations_info["relations"]=response.text
-         return relations_info
+         relation_info["status"]="success"
+         relation_info["message"]="ok"
+         relation_info["relations"]=response.text
+         return relation_info
     else:
-              relations_info["status"]="failed"
-              relations_info["message"]=response.text
-              return relations_info
+              relation_info["status"]="failed"
+              relation_info["message"]=response.text
+              return relation_info
 
 #################################################################################################
 def cloudsync_delete_relation (API_token, API_accountID, relation_id):
 
     print_deb("FUNCTION: cloudsync_delete_relation")
-    relations_info={}
-    relations_info["status"]="unknown"
+    relation_info={}
+    relation_info["status"]="unknown"
 
     if ( API_token == '' ):
-         relations_info["status"]="failed"
-         relations_info["message"]="ERROR: miss token"
-         return relations_info
+         relation_info["status"]="failed"
+         relation_info["message"]="ERROR: miss token"
+         return relation_info
 
     try:
          url = API_CLOUDSYNC + "/api/relationships/" + relation_id
@@ -1038,9 +1077,9 @@ def cloudsync_delete_relation (API_token, API_accountID, relation_id):
          response = requests.delete(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
          print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
-         relations_info["status"]="failed"
-         relations_info["message"]=e
-         return relations_info 
+         relation_info["status"]="failed"
+         relation_info["message"]=e
+         return relation_info
 
     status_code=format(response.status_code)
     print_deb("status_code: {0}".format(status_code))
@@ -1049,11 +1088,11 @@ def cloudsync_delete_relation (API_token, API_accountID, relation_id):
     print_deb ("reason: {0}".format(response.reason))
 
     if ( response.ok ):
-         relations_info["status"]="success"
-         relations_info["message"]="ok"
-         relations_info["relations"]=response.text
-         return relations_info
+         relation_info["status"]="success"
+         relation_info["message"]="ok"
+         relation_info["relations"]=response.text
+         return relation_info
     else:
-              relations_info["status"]="failed"
-              relations_info["message"]=response.text
-              return relations_info
+              relation_info["status"]="failed"
+              relation_info["message"]=response.text
+              return relation_info
