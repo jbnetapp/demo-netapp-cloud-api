@@ -53,12 +53,13 @@ if ( os.path.isdir(API_DIR) != True ):
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--debug", dest='debug', help="debug mode", action="store_true")
 parser.add_argument("--account-id", dest='account_id', help="select account ID")
-parser.add_argument("--agent-id", dest='agent_id', help="select Cloud Manager Agent ID")
+parser.add_argument("--agent-id", dest='agent_id', help="select cloud manager Connector")
 parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--account-list", dest='account_list', help="print accounts list", action="store_true" )
 group.add_argument("--cloud-account-list", dest='cloud_account_list', help="print cloud accounts list", action="store_true" )
-group.add_argument("--agent-list", dest='agent_list', help="print cloud manager agents list", action="store_true" )
+group.add_argument("--agent-list", dest='agent_list', help="print cloud manager connectors list", action="store_true" )
+group.add_argument("--agent-switch", dest='switch_agent_id', help="switch to a connector using it agent_id" )
 group.add_argument("--cvo-list", dest='list_cvo', help="list all Azure Cloud Volumes ONTAP working environments", action="store_true" )
 group.add_argument("--cvo-create-single", dest='create_cvo_file', help="create a new Azure Cloud Volumes ONTAP working environment")
 group.add_argument("--cvo-create-ha", dest='create_cvo_ha_file', help="create a new Azure HA Cloud Volumes ONTAP working environment")
@@ -107,7 +108,11 @@ try:
          account_id = ""
 
     # Get Current Cloud Manager agent_id from config file
-    agent_id = ""
+    agent_info=netapp_api_cloud.get_current_occm_agent(API_CONFIG_FILE)
+    if (agent_info["status"] == "success"):
+         agent_id = agent_info["current_agent_id"] 
+    else:
+         agent_id = ""
 
     # Arg --account-id ID
     if args.account_id:
@@ -121,10 +126,6 @@ try:
          print("ERROR: API not supported with Account [Demo_SIM] [{0}]".format(account_id))
          print("ERROR: Please switch to another Account")
          exit(1)
-
-    # Arg --agent-id ID 
-    if args.agent_id:
-         agent_id = args.agent_id 
 
     # Arg --account-list: Print cloud central accounts 
     if args.account_list:
@@ -146,6 +147,10 @@ try:
          else:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)
+
+    # Arg --agent-id ID 
+    if args.agent_id:
+         agent_id = args.agent_id 
 
     # Arg --cloud-account-list: Print cloud Account registered 
     if args.cloud_account_list:
@@ -180,12 +185,14 @@ try:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)
 
-    # Arg --agent-list: Print cloud Manager Agents list 
+    # Arg --connector-list: Print cloud Manager Agents list 
     if args.agent_list:
 
          if ( account_id == "" ):
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
               exit(1)
+
+         current_agent_id = agent_id
 
          print("Print Cloud Manager Agents List")
          agents_info=netapp_api_cloud.occm_get_occms_list(API_TOKEN, account_id)
@@ -198,7 +205,23 @@ try:
                    print(json.dumps(agents, indent=4))
               else:
                    for agent in agents:
-                       print("Name:[{0}] AgentID:[{1}] [{2}] [{3}] [{4}]".format(agent["occmName"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
+                       if ( agent["agent"]["agentId"] == current_agent_id ):
+                            print("Name:[{0}] AgentID:[{1}] [{2}] [{3}] [{4}] Current [X]".format(agent["occmName"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
+                       else: 
+                            print("Name:[{0}] AgentID:[{1}] [{2}] [{3}] [{4}]".format(agent["occmName"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
+         else:
+              print("ERROR: {0}".format(agents_info["message"]))
+              exit(1)
+
+    # Arg --agent-switch: Switch to a Connector using Agent_id 
+    if args.switch_agent_id:
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
+         agents_info=netapp_api_cloud.set_current_occm_agent(API_TOKEN,API_CONFIG_FILE,account_id,args.switch_agent_id)
+         if (agents_info["status"] == "success"):
+              print("Set default occm agent to: [{0}]".format(args.switch_agent_id))
          else:
               print("ERROR: {0}".format(agents_info["message"]))
               exit(1)

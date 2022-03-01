@@ -57,7 +57,7 @@ parser.add_argument("--account-id", dest='account_id', help="select NetApp Cloud
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--setup", dest='setup', help="setup NetApp cloud API connection", action="store_true" )
 group.add_argument("--account-list", dest='account_list', help="print NetApp cloud accounts list", action="store_true" )
-group.add_argument("--account-switch", dest='switch_account_id', help="switch account")
+group.add_argument("--account-switch", dest='switch_account_id', help="switch to an account using account_id")
 group.add_argument("--workspace-list", dest='workspace_list', help="print NetApp cloud accounts list", action="store_true" )
 group.add_argument("--token-check", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
 group.add_argument("--token-get-new", dest='get_new_token', help="get new NetApp Cloud access token", action="store_true" )
@@ -219,12 +219,7 @@ try:
          print_deb("Swich to account: {0}".format(args.switch_account_id))
          accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE, args.switch_account_id)
          if (accounts_info["status"] == "success"):
-              accounts=json.loads(accounts_info["accounts"])
-              for account in accounts:
-                   if ( account["accountPublicId"] == accounts_info["default"] ):
-                         print("Name:[{0}] account_id:[{1}] Current:[X]".format(account["accountName"], account["accountPublicId"],))
-                   else:
-                         print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"],))
+              print("Set default account to [{0}]".format(args.switch_account_id))
          else:
               print("ERROR: {0}".format(accounts_info["message"]))
               exit(1)

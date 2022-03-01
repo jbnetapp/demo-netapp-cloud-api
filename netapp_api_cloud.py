@@ -125,38 +125,6 @@ def check_API_config_file (API_config_file):
     return file_info
 
 #################################################################################################
-def get_current_account(API_config_file):
-
-    print_deb("FUNCTION: get_current_account")
-    account_info={}
-    account_info["status"]="unknow"
-
-    if (os.path.isfile(API_config_file) != True ):
-         account_info["status"]="failed"
-         account_info["message"]="ERROR: {0} file not found".format(API_config_file)
-         return account_info 
-
-    config = configparser.ConfigParser()
-
-    try:
-         config.read(API_config_file)
-    except configparser.Error as e:
-         account_info["message"]=e
-         return account_info
-
-    try:
-        current_account_id=config['API_LOGIN']['current_account_id']; print_deb("grant_type: {0} ".format(current_account_id))
-    except KeyError as e:
-         account_info["status"]="failed"
-         account_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
-         return account_info 
-     
-    account_info["status"]="success"
-    account_info["current_account_id"]=current_account_id
-
-    return account_info 
-
-#################################################################################################
 # Token management API
 #################################################################################################
 def create_new_token (API_config_file):
@@ -350,6 +318,38 @@ def check_current_token (API_config_file):
          return token_info
 
 #################################################################################################
+def get_current_account(API_config_file):
+
+    print_deb("FUNCTION: get_current_account")
+    account_info={}
+    account_info["status"]="unknow"
+
+    if (os.path.isfile(API_config_file) != True ):
+         account_info["status"]="failed"
+         account_info["message"]="ERROR: {0} file not found".format(API_config_file)
+         return account_info 
+
+    config = configparser.ConfigParser()
+
+    try:
+         config.read(API_config_file)
+    except configparser.Error as e:
+         account_info["message"]=e
+         return account_info
+
+    try:
+        current_account_id=config['API_LOGIN']['current_account_id']; print_deb("grant_type: {0} ".format(current_account_id))
+    except KeyError as e:
+         account_info["status"]="failed"
+         account_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
+         return account_info 
+     
+    account_info["status"]="success"
+    account_info["current_account_id"]=current_account_id
+
+    return account_info 
+
+#################################################################################################
 def set_current_account (API_token, API_config_file, API_accountID):
 
     print_deb("FUNCTION: set_current_account")
@@ -535,6 +535,91 @@ def occm_get_occms_list (API_token, API_accountID):
          occms_info["status"]="failed"
          occms_info["message"]=response.text
          return occms_info
+
+
+#################################################################################################
+def get_current_occm_agent(API_config_file):
+
+    print_deb("FUNCTION: get_current_occm_agentt")
+    occm_info={}
+    occm_info["status"]="unknow"
+
+    if (os.path.isfile(API_config_file) != True ):
+         occm_info["status"]="failed"
+         occm_info["message"]="ERROR: {0} file not found".format(API_config_file)
+         return occm_info 
+
+    config = configparser.ConfigParser()
+
+    try:
+         config.read(API_config_file)
+    except configparser.Error as e:
+         occm_info["message"]=e
+         return occm_info
+
+    try:
+        current_agent_id=config['API_LOGIN']['current_agent_id']; print_deb("grant_type: {0} ".format(current_agent_id))
+    except KeyError as e:
+         occm_info["status"]="failed"
+         occm_info["message"]="ERROR: {0} in configuration file {1}".format(e,API_config_file)
+         return occm_info 
+     
+    occm_info["status"]="success"
+    occm_info["current_agent_id"]=current_agent_id
+
+    return occm_info 
+
+#################################################################################################
+def set_current_occm_agent (API_token, API_config_file, API_accountID, API_agentID):
+
+    print_deb("FUNCTION: set_current_account")
+    occm_found=False
+    occms_info={}
+
+    occms_info=occm_get_occms_list(API_token,API_accountID)
+    if (occms_info["status"] == "success"):
+         occms=json.loads(occms_info["occms"])
+         agents=occms["occms"]
+         for agent in agents:
+             if ( agent["agent"]["agentId"] == API_agentID ):
+                  occm_found=True
+    if ( occm_found == True ):
+         occms_info["default"]=API_agentID
+         # Save Default Account in configuration file 
+         if (os.path.isfile(API_config_file) != True ):
+              occms_info["status"]="failed"
+              occms_info["message"]="{0} Configuration file not found".format(API_config_file)
+              return occms_info
+          
+         config = configparser.ConfigParser()
+
+         try:
+              config.read(API_config_file)
+         except configparser.Error as e:
+              occms_info["message"]=e
+              return occms_info
+         try:
+              update=int(config['DEFAULT']['update']); update+=1
+         except KeyError as e:
+              update = 0       
+
+         config['DEFAULT']['update'] = "{0}".format(update)
+         config['API_LOGIN']['current_agent_id'] = API_agentID
+
+         try:
+              with open(API_config_file, 'w') as configfile:
+                  config.write(configfile)
+         except configparser.Error as e:
+              occms_info["status"]="failed"
+              occms_info["message"]=e
+         return occms_info           
+
+    else:
+         occms_info["status"]="failed"
+         occms_info["message"]="account_id {0} not found".format(API_accountID)
+         occms_info["default"]=""
+
+    return occms_info
 
 #################################################################################################
 def occm_get_cloud_accounts_list (API_token, API_accountID, API_agentID):
