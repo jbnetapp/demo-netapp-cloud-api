@@ -29,7 +29,7 @@ API_AUDIENCE = "https://api.cloud.netapp.com"
 API_SERVICES = "https://api.services.cloud.netapp.com"
 CLIENT_ID_REGULAR = "QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO" 
 CLIENT_ID_REFRESH_TOKEN = "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC"
-API_RELEASE='0.5'
+API_RELEASE='0.6'
 #################################################################################################
 # Debug 
 #################################################################################################
@@ -660,6 +660,54 @@ def occm_get_cloud_accounts_list (API_token, API_accountID, API_agentID):
          cloudaccounts_info["status"]="failed"
          cloudaccounts_info["message"]=response.text
          return cloudaccounts_info
+
+#################################################################################################
+# CVO Working Environments  
+#################################################################################################
+def cvo_get_working_environment (API_token, API_accountID, API_agentID, vsa_id):
+    print_deb("FUNCTION: cvo_get_working_environments")
+    cvo_info={}
+    cvo_info["status"]="unknown"
+
+    if ( API_token == '' ):
+         cvo_info["status"]="failed"
+         cvo_info["message"]="ERROR: miss token"
+         return cvo_info
+
+    if ( vsa_id == '' ):
+         cvo_info["status"]="failed"
+         cvo_info["message"]="ERROR: miss vsa_id"
+         return cvo_info
+
+    url = API_OCCM + "/occm/api/working-environments/" + vsa_id
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "x-agent-id": API_agentID , "X-Tenancy-Account-Id": API_accountID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvo_info["status"]="failed"
+         cvo_info["message"]=e
+         return cvo_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvo_info["status"]="success"
+         cvo_info["message"]="ok"
+         cvo_info["cvo"]=response.text
+         return cvo_info
+    else:
+              cvo_info["status"]="failed"
+              cvo_info["message"]=response.text
+              return cvo_info
 
 #################################################################################################
 # CVO Azure API
