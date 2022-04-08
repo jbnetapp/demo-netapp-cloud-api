@@ -239,8 +239,7 @@ try:
 
          print("Print Azure Cloud Volumes ONTAP List")
 
-         isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, account_id, agent_id )
          print_deb(cvos_info)
          if (cvos_info["status"] == "success"):
               cvos=json.loads(cvos_info["cvos"])
@@ -268,7 +267,7 @@ try:
          print("Print details of Azure Cloud Volumes ONTAP working environment ID:{0}".format(args.get_cvo_id))
 
          isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, account_id, agent_id, isHA)
          print_deb(cvos_info)
          cvo_found=False
          if (cvos_info["status"] == "success"):
@@ -284,7 +283,7 @@ try:
               print("ERROR: {0}".format(cvos_info["message"]))
               exit(1)
          
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.get_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -327,7 +326,7 @@ try:
          f.close
 
          isHA = False
-         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, agent_id, isHA, new_cvo_json)
+         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -363,7 +362,7 @@ try:
          f.close
 
          isHA = True 
-         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, agent_id, isHA, new_cvo_json)
+         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -388,8 +387,7 @@ try:
 
          print("Start Azure Cloud volumes ONTAP working environment ID: {0}".format(args.start_cvo_id))
 
-         isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, account_id, agent_id )
          print_deb(cvos_info)
          cvo_found=False
          if (cvos_info["status"] == "success"):
@@ -405,7 +403,7 @@ try:
               print("ERROR: {0}".format(cvos_info["message"]))
               exit(1)
 
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.start_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.start_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -425,7 +423,7 @@ try:
          if ( answer != "y"):
               exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.start_cvo_id, isHA, "start")
+         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, account_id, agent_id, args.start_cvo_id, isHA, "start")
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               print("CVO Name:[{0}] started".format(cvo_name))
@@ -446,8 +444,7 @@ try:
 
          print("Stop Azure Cloud volumes ONTAP working environment ID: {0}".format(args.stop_cvo_id))
 
-         isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, account_id, agent_id )
          print_deb(cvos_info)
          cvo_found=False
          if (cvos_info["status"] == "success"):
@@ -463,7 +460,7 @@ try:
               print("ERROR: {0}".format(cvos_info["message"]))
               exit(1)
 
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.stop_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.stop_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -483,7 +480,7 @@ try:
          if ( answer != "y"):
               exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.stop_cvo_id, isHA, "stop")
+         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, account_id, agent_id, args.stop_cvo_id, isHA, "stop")
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               print("CVO Name:[{0}] stopped".format(cvo_name))
@@ -504,8 +501,7 @@ try:
 
          print("Delete Azure cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_id))
 
-         isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
+         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, account_id, agent_id )
          print_deb(cvos_info)
          cvo_found=False
          if (cvos_info["status"] == "success"):
@@ -521,7 +517,7 @@ try:
               print("ERROR: {0}".format(cvos_info["message"]))
               exit(1)
 
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.delete_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -541,7 +537,7 @@ try:
          if ( answer != "y"):
               exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, agent_id, isHA, args.delete_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               print("CVO Name:[{0}] deleted".format(cvo_name))
