@@ -1,6 +1,5 @@
 #####################################################################
-# cvoazure is a simple python script using NetApp Cloud Rest API
-# jerome.blanchet@netapp.com
+# occm python script for NetApp Cloud Manager
 #####################################################################
 import netapp_api_cloud
 import argparse
