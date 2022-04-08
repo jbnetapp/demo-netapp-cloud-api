@@ -10,7 +10,7 @@ import configparser
 import json
 import os
 
-RELEASE='0.5'
+RELEASE='0.6'
 #####################################################################
 # Local API 
 #####################################################################
@@ -126,7 +126,7 @@ try:
          print("ERROR: API not supported with Account [Demo_SIM] [{0}]".format(account_id))
          print("ERROR: Please switch to another Account")
          exit(1)
-
+    
     # Arg --account-list: Print cloud central accounts 
     if args.account_list:
          current_account_id = account_id 
@@ -237,21 +237,21 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Print Azure Cloud Volumes ONTAP List")
-
+         # List CVO Azure
          isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
-         print_deb(cvos_info)
-         if (cvos_info["status"] == "success"):
-              cvos=json.loads(cvos_info["cvos"])
-              print("Print NetApp Azure CVO list[{0}]:".format(len(cvos)))
-              if (args.json):
-                   print(json.dumps(cvos, indent=4))
-              else:
-                   for cvo in cvos:
-                       print("Name:[{0}][{1}] id:[{2}] HA:[{3}] status[{4}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
+         cvos_az_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, account_id, agent_id, isHA)
+         print_deb(cvos_az_info)
+         if (cvos_az_info["status"] == "success"):
+              cvos_az=json.loads(cvos_az_info["cvos"])
+              if ( len(cvos_az) >= 0 ):
+                   print("Print Azure Cloud Volume ONTAP list[{0}]:".format(len(cvos_az)))
+                   if (args.json):
+                        print(json.dumps(cvos_az, indent=4))
+                   else:
+                       for cvo in cvos_az:
+                            print("Name:[{0}][{1}] id:[{2}] HA:[{3}] status[{4}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
          else:
-              print("ERROR: {0}".format(cvos_info["message"]))
+              print("ERROR: {0}".format(cvos_az_info["message"]))
               exit(1)
 
     # Arg --get-list: Print details of Azure Cloud Volumes ONTAP working environment
@@ -265,44 +265,44 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Print details of Azure Cloud Volumes ONTAP working environment ID:{0}".format(args.get_cvo_id))
+         print("Print details of Cloud Volumes ONTAP working environment ID: {0}".format(args.get_cvo_id))
 
-         isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
-         print_deb(cvos_info)
-         cvo_found=False
-         if (cvos_info["status"] == "success"):
-              cvos=json.loads(cvos_info["cvos"])
-              for cvo in cvos:
-                   if ( cvo["publicId"] == args.get_cvo_id ):
-                        isHA=cvo["isHA"]
-                        cvo_found=True
-              if ( cvo_found != True ):
-                  print("ERROR: Azure Cloud volume ONTAP working environment ID:{0} not found".format(args.get_cvo_id))
-                  exit(1)
-         else:
-              print("ERROR: {0}".format(cvos_info["message"]))
-              exit(1)
-         
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.get_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_get_working_environment(API_TOKEN, account_id, agent_id,args.get_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
-              if (args.json):
-                   print(json.dumps(cvo, indent=4))
-              else:
-                   cvo_name=cvo["name"]
-                   cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
-                   cvo_mgmt_ip = "" 
-                   for cvo_node in cvo_nodes:
-                        cvo_lifs = cvo_node["lifs"]
-                        for cvo_lif in cvo_lifs:
-                             if (cvo_lif["lifType"] == "Cluster Management"):
-                                 cvo_mgmt_ip = cvo_lif["ip"] 
-                   print("Name:[{0}][{1}] HA:[{2}] svm:[{3}] status[{4}] mgmt[{5}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
+              isHA=cvo["isHA"]
+              cloudProviderName=cvo["cloudProviderName"]
+              print_deb("isHA: {0}".format(isHA))
+              print_deb("cloudProvierName: {0}".format(cloudProviderName))
          else:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
+
+         # Cloud Provider Azure
+         if (cloudProviderName == "Azure"):
+              cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   if (args.json):
+                        print(json.dumps(cvo, indent=4))
+                   else:
+                        cvo_name=cvo["name"]
+                        cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
+                        cvo_mgmt_ip = "" 
+                        for cvo_node in cvo_nodes:
+                             cvo_lifs = cvo_node["lifs"]
+                             for cvo_lif in cvo_lifs:
+                                  if (cvo_lif["lifType"] == "Cluster Management"):
+                                      cvo_mgmt_ip = cvo_lif["ip"] 
+                        print("Name:[{0}][{1}] HA:[{2}] svm:[{3}] status[{4}] mgmt[{5}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
+         print("ERROR: cloud provider  [{0}] is not supported".format(cvo_info["message"]))
 
     # Arg --cvo-create-single: Create a new Azure Cloud Volumes ONTAP working environment 
     if args.create_cvo_file:
@@ -327,7 +327,7 @@ try:
          f.close
 
          isHA = False
-         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, agent_id, isHA, new_cvo_json)
+         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -363,7 +363,7 @@ try:
          f.close
 
          isHA = True 
-         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, agent_id, isHA, new_cvo_json)
+         cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -388,50 +388,50 @@ try:
 
          print("Start Azure Cloud volumes ONTAP working environment ID: {0}".format(args.start_cvo_id))
 
-         isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
-         print_deb(cvos_info)
-         cvo_found=False
-         if (cvos_info["status"] == "success"):
-              cvos=json.loads(cvos_info["cvos"])
-              for cvo in cvos:
-                   if ( cvo["publicId"] == args.start_cvo_id ):
-                        isHA=cvo["isHA"]
-                        cvo_found=True
-              if ( cvo_found != True ):
-                  print("ERROR: Azure Cloud volume ONTAP working environment ID:{0} not found".format(args.start_cvo_id))
-                  exit(1)
-         else:
-              print("ERROR: {0}".format(cvos_info["message"]))
-              exit(1)
-
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.start_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_get_working_environment(API_TOKEN, account_id, agent_id,args.start_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
-              if (args.json):
-                   print(json.dumps(cvo, indent=4))
+              isHA=cvo["isHA"]
+              cloudProviderName=cvo["cloudProviderName"]
+              print_deb("isHA: {0}".format(isHA))
+              print_deb("cloudProvierName: {0}".format(cloudProviderName))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+
+         # Azure Cloud Provider
+         if (cloudProviderName == "Azure"):
+              cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.start_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   if (args.json):
+                        print(json.dumps(cvo, indent=4))
+                   else:
+                        cvo_name=cvo["name"]
+                        print("Name:[{0}] id:[{1}] HA:[{2}] status:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
               else:
-                   cvo_name=cvo["name"]
-                   print("Name:[{0}] id:[{1}] HA:[{2}] status:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
-         else:
-              print("ERROR: {0}".format(cvo_info["message"]))
-              exit(1)
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
          
-         answer = ''
-         while ( answer != "y" and answer != "n" ):
-              answer=input('Do you want to start CVO [{0}] ? [y/n] : '.format(cvo["name"]))
+              answer = ''
+              while ( answer != "y" and answer != "n" ):
+                   answer=input('Do you want to start CVO [{0}] ? [y/n] : '.format(cvo["name"]))
 
-         if ( answer != "y"):
-              exit(0)
+              if ( answer != "y"):
+                   exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.start_cvo_id, isHA, "start")
-         print_deb(cvo_info)
-         if (cvo_info["status"] == "success"):
-              print("CVO Name:[{0}] started".format(cvo_name))
-         else:
-              print("ERROR: {0}".format(cvo_info["message"]))
-              exit(1)
+              cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, account_id, agent_id, args.start_cvo_id, isHA, "start")
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   print("CVO Name:[{0}] started".format(cvo_name))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
+         print("ERROR: cloud provider  [{0}] is not supported".format(cvo_info["message"]))
 
     # Arg --cvo-stop: Stop an Azure Cloud Volumes ONTAP working environment
     if args.stop_cvo_id:
@@ -446,50 +446,50 @@ try:
 
          print("Stop Azure Cloud volumes ONTAP working environment ID: {0}".format(args.stop_cvo_id))
 
-         isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
-         print_deb(cvos_info)
-         cvo_found=False
-         if (cvos_info["status"] == "success"):
-              cvos=json.loads(cvos_info["cvos"])
-              for cvo in cvos:
-                   if ( cvo["publicId"] == args.stop_cvo_id ):
-                        isHA=cvo["isHA"]
-                        cvo_found=True
-              if ( cvo_found != True ):
-                  print("ERROR: Azure Cloud volume ONTAP working environment ID:{0} not found".format(args.stop_cvo_id))
-                  exit(1)
-         else:
-              print("ERROR: {0}".format(cvos_info["message"]))
-              exit(1)
-
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.stop_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_get_working_environment(API_TOKEN, account_id, agent_id,args.stop_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
-              if (args.json):
-                   print(json.dumps(cvo, indent=4))
+              isHA=cvo["isHA"]
+              cloudProviderName=cvo["cloudProviderName"]
+              print_deb("isHA: {0}".format(isHA))
+              print_deb("cloudProvierName: {0}".format(cloudProviderName))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+
+         # Azure Cloud Provider
+         if (cloudProviderName == "Azure"):
+              cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.stop_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   if (args.json):
+                        print(json.dumps(cvo, indent=4))
+                   else:
+                        cvo_name=cvo["name"]
+                        print("Name:[{0}] id:[{1}] HA:[{2}] status:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
               else:
-                   cvo_name=cvo["name"]
-                   print("Name:[{0}] id:[{1}] HA:[{2}] status:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
-         else:
-              print("ERROR: {0}".format(cvo_info["message"]))
-              exit(1)
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
          
-         answer = ''
-         while ( answer != "y" and answer != "n" ):
-              answer=input('WARNING: do you want to stop CVO [{0}] ? [y/n] : '.format(cvo["name"]))
+              answer = ''
+              while ( answer != "y" and answer != "n" ):
+                   answer=input('WARNING: do you want to stop CVO [{0}] ? [y/n] : '.format(cvo["name"]))
 
-         if ( answer != "y"):
-              exit(0)
+              if ( answer != "y"):
+                   exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, agent_id, args.stop_cvo_id, isHA, "stop")
-         print_deb(cvo_info)
-         if (cvo_info["status"] == "success"):
-              print("CVO Name:[{0}] stopped".format(cvo_name))
-         else:
-              print("ERROR: {0}".format(cvo_info["message"]))
-              exit(1)
+              cvo_info=netapp_api_cloud.cvo_azure_action_vsa(API_TOKEN, account_id, agent_id, args.stop_cvo_id, isHA, "stop")
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   print("CVO Name:[{0}] stopped".format(cvo_name))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
+         print("ERROR: cloud provider  [{0}] is not supported".format(cvo_info["message"]))
 
     # Arg --cvo-stop: Delete an Azure Cloud Volumes ONTAP working environment
     if args.delete_cvo_id:
@@ -504,50 +504,50 @@ try:
 
          print("Delete Azure cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_id))
 
-         isHA=False
-         cvos_info=netapp_api_cloud.cvo_azure_get_vsa_list(API_TOKEN, agent_id, isHA)
-         print_deb(cvos_info)
-         cvo_found=False
-         if (cvos_info["status"] == "success"):
-              cvos=json.loads(cvos_info["cvos"])
-              for cvo in cvos:
-                   if ( cvo["publicId"] == args.delete_cvo_id ):
-                        isHA=cvo["isHA"]
-                        cvo_found=True
-              if ( cvo_found != True ):
-                  print("ERROR: Azure Cloud volume ONTAP working environment ID:{0} not found".format(args.delete_cvo_id))
-                  exit(1)
-         else:
-              print("ERROR: {0}".format(cvos_info["message"]))
-              exit(1)
-
-         cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, agent_id, isHA, args.delete_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_get_working_environment(API_TOKEN, account_id, agent_id,args.delete_cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
-              if (args.json):
-                   print(json.dumps(cvo, indent=4))
+              isHA=cvo["isHA"]
+              cloudProviderName=cvo["cloudProviderName"]
+              print_deb("isHA: {0}".format(isHA))
+              print_deb("cloudProvierName: {0}".format(cloudProviderName))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+
+         # Azure Cloud Provider
+         if (cloudProviderName == "Azure"):
+              cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   if (args.json):
+                        print(json.dumps(cvo, indent=4))
+                   else:
+                        cvo_name=cvo["name"]
+                        print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
               else:
-                   cvo_name=cvo["name"]
-                   print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
-         else:
-              print("ERROR: {0}".format(cvo_info["message"]))
-              exit(1)
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
          
-         answer = ''
-         while ( answer != "y" and answer != "n" ):
-              answer=input('WARNING: do you want to delete the CVO [{0}] ? [y/n] : '.format(cvo["name"]))
+              answer = ''
+              while ( answer != "y" and answer != "n" ):
+                   answer=input('WARNING: do you want to delete the CVO [{0}] ? [y/n] : '.format(cvo["name"]))
 
-         if ( answer != "y"):
-              exit(0)
+              if ( answer != "y"):
+                   exit(0)
 
-         cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, agent_id, isHA, args.delete_cvo_id)
-         print_deb(cvo_info)
-         if (cvo_info["status"] == "success"):
-              print("CVO Name:[{0}] deleted".format(cvo_name))
-         else:
-              print("ERROR: {0}".format(cvo_info["message"]))
-              exit(1)
+              cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   print("CVO Name:[{0}] deleted".format(cvo_name))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
+         print("ERROR: cloud provider  [{0}] is not supported".format(cvo_info["message"]))
 
     # Arg --check-token: Check if API token is still valid 
     if args.check_token:

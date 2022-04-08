@@ -628,16 +628,11 @@ def occm_get_cloud_accounts_list (API_token, API_accountID, API_agentID):
     cloudaccounts_info={}
     cloudaccounts_info["status"]="unknown"
 
-    if ( API_token == '' ):
-         cloudaccounts_info["status"]="failed"
-         cloudaccounts_info["message"]="ERROR: miss token"
-         return cloudaccounts_info
-
     try:
          url = API_OCCM + "/occm/api/accounts"
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_agentID , "X-Tenancy-Account-Id": API_accountID }
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
          response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
          print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
@@ -669,22 +664,12 @@ def cvo_get_working_environment (API_token, API_accountID, API_agentID, vsa_id):
     cvo_info={}
     cvo_info["status"]="unknown"
 
-    if ( API_token == '' ):
-         cvo_info["status"]="failed"
-         cvo_info["message"]="ERROR: miss token"
-         return cvo_info
-
-    if ( vsa_id == '' ):
-         cvo_info["status"]="failed"
-         cvo_info["message"]="ERROR: miss vsa_id"
-         return cvo_info
-
     url = API_OCCM + "/occm/api/working-environments/" + vsa_id
 
     try:
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_agentID , "X-Tenancy-Account-Id": API_accountID }
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
@@ -712,16 +697,11 @@ def cvo_get_working_environment (API_token, API_accountID, API_agentID, vsa_id):
 #################################################################################################
 # CVO Azure API
 #################################################################################################
-def cvo_azure_get_vsa_list (API_token, API_agentID, isHA):
+def cvo_azure_get_vsa_list (API_token, API_accountID, API_agentID, isHA):
 
     print_deb("FUNCTION: cvo_azure_get_vsa_list")
     cvos_info={}
     cvos_info["status"]="unknown"
-
-    if ( API_token == '' ):
-         cvos_info["status"]="failed"
-         cvos_info["message"]="ERROR: miss token"
-         return cvos_info
 
     if ( isHA == True ):
          url = API_OCCM + "/occm/api/azure/ha/working-environments?fields=status"
@@ -730,7 +710,7 @@ def cvo_azure_get_vsa_list (API_token, API_agentID, isHA):
     try:
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
@@ -756,16 +736,11 @@ def cvo_azure_get_vsa_list (API_token, API_agentID, isHA):
               return cvos_info
 
 #################################################################################################
-def cvo_azure_get_vsa (API_token, API_agentID, isHA, vsa_id):
+def cvo_azure_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
 
     print_deb("FUNCTION: cvo_azure_get_vsa")
     cvo_info={}
     cvo_info["status"]="unknown"
-
-    if ( API_token == '' ):
-         cvo_info["status"]="failed"
-         cvo_info["message"]="ERROR: miss token"
-         return cvo_info
 
     if( isHA == True ):
          url = API_OCCM + "/occm/api/azure/ha/working-environments/" + vsa_id + "?fields=*"
@@ -775,7 +750,7 @@ def cvo_azure_get_vsa (API_token, API_agentID, isHA, vsa_id):
     try:
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
@@ -801,17 +776,12 @@ def cvo_azure_get_vsa (API_token, API_agentID, isHA, vsa_id):
               return cvo_info
 
 #################################################################################################
-def cvo_azure_create_new (API_token, API_agentID, isHA, API_json ):
+def cvo_azure_create_new (API_token, API_accountID, API_agentID, isHA, API_json ):
 
     print_deb("FUNCTION: cvo_azure_create_new_single")
     cvo_info={}
     cvo_info["status"]="unknown"
 
-    if ( API_token == '' ):
-         cvo_info["status"]="failed"
-         cvo_info["message"]="ERROR: miss token"
-         return cvo_info
-    
     if ( isHA == True ):
          url = API_OCCM + "/occm/api/azure/ha/working-environments"
     else:
@@ -820,7 +790,7 @@ def cvo_azure_create_new (API_token, API_agentID, isHA, API_json ):
     try:
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.post(url, auth=BearerAuth(API_token), headers=headers,json=API_json)
     except BaseException as e:
@@ -846,16 +816,11 @@ def cvo_azure_create_new (API_token, API_agentID, isHA, API_json ):
          return cvo_info
 
 #################################################################################################
-def cvo_azure_delete_vsa (API_token, API_agentID, isHA, vsa_id):
+def cvo_azure_delete_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
 
     print_deb("FUNCTION: cvo_azure_delete_vsa")
     cvos_info={}
     cvos_info["status"]="unknown"
-
-    if ( API_token == '' ):
-         cvos_info["status"]="failed"
-         cvos_info["message"]="ERROR: miss token"
-         return cvos_info
 
     if ( isHA == True ):
          url = API_OCCM + "/occm/api/azure/ha/working-environments/" + vsa_id
@@ -865,7 +830,7 @@ def cvo_azure_delete_vsa (API_token, API_agentID, isHA, vsa_id):
     try:
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.delete(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
@@ -891,16 +856,11 @@ def cvo_azure_delete_vsa (API_token, API_agentID, isHA, vsa_id):
               return cvos_info
 
 #################################################################################################
-def cvo_azure_action_vsa (API_token, API_agentID, vsa_id, isHA, action):
+def cvo_azure_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, action):
 
     print_deb("FUNCTION: cvo_azure_stop_vsa")
     cvos_info={}
     cvos_info["status"]="unknown"
-
-    if ( API_token == '' ):
-         cvos_info["status"]="failed"
-         cvos_info["message"]="ERROR: miss token"
-         return cvos_info
 
     if ( isHA == True ):
         API_PATH = "/occm/api/azure/ha/working-environments/"
@@ -923,7 +883,7 @@ def cvo_azure_action_vsa (API_token, API_agentID, vsa_id, isHA, action):
     try:
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-agent-id": API_agentID }
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
          print_deb("headers: {0} ".format(headers))
          response = requests.post(url, auth=BearerAuth(API_token), headers=headers)
 
@@ -957,11 +917,6 @@ def cloudsync_get_accounts_list (API_token):
     print_deb("FUNCTION: cloudsync_get_accounts_list")
     accounts_info={}
     accounts_info["status"]="unknown"
-
-    if ( API_token == '' ):
-         accounts_info["status"]="failed"
-         accounts_info["message"]="ERROR: miss token"
-         return accounts_info
 
     try:
          url = API_CLOUDSYNC + "/api/accounts"
@@ -999,11 +954,6 @@ def cloudsync_get_databrokers_list (API_token, API_accountID):
     databrokers_info={}
     databrokers_info["status"]="unknown"
 
-    if ( API_token == '' ):
-         databrokers_info["status"]="failed"
-         databrokers_info["message"]="ERROR: miss token"
-         return databrokers_info
-
     try:
          url = API_CLOUDSYNC + "/api/data-brokers"
          print_deb("url: {0} ".format(url))
@@ -1037,11 +987,6 @@ def cloudsync_create_relations (API_token, API_accountID, API_json):
 
     print_deb("FUNCTION: cloudsync_create_relations")
     relations_info={}
-
-    if ( API_token == '' ):
-         relations_info["status"]="failed"
-         relations_info["message"]="ERROR: miss token"
-         return relations_info
 
     try:
          url = API_CLOUDSYNC + "/api/relationships-v2"
@@ -1077,11 +1022,6 @@ def cloudsync_get_relations (API_token, API_accountID):
     print_deb("FUNCTION: cloudsync_get_relations")
     relations_info={}
 
-    if ( API_token == '' ):
-         relations_info["status"]="failed"
-         relations_info["message"]="ERROR: miss token"
-         return relations_info
-
     try:
          url = API_CLOUDSYNC + "/api/relationships-v2"
          print_deb("url: {0} ".format(url))
@@ -1115,11 +1055,6 @@ def cloudsync_get_relation (API_token, API_accountID, relation_id):
 
     print_deb("FUNCTION: cloudsync_get_relation")
     relation_info={}
-
-    if ( API_token == '' ):
-         relation_info["status"]="failed"
-         relation_info["message"]="ERROR: miss token"
-         return relation_info
 
     try:
          url = API_CLOUDSYNC + "/api/relationships-v2/" + relation_id
@@ -1156,11 +1091,6 @@ def cloudsync_sync_relation (API_token, API_accountID, relation_id):
     relation_info={}
     relation_info["status"]="unknown"
 
-    if ( API_token == '' ):
-         relation_info["status"]="failed"
-         relation_info["message"]="ERROR: miss token"
-         return relation_info
-
     try:
          url = API_CLOUDSYNC + "/api/relationships/" + relation_id + "/sync"
          print_deb("url: {0} ".format(url))
@@ -1196,11 +1126,6 @@ def cloudsync_delete_relation (API_token, API_accountID, relation_id):
     print_deb("FUNCTION: cloudsync_delete_relation")
     relation_info={}
     relation_info["status"]="unknown"
-
-    if ( API_token == '' ):
-         relation_info["status"]="failed"
-         relation_info["message"]="ERROR: miss token"
-         return relation_info
 
     try:
          url = API_CLOUDSYNC + "/api/relationships/" + relation_id
