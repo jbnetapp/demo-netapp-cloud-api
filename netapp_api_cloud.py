@@ -28,7 +28,7 @@ API_AUDIENCE = "https://api.cloud.netapp.com"
 API_SERVICES = "https://api.services.cloud.netapp.com"
 CLIENT_ID_REGULAR = "QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO" 
 CLIENT_ID_REFRESH_TOKEN = "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC"
-API_RELEASE='0.6.1'
+API_RELEASE='0.6.2'
 #################################################################################################
 # Debug 
 #################################################################################################
