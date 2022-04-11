@@ -772,6 +772,46 @@ def cvo_azure_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
               return cvo_info
 
 #################################################################################################
+def cvo_azure_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, vsa_id):
+
+    print_deb("FUNCTION: cvo_azure_get_vsa_creation_parameters")
+    cvo_creation_parameters={}
+    cvo_creation_parameters["status"]="unknown"
+
+    if( isHA == True ):
+         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + vsa_id + "/create-request-parameters"
+    else:
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "/create-request-parameters"
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvo_creation_parameters["status"]="failed"
+         cvo_creation_parameters["message"]=e
+         return cvo_creation_parameters 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvo_creation_parameters["status"]="success"
+         cvo_creation_parameters["message"]="ok"
+         cvo_creation_parameters["cvo"]=response.text
+         return cvo_creation_parameters
+    else:
+              cvo_creation_parameters["status"]="failed"
+              cvo_creation_parameters["message"]=response.text
+              return cvo_creation_parameters
+
+#################################################################################################
 def cvo_azure_create_new (API_token, API_accountID, API_agentID, isHA, API_json ):
 
     print_deb("FUNCTION: cvo_azure_create_new_single")
@@ -982,6 +1022,46 @@ def cvo_aws_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
               cvo_info["status"]="failed"
               cvo_info["message"]=response.text
               return cvo_info
+
+#################################################################################################
+def cvo_aws_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, vsa_id):
+
+    print_deb("FUNCTION: cvo_aws_get_vsa")
+    cvo_creation_parameters={}
+    cvo_creation_parameters["status"]="unknown"
+
+    if( isHA == True ):
+         url = API_OCCM + "/occm/api/aws/ha/working-environments/" + vsa_id + "/create-request-parameters"
+    else:
+         url = API_OCCM + "/occm/api/vsa/working-environments/" + vsa_id + "/create-request-parameters"
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvo_creation_parameters["status"]="failed"
+         cvo_creation_parameters["message"]=e
+         return cvo_creation_parameters 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvo_creation_parameters["status"]="success"
+         cvo_creation_parameters["message"]="ok"
+         cvo_creation_parameters["cvo"]=response.text
+         return cvo_creation_parameters
+    else:
+              cvo_creation_parameters["status"]="failed"
+              cvo_creation_parameters["message"]=response.text
+              return cvo_creation_parameters
 
 #################################################################################################
 def cvo_aws_create_new (API_token, API_accountID, API_agentID, isHA, API_json ):

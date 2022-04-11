@@ -61,6 +61,7 @@ group.add_argument("--agent-list", dest='agent_list', help="print cloud manager 
 group.add_argument("--agent-switch", dest='switch_agent_id', help="switch to a connector using it agent_id" )
 group.add_argument("--cvo-list", dest='list_cvo', help="list all Cloud Volumes ONTAP working environments", action="store_true" )
 group.add_argument("--cvo-get", dest='get_cvo_id', help="get an existing Cloud Volumes ONTAP working environment details" )
+group.add_argument("--cvo-get-creation-parameters", dest='get_cvo_id_creation_parameters', help="get an existing Cloud Volumes ONTAP creation parameters" )
 group.add_argument("--cvo-start", dest='start_cvo_id', help="start an existing Cloud Volumes ONTAP working environment " )
 group.add_argument("--cvo-stop", dest='stop_cvo_id', help="stop an existing Cloud Volumes ONTAP working environment" )
 group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an existing Cloud Volumes ONTAP working environment" )
@@ -275,7 +276,7 @@ try:
               exit(1)
 
 
-    # Arg --get-list: Print details of Cloud Volumes ONTAP working environment
+    # Arg --cvo-get: Print details of Cloud Volumes ONTAP working environment
     if args.get_cvo_id:
 
          if ( account_id == "" ):
@@ -346,6 +347,55 @@ try:
                    print("ERROR: {0}".format(cvo_info["message"]))
                    exit(1)
 
+
+         print("ERROR: cloud provider  [{0}] is not supported".format(cloudProviderName))
+
+    # Arg --cvo_get_creation_parameters: Print details of Cloud Volumes ONTAP creation parameters 
+    if args.get_cvo_id_creation_parameters:
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
+         if ( agent_id == "" ):
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         cvo_info=netapp_api_cloud.cvo_get_working_environment(API_TOKEN, account_id, agent_id,args.get_cvo_id_creation_parameters)
+         print_deb(cvo_info)
+         if (cvo_info["status"] == "success"):
+              cvo=json.loads(cvo_info["cvo"])
+              isHA=cvo["isHA"]
+              cloudProviderName=cvo["cloudProviderName"]
+              print_deb("isHA: {0}".format(isHA))
+              print_deb("cloudProvierName: {0}".format(cloudProviderName))
+         else:
+              print("ERROR: {0}".format(cvo_info["message"]))
+              exit(1)
+
+         # Cloud Provider Azure
+         if (cloudProviderName == "Azure"):
+              cvo_info=netapp_api_cloud.cvo_azure_get_vsa_creation_parameters(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id_creation_parameters)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   print(json.dumps(cvo["parameters"], indent=4))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
+         # Cloud Provider Amazon 
+         if (cloudProviderName == "Amazon"):
+              cvo_info=netapp_api_cloud.cvo_aws_get_vsa_creation_parameters(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id_creation_parameters)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   print(json.dumps(cvo["parameters"], indent=4))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
 
          print("ERROR: cloud provider  [{0}] is not supported".format(cloudProviderName))
 
