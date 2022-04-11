@@ -811,7 +811,7 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Creates a new Azure Cloud Volumes ONTAP working environment")
+         print("Creates a new AWS Cloud Volumes ONTAP working environment")
 
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_aw_file))
          if (os.path.isfile(args.create_cvo_aw_file) != True ):
@@ -847,7 +847,7 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Creates a new Azure HA Cloud Volumes ONTAP working environment")
+         print("Creates a new AWS HA Cloud Volumes ONTAP working environment")
 
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_aw_ha_file))
          if (os.path.isfile(args.create_cvo_aw_ha_file) != True ):
