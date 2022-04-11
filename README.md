@@ -107,7 +107,7 @@ Creates a new Azure HA Cloud Volumes ONTAP working environment
 Name:[cvoaz02] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] svm:[svm_cvoaz02] provider[Azure]
 ```
 
-## CCreate a new AWS Cloud Volume ONTAP working environment 
+## Create a new AWS Cloud Volume ONTAP working environment 
 ```
 # occm --cvo-aw-create ./new-cvo-aws-single-cvoaw03-ws1.json
 Creates a new AWS Cloud Volumes ONTAP working environment
