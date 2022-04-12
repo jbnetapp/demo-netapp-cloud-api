@@ -87,33 +87,50 @@ Name:[cvoaz01][Azure] id:[VsaWorkingEnvironment-tNz1RNLH] HA:[False] status[ON]
 Name:[cvoaz02][Azure] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] status[ON]
 Name:[cvoaw03][Amazon] id:[VsaWorkingEnvironment-DPKWwhPC] HA:[False] status[ON]
 ```
+## Get more details of an already deployed Cloud volume ONTAP
+```
+# occm --cvo-get VsaWorkingEnvironment-tNz1RNLH
+Name:[cvoaz01][Azure] HA:[False] svm:[svm_cvoaz01] status[ON] mgmt[172.30.24.207]
+```
+
+## Get Full details in JSON format qof an already deployed Cloud Volume ONTAP
+```
+# occm --cvo-get VsaWorkingEnvironment-tNz1RNLH --json > /tmp/cvoaz01.json
+```
 
 ## Get creation Parameters of an already deployed Coud Volume ONTAP
 ```
-# python3 occm.py --cvo-get-creation-parameters VsaWorkingEnvironment-tNz1RNLH > /tmp/cvo.json
+# python3 occm.py --cvo-get-creation-parameters VsaWorkingEnvironment-tNz1RNLH > /tmp/cvoaz01-config-parameters.json
 ```
 
 ## Recreate a new Azure Cloud Volume ONTAP Using JSON file create with otpion --cvo-get-creation-parameters
 ```
-# python3 occm.py --cvo-az-create /tmp/cvo.json
+# python3 occm.py --cvo-az-create /tmp/cvoaz01-config-parameters.json
 Creates a new Azure Cloud Volumes ONTAP working environment
 Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] svm:[svm_cvoaz01b] provider[Azure]
 ```
 
-## Create a new Azure HA Cloud Volume ONTAP working environment
+## Create a new Cloud Volume ONTAP in Azure
+```
+# occm --cvo-az-create ./new-cvo-azure-single-cvoaz01-ws1.json
+Creates a new Azure Cloud Volumes ONTAP working environment
+Name:[cvoaz01] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] svm:[svm_cvoaz01b] provider[Azure]
+```
+
+## Create a new Cloud Volume ONTAP HA in Azure
 ```
 # python3 occm.py --cvo-az-create-ha ./new-cvo-azure-ha-cvoaz02-ws1.json
 Creates a new Azure HA Cloud Volumes ONTAP working environment
 Name:[cvoaz02] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] svm:[svm_cvoaz02] provider[Azure]
 ```
 
-## Create a new AWS Cloud Volume ONTAP working environment 
+## Create a new Cloud Volume ONTAP in AWS 
 ```
 # occm --cvo-aw-create ./new-cvo-aws-single-cvoaw03-ws1.json
 Creates a new AWS Cloud Volumes ONTAP working environment
 Name:[cvoaw03] id:[VsaWorkingEnvironment-DPKWwhPC] HA:[False] svm:[svm_cvoaw03] provider[Amazon]
 ```
-## Create a new AWS HA Cloud Volume ONTAP working environment
+## Create a new Cloud Volume ONTAP HA in AWS
 ```
 # occm --cvo-aw-create-ha ./new-cvo-aws-ha-cvoaw02-single-az-ws1.json
 Creates a new AWS HA Cloud Volumes ONTAP working environment
@@ -127,7 +144,7 @@ Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] status:[ON] provi
 WARNING: do you want to stop CVO [cvoaz01b] ? [y/n] : y
 CVO Name:[cvoaz01b] stopped
 ```
-## Stop an existing Cloud Volumoe ONTAP
+## Start an existing Cloud Volumoe ONTAP
 ```
 # occm --cvo-start VsaWorkingEnvironment-4DEHFQMN
 Start Cloud volumes ONTAP working environment ID: VsaWorkingEnvironment-4DEHFQMN
@@ -146,10 +163,7 @@ CVO Name:[cvoaz01b] deleted
 ```
 
 # How to Use the CloudSync Script:
-
 The script **cloudsync.py** show how to work with NetApp Cloud API Sync API. The Cloud Sync API documentation is available here : https://api.cloudsync.netapp.com/docs/
-
-
 
 ## Example: Display NetApp Account list associate with your NetApp Central user
 ```
