@@ -65,14 +65,14 @@ group.add_argument("--cvo-get-creation-parameters", dest='get_cvo_id_creation_pa
 group.add_argument("--cvo-start", dest='start_cvo_id', help="start an existing Cloud Volumes ONTAP working environment " )
 group.add_argument("--cvo-stop", dest='stop_cvo_id', help="stop an existing Cloud Volumes ONTAP working environment" )
 group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an existing Cloud Volumes ONTAP working environment" )
-group.add_argument("--cvo-az-create", dest='create_cvo_az_file', help="create a new Azure Cloud Volumes ONTAP working environment")
-group.add_argument("--cvo-az-create-ha", dest='create_cvo_az_ha_file', help="create a new Azure HA Cloud Volumes ONTAP working environment")
-group.add_argument("--cvo-az-delete-force", dest='delete_cvo_az_id', help="Force delete an existing Azure Cloud Volumes ONTAP working environment" )
-group.add_argument("--cvo-az-delete-ha-force", dest='delete_cvo_az_ha_id', help="Force delete an existing Azure Cloud Volumes ONTAP working environment" )
-group.add_argument("--cvo-aw-create", dest='create_cvo_aw_file', help="create a new AWS Cloud Volumes ONTAP working environment")
-group.add_argument("--cvo-aw-create-ha", dest='create_cvo_aw_ha_file', help="create a new AWS HA Cloud Volumes ONTAP working environment")
-group.add_argument("--cvo-aw-delete-force", dest='delete_cvo_aw_id', help="Force delete an existing AWS Cloud Volumes ONTAP working environment" )
-group.add_argument("--cvo-aw-delete-ha-force", dest='delete_cvo_aw_ha_id', help="Force delete an existing AWS Cloud Volumes ONTAP working environment" )
+group.add_argument("--cvo-az-create", dest='create_cvo_az_file', help="create a new Cloud Volumes ONTAP in Azure")
+group.add_argument("--cvo-az-create-ha", dest='create_cvo_az_ha_file', help="create a new Cloud Volumes ONTAP HA in Azure")
+group.add_argument("--cvo-az-delete-force", dest='delete_cvo_az_id', help="Force delete an existing Cloud Volumes ONTAP in Azure" )
+group.add_argument("--cvo-az-delete-ha-force", dest='delete_cvo_az_ha_id', help="Force delete an existing Cloud Volumes ONTAP HA in Azure" )
+group.add_argument("--cvo-aw-create", dest='create_cvo_aw_file', help="create a new Cloud Volumes ONTAP in AWS ")
+group.add_argument("--cvo-aw-create-ha", dest='create_cvo_aw_ha_file', help="create a new Cloud Volumes ONTAP HA in AWS")
+group.add_argument("--cvo-aw-delete-force", dest='delete_cvo_aw_id', help="Force delete an existing Cloud Volumes ONTAP in AWS" )
+group.add_argument("--cvo-aw-delete-ha-force", dest='delete_cvo_aw_ha_id', help="Force delete an existing Cloud Volumes ONTAP HA in AWS" )
 group.add_argument("--token-check", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
 group.add_argument("--token-get-new", dest='get_new_token', help="get a new access token", action="store_true" )
 
@@ -668,7 +668,7 @@ try:
          print("ERROR: cloud provider  [{0}] is not supported".format(cloudProviderName))
 
 
-    # Arg --cvo-az-create: Create a new Azure Cloud Volumes ONTAP working environment 
+    # Arg --cvo-az-create: Create a new Cloud Volumes ONTAP in Azure 
     if args.create_cvo_az_file:
 
          if ( account_id == "" ):
@@ -679,7 +679,7 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Creates a new Azure Cloud Volumes ONTAP working environment")
+         print("Creates a new Cloud Volumes ONTAP in Azure")
 
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_az_file))
          if (os.path.isfile(args.create_cvo_az_file) != True ):
@@ -704,7 +704,7 @@ try:
               exit(1)
 
 
-    # Arg --cvo-az-create-ha: Create a new Azure HA Cloud Volumes ONTAP working environment 
+    # Arg --cvo-az-create-ha: Create a new Cloud Volumes ONTAP HA in Azure 
     if args.create_cvo_az_ha_file:
 
          if ( account_id == "" ):
@@ -715,7 +715,7 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Creates a new Azure HA Cloud Volumes ONTAP working environment")
+         print("Creates a new Cloud Volumes ONTAP HA in Azure")
 
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_az_ha_file))
          if (os.path.isfile(args.create_cvo_az_ha_file) != True ):
@@ -739,7 +739,7 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-az-delete-force: Delete Azure Cloud Volumes ONTAP working environment
+    # Arg --cvo-az-delete-force: Delete a Cloud Volumes ONTAP in Azure 
     if args.delete_cvo_az_id:
 
          if ( account_id == "" ):
@@ -769,7 +769,7 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-az-delete-ha-force: Delete Azure HA Cloud Volumes ONTAP working environment
+    # Arg --cvo-az-delete-ha-force: Delete a Cloud Volumes ONTAP HA in Azure 
     if args.delete_cvo_az_ha_id:
 
          if ( account_id == "" ):
@@ -800,7 +800,7 @@ try:
               exit(1)
 
 
-    # Arg --cvo-aw-create: Create a new AWS Cloud Volumes ONTAP working environment 
+    # Arg --cvo-aw-create: Create a new Cloud Volumes ONTAP in AWS 
     if args.create_cvo_aw_file:
 
          if ( account_id == "" ):
@@ -811,7 +811,7 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Creates a new AWS Cloud Volumes ONTAP working environment")
+         print("Creates a new Cloud Volumes ONTAP in AWS")
 
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_aw_file))
          if (os.path.isfile(args.create_cvo_aw_file) != True ):
@@ -836,7 +836,7 @@ try:
               exit(1)
 
 
-    # Arg --cvo-aw-create-ha: Create a new HA AWS Cloud Volumes ONTAP working environment 
+    # Arg --cvo-aw-create-ha: Create a new Cloud Volumes ONTAP HA in AWS 
     if args.create_cvo_aw_ha_file:
 
          if ( account_id == "" ):
@@ -847,7 +847,7 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Creates a new AWS HA Cloud Volumes ONTAP working environment")
+         print("Creates a new Cloud Volumes ONTAP HA in AWS")
 
          print_deb("Create new CVO using file: {0}".format(args.create_cvo_aw_ha_file))
          if (os.path.isfile(args.create_cvo_aw_ha_file) != True ):
@@ -871,7 +871,7 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-delete-aw-force: Delete a Cloud Volumes ONTAP working environment
+    # Arg --cvo-delete-aw-force: Delete a Cloud Volumes ONTAP in AWS 
     if args.delete_cvo_aw_id:
 
          if ( account_id == "" ):
@@ -901,7 +901,7 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-delete-aw-ha-force: Delete a Cloud Volumes ONTAP working environment
+    # Arg --cvo-delete-aw-ha-force: Delete a Cloud Volumes ONTAP HA in AWS 
     if args.delete_cvo_aw_ha_id:
 
          if ( account_id == "" ):
