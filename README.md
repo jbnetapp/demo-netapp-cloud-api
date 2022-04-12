@@ -1,4 +1,4 @@
-# Demo NetApp cloud API
+# Demo NetApp Cloud Manager API
 Use NetApp Cloud API. This python scripts show how to work with NetApp Cloud API.
 
 Thes scripts need to be used with **python 3**
@@ -9,31 +9,28 @@ python3 -m pip install pyopenssl
 python3 -m pip insatll urllib3
 python3 -m pip install requests
 ```
+# Install Cloud Manager Demo Scripts
 
-# Setup Cloud NetApp Demo Scripts
-## NetApp Cloud Central Identity and API
-NetApp Cloud Central Services use OAuth 2.0, an industry-standard protocol, for authorization. Communicating with an authenticated endpoint is a two step-process 
-- Acquire a **JWT access token** from the OAuth token endpoint.
-- Call an API endpoint with the **JWT access token**. 
+## Copy the scripts from git
+```
+# cd <Installation Directory>
+# git clone https://github.com/jbnetapp/demo-netapp-cloud-api
+```
+## For Unix create the following useful Aliases 
+```
+# echo "alias cloudaccount='python3 $PWD/demo-netapp-cloud-api/cloudaccount.py'" >> $HOME/.bashrc
+# echo "alias cloudsync='python3 $PWD/demo-netapp-cloud-api/cloudsnyc.py'" >> $HOME/.bashrc
+# echo "alias occm='python3 $PWD/demo-netapp-cloud-api/occm.py'" >> $HOME/.bashrc
+# source $HOME/.bashrc
+```
 
-**Identity federation with NetApp Cloud Central**
-- Identity federation enables you to manage access to your hybrid cloud resources centrally. With identity federation, you can use single sign-on to access your NetApp Cloud Central accounts using credentials from your corporate directory. Identity federation uses open standards, such as Security Assertion Markup Language 2.0 (SAML) and OpenID Connect (OIDC).
-- Currently, we support identity federation with Active Directory Federation Services (ADFS), Microsoft Azure Active Directory (AD) and Security Assertion Markup Language (SAML).
+# Setup NetApp Cloud Manager Demo Scripts
 
-## Create API Configuration File with your NetApp Cloud Central Credential
-
-The configuration file **api.conf** :
-- For Linux configuration file is:  **$HOME/NetAppCloud/api.conf**
-- For Windows configuration file is: **%homedrive%%homepath%\NetAppCloud\api.conf**
-
-The configuration file **api.conf** contains the following section headers:
-- [DEFAULT] to store API default variables
-- [API-LOGIN] to store your NetApp Cloud Central Login Information
-- [API-TOKEN] to store your NetApp Cloud Central API access Token
+## Use the script "cloudaccount.py --setup" to create the configuration files
 
 **NetApp Cloud Central user can be Federated or Non-Federated:**
 
-- **For Non-Federated users (Regular Access)** you need to create username and password input in the configuration file
+- **For Non-Federated users (Regular Access)** you need to enter username (email) and password:
     - Create the configuration file for Regular Access using **cloudaccount.py** script:
         ```
         # python3 cloudaccount.py --setup
@@ -53,6 +50,9 @@ The configuration file **api.conf** contains the following section headers:
         To get your Refresh Token please go to : https://services.cloud.netapp.com/refresh-token
         NetApp Cloud Central Refresh Token : <YOUR_REFRESH_TOKEN>
         ```
+**Configuration File:**
+- For Linux configuration file is:  **$HOME/NetAppCloud/api.conf**
+- For Windows configuration file is: **%homedrive%%homepath%\NetAppCloud\api.conf**
 
 ## Check your JWT access token  
 When using **cloudaccount.py** script with option --setup to create the configuration file the **JWT access token** is automatically saved in the section header [API_TOKEN]. To Check if your **JWT access token** is valid you can use --token-check option.
@@ -77,34 +77,93 @@ Check if your new **JWT access token** is valid and saved in your private **api.
 # python3 cloudsync.py --token-check
 Access Token is valid
 ```
+# How to Use the OCCM (Cloud Manager) Script:
+The script **occm.py** show how to work with NetApp Cloud Manager API. The Cloud Manager  API documentation is available here : https://cloudmanager.netapp.com/api-docs/
+
+## Display list of already deployed Cloud Volume ONTAP
+```
+# python3 occm.py –cvo-list
+Name:[cvoaz01][Azure] id:[VsaWorkingEnvironment-tNz1RNLH] HA:[False] status[ON]
+Name:[cvoaz02][Azure] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] status[ON]
+Name:[cvoaw03][Amazon] id:[VsaWorkingEnvironment-DPKWwhPC] HA:[False] status[ON]
+```
+## Get more details of an already deployed Cloud volume ONTAP
+```
+# occm --cvo-get VsaWorkingEnvironment-tNz1RNLH
+Name:[cvoaz01][Azure] HA:[False] svm:[svm_cvoaz01] status[ON] mgmt[172.30.24.207]
+```
+
+## Get Full details in JSON format qof an already deployed Cloud Volume ONTAP
+```
+# occm --cvo-get VsaWorkingEnvironment-tNz1RNLH --json > /tmp/cvoaz01.json
+```
+
+## Get creation Parameters of an already deployed Coud Volume ONTAP
+```
+# python3 occm.py --cvo-get-creation-parameters VsaWorkingEnvironment-tNz1RNLH > /tmp/cvoaz01-config-parameters.json
+```
+
+## Recreate a new Azure Cloud Volume ONTAP Using JSON file create with otpion --cvo-get-creation-parameters
+```
+# python3 occm.py --cvo-az-create /tmp/cvoaz01-config-parameters.json
+Creates a new Azure Cloud Volumes ONTAP working environment
+Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] svm:[svm_cvoaz01b] provider[Azure]
+```
+
+## Create a new Cloud Volume ONTAP in Azure
+```
+# occm --cvo-az-create ./new-cvo-azure-single-cvoaz01-ws1.json
+Creates a new Azure Cloud Volumes ONTAP working environment
+Name:[cvoaz01] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] svm:[svm_cvoaz01b] provider[Azure]
+```
+
+## Create a new Cloud Volume ONTAP HA in Azure
+```
+# python3 occm.py --cvo-az-create-ha ./new-cvo-azure-ha-cvoaz02-ws1.json
+Creates a new Azure HA Cloud Volumes ONTAP working environment
+Name:[cvoaz02] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] svm:[svm_cvoaz02] provider[Azure]
+```
+
+## Create a new Cloud Volume ONTAP in AWS 
+```
+# occm --cvo-aw-create ./new-cvo-aws-single-cvoaw03-ws1.json
+Creates a new AWS Cloud Volumes ONTAP working environment
+Name:[cvoaw03] id:[VsaWorkingEnvironment-DPKWwhPC] HA:[False] svm:[svm_cvoaw03] provider[Amazon]
+```
+## Create a new Cloud Volume ONTAP HA in AWS
+```
+# occm --cvo-aw-create-ha ./new-cvo-aws-ha-cvoaw02-single-az-ws1.json
+Creates a new AWS HA Cloud Volumes ONTAP working environment
+Name:[cvoaw02] id:[VsaWorkingEnvironment-1uqJIydY] HA:[True] svm:[svm_cvoaw02] provider[Amazon]
+```
+## Stop an existing Cloud Volumoe ONTAP
+```
+# occm --cvo-stop VsaWorkingEnvironment-4DEHFQMN
+Stop Cloud volumes ONTAP working environment ID: VsaWorkingEnvironment-4DEHFQMN
+Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] status:[ON] provider[Azure]
+WARNING: do you want to stop CVO [cvoaz01b] ? [y/n] : y
+CVO Name:[cvoaz01b] stopped
+```
+## Start an existing Cloud Volumoe ONTAP
+```
+# occm --cvo-start VsaWorkingEnvironment-4DEHFQMN
+Start Cloud volumes ONTAP working environment ID: VsaWorkingEnvironment-4DEHFQMN
+Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] status:[ON] provider[Azure]
+WARNING: do you want to stop CVO [cvoaz01b] ? [y/n] : y
+CVO Name:[cvoaz01b] started
+```
+## Delete an existing Cloud Volumoe ONTAP
+```
+# occm --cvo-delete VsaWorkingEnvironment-4DEHFQMN
+Delete cloud volumes ONTAP working environment ID: VsaWorkingEnvironment-4DEHFQMN
+Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] svm:[svm_cvoaz01b] provider[Azure]
+WARNING: do you want to delete the CVO [cvoaz01b] ? [y/n] :
+WARNING: do you want to delete the CVO [cvoaz01b] ? [y/n] : y
+CVO Name:[cvoaz01b] deleted
+```
+
 # How to Use the CloudSync Script:
-
 The script **cloudsync.py** show how to work with NetApp Cloud API Sync API. The Cloud Sync API documentation is available here : https://api.cloudsync.netapp.com/docs/
-
-## Display CloudSnyc Script help option
-```
-# python3 cloudsync.py --help
-usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID] [-j]
-                    (--account-list | --data-broker-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations | --token-check | --token-get-new)
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -d, --debug           debug mode
-  --account-id ACCOUNT_ID
-                        select NetApp Cloud account ID
-  -j, --json            print in json format
-  --account-list        print cloudsnyc accounts
-  --data-broker-list    print cloudsync data-brokers
-  --create-relation CREATE_RELATION_FILE
-                        create new cloudsync relation from json file
-  --delete-relation DELETE_RELATION_ID
-                        delete a cloudsync relation
-  --sync-relation SYNC_RELATION_ID
-                        sync a cloudsync relation
-  --print-relations     print cloudsnyc relations list
-  --token-check         check NetApp Cloud access token
-  --token-get-new       get a new access token
-```
 
 ## Example: Display NetApp Account list associate with your NetApp Central user
 ```
@@ -332,4 +391,29 @@ DEBUG: [{'status': 'success', 'message': 'ok', 'accounts': '[{"accountId":"accou
 Blanchet account_id: [account-yX7cS8vU]
 Demo_SIM account_id: [account-j3aZttuL]
 NetAppHCL account_id: [account-U0dbRcKS]
+```
+
+## Display CloudSnyc Script help option
+```
+# python3 cloudsync.py --help
+usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID] [-j]
+                    (--account-list | --data-broker-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations | --token-check | --token-get-new)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --debug           debug mode
+  --account-id ACCOUNT_ID
+                        select NetApp Cloud account ID
+  -j, --json            print in json format
+  --account-list        print cloudsnyc accounts
+  --data-broker-list    print cloudsync data-brokers
+  --create-relation CREATE_RELATION_FILE
+                        create new cloudsync relation from json file
+  --delete-relation DELETE_RELATION_ID
+                        delete a cloudsync relation
+  --sync-relation SYNC_RELATION_ID
+                        sync a cloudsync relation
+  --print-relations     print cloudsnyc relations list
+  --token-check         check NetApp Cloud access token
+  --token-get-new       get a new access token
 ```
