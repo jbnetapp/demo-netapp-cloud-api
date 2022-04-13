@@ -75,6 +75,7 @@ group.add_argument("--cvo-aw-delete-force", dest='delete_cvo_aw_id', help="Force
 group.add_argument("--cvo-aw-delete-ha-force", dest='delete_cvo_aw_ha_id', help="Force delete an existing Cloud Volumes ONTAP HA in AWS" )
 group.add_argument("--token-check", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
 group.add_argument("--token-get-new", dest='get_new_token', help="get a new access token", action="store_true" )
+group.add_argument("--version", dest='version', help="print release", action="store_true" )
 
 args = parser.parse_args()
 
@@ -943,6 +944,11 @@ try:
               exit(1)
          print("Access Token is valid")
          exit(0)
+
+    # Arg --version: Check if API token is still valid 
+    if args.version:
+         print("Version {0}".format(RELEASE))
+         print("API Version {0}".format(netapp_api_cloud.API_RELEASE))
 
 except KeyboardInterrupt:
     print ("exit")
