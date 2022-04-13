@@ -359,6 +359,8 @@ def set_current_account (API_token, API_config_file, API_accountID):
     if (accounts_info["status"] == "success"):
          accounts=json.loads(accounts_info["accounts"])
          for account in accounts:
+             if "accountPublicId" not in account :
+                  continue
              if ( account["accountPublicId"] == API_accountID ):
                   accounts_found=True
     if ( accounts_found == True ):
@@ -409,6 +411,8 @@ def occm_get_accountName (API_token, API_accountID):
     if (accounts_info["status"] == "success"):
          accounts=json.loads(accounts_info["accounts"])
          for account in accounts:
+             if "accountPublicId" not in account :
+                  continue
              if ( account["accountPublicId"] == API_accountID ):
                   accountName=account["accountName"] 
 
@@ -617,7 +621,7 @@ def set_current_occm_agent (API_token, API_config_file, API_accountID, API_agent
 
     else:
          occms_info["status"]="failed"
-         occms_info["message"]="account_id {0} not found".format(API_accountID)
+         occms_info["message"]="agent_id {0} not found".format(API_agentID)
          occms_info["default"]=""
 
     return occms_info
