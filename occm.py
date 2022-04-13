@@ -211,6 +211,9 @@ try:
                    print(json.dumps(agents, indent=4))
               else:
                    for agent in agents:
+                       if "agent" not in agent:
+                          continue
+
                        if ( agent["agent"]["agentId"] == current_agent_id ):
                             print("Name:[{0}] AgentID:[{1}] [{2}] [{3}] [{4}] Current [X]".format(agent["occmName"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
                        else: 
