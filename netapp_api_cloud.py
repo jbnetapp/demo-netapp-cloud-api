@@ -580,6 +580,8 @@ def set_current_occm_agent (API_token, API_config_file, API_accountID, API_agent
          occms=json.loads(occms_info["occms"])
          agents=occms["occms"]
          for agent in agents:
+             if "agent" not in agent:
+                  continue
              if ( agent["agent"]["agentId"] == API_agentID ):
                   occm_found=True
     if ( occm_found == True ):
