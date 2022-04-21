@@ -82,7 +82,7 @@ The script **occm.py** show how to work with NetApp Cloud Manager API. The Cloud
 
 ## Display list of already deployed Cloud Volume ONTAP
 ```
-# python3 occm.py –cvo-list
+# python3 occm.py --cvo-list
 Name:[cvoaz01][Azure] id:[VsaWorkingEnvironment-tNz1RNLH] HA:[False] status[ON]
 Name:[cvoaz02][Azure] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] status[ON]
 Name:[cvoaw03][Amazon] id:[VsaWorkingEnvironment-DPKWwhPC] HA:[False] status[ON]
