@@ -93,7 +93,7 @@ Name:[cvoaw03][Amazon] id:[VsaWorkingEnvironment-DPKWwhPC] HA:[False] status[ON]
 Name:[cvoaz01][Azure] HA:[False] svm:[svm_cvoaz01] status[ON] mgmt[172.30.24.207]
 ```
 
-## Get Full details in JSON format qof an already deployed Cloud Volume ONTAP
+## Get Full details in JSON format of an already deployed Cloud Volume ONTAP
 ```
 # occm --cvo-get VsaWorkingEnvironment-tNz1RNLH --json > /tmp/cvoaz01.json
 ```
