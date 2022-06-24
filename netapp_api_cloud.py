@@ -1,6 +1,7 @@
 #################################################################################################
 # API Cloud NetApp Version 0.6.1
 #################################################################################################
+from re import I
 import ssl
 import json
 import OpenSSL 
@@ -1160,6 +1161,258 @@ def cvo_aws_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, act
         API_PATH = "/occm/api/aws/ha/working-environments/"
     else: 
         API_PATH = "/occm/api/vsa/working-environments/"
+
+    if ( action == "start" ):
+        url = API_OCCM + API_PATH + vsa_id + "/start"
+        action_check=True
+
+    if ( action == "stop" ):
+        url = API_OCCM + API_PATH + vsa_id + "/stop"
+        action_check=True
+
+    if (action_check != True ):
+         cvos_info["status"]="failed"
+         cvos_info["message"]="ERROR: bad action [{0}]".format(action)
+         return cvos_info
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.post(url, auth=BearerAuth(API_token), headers=headers)
+
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvos_info["status"]="failed"
+         cvos_info["message"]=e
+         return cvos_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvos_info["status"]="success"
+         cvos_info["message"]="ok"
+         cvos_info["cvo"]=response.text
+         return cvos_info
+    else:
+         cvos_info["status"]="failed"
+         cvos_info["message"]=response.text
+         return cvos_info
+
+#################################################################################################
+# CVO GCP API
+#################################################################################################
+def cvo_gcp_get_vsa_list (API_token, API_accountID, API_agentID ):
+
+    print_deb("FUNCTION: cvo_gcp_get_vsa_list")
+    cvos_info={}
+    cvos_info["status"]="unknown"
+
+    url = API_OCCM + "/occm/api/gcp/vsa/working-environments?fields=status"
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvos_info["status"]="failed"
+         cvos_info["message"]=e
+         return cvos_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvos_info["status"]="success"
+         cvos_info["message"]="ok"
+         cvos_info["cvos"]=response.text
+         return cvos_info
+    else:
+              cvos_info["status"]="failed"
+              cvos_info["message"]=response.text
+              return cvos_info
+
+#################################################################################################
+def cvo_gcp_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
+
+    print_deb("FUNCTION: cvo_gcp_get_vsa")
+    cvo_info={}
+    cvo_info["status"]="unknown"
+
+    if( isHA == True ):
+         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + vsa_id + "?fields=*"
+    else:
+         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + vsa_id + "?fields=*"
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvo_info["status"]="failed"
+         cvo_info["message"]=e
+         return cvo_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvo_info["status"]="success"
+         cvo_info["message"]="ok"
+         cvo_info["cvo"]=response.text
+         return cvo_info
+    else:
+              cvo_info["status"]="failed"
+              cvo_info["message"]=response.text
+              return cvo_info
+
+#################################################################################################
+def cvo_gcp_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, vsa_id):
+
+    print_deb("FUNCTION: cvo_gcp_get_vsa_creation_parameters")
+    cvo_creation_parameters={}
+    cvo_creation_parameters["status"]="unknown"
+
+    if( isHA == True ):
+         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + vsa_id + "/create-request-parameters"
+    else:
+         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + vsa_id + "/create-request-parameters"
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvo_creation_parameters["status"]="failed"
+         cvo_creation_parameters["message"]=e
+         return cvo_creation_parameters 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvo_creation_parameters["status"]="success"
+         cvo_creation_parameters["message"]="ok"
+         cvo_creation_parameters["cvo"]=response.text
+         return cvo_creation_parameters
+    else:
+              cvo_creation_parameters["status"]="failed"
+              cvo_creation_parameters["message"]=response.text
+              return cvo_creation_parameters
+
+#################################################################################################
+def cvo_gcp_create_new (API_token, API_accountID, API_agentID, isHA, API_json ):
+
+    print_deb("FUNCTION: cvo_gcp_create_new_single")
+    cvo_info={}
+    cvo_info["status"]="unknown"
+
+    if ( isHA == True ):
+         url = API_OCCM + "/occm/api/gcp/ha/working-environments"
+    else:
+         url = API_OCCM + "/occm/api/gcp/vsa/working-environments"
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.post(url, auth=BearerAuth(API_token), headers=headers,json=API_json)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvo_info["status"]="failed"
+         cvo_info["message"]=e
+         return cvo_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvo_info["status"]="success"
+         cvo_info["message"]="ok"
+         cvo_info["cvo"]=response.text
+         return cvo_info
+    else:
+         cvo_info["status"]="failed"
+         cvo_info["message"]=response.text
+         return cvo_info
+
+#################################################################################################
+def cvo_gcp_delete_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
+
+    print_deb("FUNCTION: cvo_gcp_delete_vsa")
+    cvos_info={}
+    cvos_info["status"]="unknown"
+
+    if ( isHA == True ):
+         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + vsa_id
+    else:
+         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + vsa_id
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.delete(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         cvos_info["status"]="failed"
+         cvos_info["message"]=e
+         return cvos_info 
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         cvos_info["status"]="success"
+         cvos_info["message"]="ok"
+         cvos_info["cvo"]=response.text
+         return cvos_info
+    else:
+              cvos_info["status"]="failed"
+              cvos_info["message"]=response.text
+              return cvos_info
+
+#################################################################################################
+def cvo_gcp_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, action):
+
+    print_deb("FUNCTION: cvo_gcp_stop_vsa")
+    cvos_info={}
+    cvos_info["status"]="unknown"
+
+    if ( isHA == True ):
+        API_PATH = "/occm/api/gcp/ha/working-environments/"
+    else: 
+        API_PATH = "/occm/api/gcp/vsa/working-environments/"
 
     if ( action == "start" ):
         url = API_OCCM + API_PATH + vsa_id + "/start"

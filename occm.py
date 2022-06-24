@@ -67,12 +67,10 @@ group.add_argument("--cvo-stop", dest='stop_cvo_id', help="stop an existing Clou
 group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an existing Cloud Volumes ONTAP working environment" )
 group.add_argument("--cvo-az-create", dest='create_cvo_az_file', help="create a new Cloud Volumes ONTAP in Azure")
 group.add_argument("--cvo-az-create-ha", dest='create_cvo_az_ha_file', help="create a new Cloud Volumes ONTAP HA in Azure")
-group.add_argument("--cvo-az-delete-force", dest='delete_cvo_az_id', help="Force delete an existing Cloud Volumes ONTAP in Azure" )
-group.add_argument("--cvo-az-delete-ha-force", dest='delete_cvo_az_ha_id', help="Force delete an existing Cloud Volumes ONTAP HA in Azure" )
 group.add_argument("--cvo-aw-create", dest='create_cvo_aw_file', help="create a new Cloud Volumes ONTAP in AWS ")
 group.add_argument("--cvo-aw-create-ha", dest='create_cvo_aw_ha_file', help="create a new Cloud Volumes ONTAP HA in AWS")
-group.add_argument("--cvo-aw-delete-force", dest='delete_cvo_aw_id', help="Force delete an existing Cloud Volumes ONTAP in AWS" )
-group.add_argument("--cvo-aw-delete-ha-force", dest='delete_cvo_aw_ha_id', help="Force delete an existing Cloud Volumes ONTAP HA in AWS" )
+group.add_argument("--cvo-gcp-create", dest='create_cvo_gcp_file', help="create a new Cloud Volumes ONTAP in GCP ")
+group.add_argument("--cvo-gcp-create-ha", dest='create_cvo_gcp_ha_file', help="create a new Cloud Volumes ONTAP HA in GCP")
 group.add_argument("--token-check", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
 group.add_argument("--token-get-new", dest='get_new_token', help="get a new access token", action="store_true" )
 group.add_argument("--version", dest='version', help="print release", action="store_true" )
@@ -279,6 +277,21 @@ try:
               print("ERROR: {0}".format(cvos_az_info["message"]))
               exit(1)
 
+         # List CVO GCP 
+         cvos_gcp_info=netapp_api_cloud.cvo_gcp_get_vsa_list(API_TOKEN, account_id, agent_id )
+         print_deb(cvos_gcp_info)
+         if (cvos_gcp_info["status"] == "success"):
+              cvos_gcp=json.loads(cvos_gcp_info["cvos"])
+              if ( len(cvos_gcp) > 0 ):
+                   print("Print GCP Cloud Volume ONTAP list[{0}]:".format(len(cvos_gcp)))
+                   if (args.json):
+                        print(json.dumps(cvos_gcp, indent=4))
+                   else:
+                       for cvo in cvos_gcp:
+                            print("Name:[{0}][{1}] id:[{2}] HA:[{3}] status[{4}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
+         else:
+              print("ERROR: {0}".format(cvos_gcp_info["message"]))
+              exit(1)
 
     # Arg --cvo-get: Print details of Cloud Volumes ONTAP working environment
     if args.get_cvo_id:
@@ -351,6 +364,28 @@ try:
                    print("ERROR: {0}".format(cvo_info["message"]))
                    exit(1)
 
+         # Cloud Provider GCP 
+         if (cloudProviderName == "GCP"):
+              cvo_info=netapp_api_cloud.cvo_gcp_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   if (args.json):
+                        print(json.dumps(cvo, indent=4))
+                   else:
+                        cvo_name=cvo["name"]
+                        cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
+                        cvo_mgmt_ip = "" 
+                        for cvo_node in cvo_nodes:
+                             cvo_lifs = cvo_node["lifs"]
+                             for cvo_lif in cvo_lifs:
+                                  if (cvo_lif["lifType"] == "Cluster Management"):
+                                      cvo_mgmt_ip = cvo_lif["ip"] 
+                        print("Name:[{0}][{1}] HA:[{2}] svm:[{3}] status[{4}] mgmt[{5}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
 
          print("ERROR: cloud provider  [{0}] is not supported".format(cloudProviderName))
 
@@ -392,6 +427,18 @@ try:
          # Cloud Provider Amazon 
          if (cloudProviderName == "Amazon"):
               cvo_info=netapp_api_cloud.cvo_aws_get_vsa_creation_parameters(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id_creation_parameters)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   print(json.dumps(cvo["parameters"], indent=4))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
+         # Cloud Provider  GCP 
+         if (cloudProviderName == "GCP"):
+              cvo_info=netapp_api_cloud.cvo_gcp_get_vsa_creation_parameters(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id_creation_parameters)
               print_deb(cvo_info)
               if (cvo_info["status"] == "success"):
                    cvo=json.loads(cvo_info["cvo"])
@@ -490,6 +537,37 @@ try:
                    print("ERROR: {0}".format(cvo_info["message"]))
                    exit(1)
 
+         # GCP Cloud Provider
+         if (cloudProviderName == "GCP"):
+              cvo_info=netapp_api_cloud.cvo_gcp_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.start_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   if (args.json):
+                        print(json.dumps(cvo, indent=4))
+                   else:
+                        cvo_name=cvo["name"]
+                        print("Name:[{0}] id:[{1}] HA:[{2}] status:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+         
+              answer = ''
+              while ( answer != "y" and answer != "n" ):
+                   answer=input('Do you want to start CVO [{0}] ? [y/n] : '.format(cvo["name"]))
+
+              if ( answer != "y"):
+                   exit(0)
+
+              cvo_info=netapp_api_cloud.cvo_gcp_action_vsa(API_TOKEN, account_id, agent_id, args.start_cvo_id, isHA, "start")
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   print("CVO Name:[{0}] started".format(cvo_name))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
          print("ERROR: cloud provider  [{0}] is not supported".format(cloudProviderName))
 
     # Arg --cvo-stop: Stop a Cloud Volumes ONTAP working environment
@@ -571,6 +649,37 @@ try:
                    exit(0)
 
               cvo_info=netapp_api_cloud.cvo_aws_action_vsa(API_TOKEN, account_id, agent_id, args.stop_cvo_id, isHA, "stop")
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   print("CVO Name:[{0}] stopped".format(cvo_name))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
+         # GCP  Cloud Provider
+         if (cloudProviderName == "GCP"):
+              cvo_info=netapp_api_cloud.cvo_gcp_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.stop_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   if (args.json):
+                        print(json.dumps(cvo, indent=4))
+                   else:
+                        cvo_name=cvo["name"]
+                        print("Name:[{0}] id:[{1}] HA:[{2}] status:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+         
+              answer = ''
+              while ( answer != "y" and answer != "n" ):
+                   answer=input('WARNING: do you want to stop CVO [{0}] ? [y/n] : '.format(cvo["name"]))
+
+              if ( answer != "y"):
+                   exit(0)
+
+              cvo_info=netapp_api_cloud.cvo_gcp_action_vsa(API_TOKEN, account_id, agent_id, args.stop_cvo_id, isHA, "stop")
               print_deb(cvo_info)
               if (cvo_info["status"] == "success"):
                    print("CVO Name:[{0}] stopped".format(cvo_name))
@@ -669,8 +778,38 @@ try:
                    print("ERROR: {0}".format(cvo_info["message"]))
                    exit(1)
 
-         print("ERROR: cloud provider  [{0}] is not supported".format(cloudProviderName))
+         # GCP Cloud Provider
+         if (cloudProviderName == "GCP"):
+              cvo_info=netapp_api_cloud.cvo_gcp_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   cvo=json.loads(cvo_info["cvo"])
+                   if (args.json):
+                        print(json.dumps(cvo, indent=4))
+                   else:
+                        cvo_name=cvo["name"]
+                        print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+         
+              answer = ''
+              while ( answer != "y" and answer != "n" ):
+                   answer=input('WARNING: do you want to delete the CVO [{0}] ? [y/n] : '.format(cvo["name"]))
 
+              if ( answer != "y"):
+                   exit(0)
+
+              cvo_info=netapp_api_cloud.cvo_gcp_delete_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_id)
+              print_deb(cvo_info)
+              if (cvo_info["status"] == "success"):
+                   print("CVO Name:[{0}] deleted".format(cvo_name))
+                   exit(0)
+              else:
+                   print("ERROR: {0}".format(cvo_info["message"]))
+                   exit(1)
+
+         print("ERROR: cloud provider  [{0}] is not supported".format(cloudProviderName))
 
     # Arg --cvo-az-create: Create a new Cloud Volumes ONTAP in Azure 
     if args.create_cvo_az_file:
@@ -743,67 +882,6 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-az-delete-force: Delete a Cloud Volumes ONTAP in Azure 
-    if args.delete_cvo_az_id:
-
-         if ( account_id == "" ):
-              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
-              exit(1)
-
-         if ( agent_id == "" ):
-              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
-              exit(1)
-
-         print("Delete Azure cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_az_id))
-
-         answer = ''
-         while ( answer != "y" and answer != "n" ):
-              answer=input('WARNING: do you want to delete the CVO ID [{0}] ? [y/n] : '.format(args.delete_cvo_az_id))
-
-         if ( answer != "y"):
-              exit(0)
-
-         isHA = False
-         cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_az_id)
-         print_deb(cvo_info)
-         if (cvo_info["status"] == "success"):
-              print("CVO Name:[{0}] deleted".format(args.delete_cvo_az_id))
-              exit(0)
-         else:
-              print("ERROR: {0}".format(cvo_info["message"]))
-              exit(1)
-
-    # Arg --cvo-az-delete-ha-force: Delete a Cloud Volumes ONTAP HA in Azure 
-    if args.delete_cvo_az_ha_id:
-
-         if ( account_id == "" ):
-              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
-              exit(1)
-
-         if ( agent_id == "" ):
-              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
-              exit(1)
-
-         print("Delete Azure cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_az_ha_id))
-
-         answer = ''
-         while ( answer != "y" and answer != "n" ):
-              answer=input('WARNING: do you want to delete the CVO ID [{0}] ? [y/n] : '.format(args.delete_cvo_az_ha_id))
-
-         if ( answer != "y"):
-              exit(0)
-
-         isHA = True 
-         cvo_info=netapp_api_cloud.cvo_azure_delete_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_az_ha_id)
-         print_deb(cvo_info)
-         if (cvo_info["status"] == "success"):
-              print("CVO Name:[{0}] deleted".format(args.delete_cvo_az_ha_id))
-              exit(0)
-         else:
-              print("ERROR: {0}".format(cvo_info["message"]))
-              exit(1)
-
-
     # Arg --cvo-aw-create: Create a new Cloud Volumes ONTAP in AWS 
     if args.create_cvo_aw_file:
 
@@ -875,8 +953,8 @@ try:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-delete-aw-force: Delete a Cloud Volumes ONTAP in AWS 
-    if args.delete_cvo_aw_id:
+    # Arg --cvo-gcp-create: Create a new Cloud Volumes ONTAP in GCP 
+    if args.create_cvo_gcp_file:
 
          if ( account_id == "" ):
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
@@ -886,27 +964,33 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Delete AWS cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_aw_id))
+         print("Creates a new Cloud Volumes ONTAP in GCP")
 
-         answer = ''
-         while ( answer != "y" and answer != "n" ):
-              answer=input('WARNING: do you want to delete the CVO ID [{0}] ? [y/n] : '.format(args.delete_cvo_aw_id))
-
-         if ( answer != "y"):
-              exit(0)
+         print_deb("Create new CVO using file: {0}".format(args.create_cvo_gcp_file))
+         if (os.path.isfile(args.create_cvo_gcp_file) != True ):
+              print("Error: {0} : file not found".format(args.create_cvo_gcp_file))
+              exit(1)
+         f = open(args.create_cvo_gcp_file)
+         new_cvo_json=json.load(f)
+         print_deb(new_cvo_json)
+         f.close
 
          isHA = False
-         cvo_info=netapp_api_cloud.cvo_aws_delete_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_aw_id)
+         cvo_info=netapp_api_cloud.cvo_gcp_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
-              print("CVO Name:[{0}] deleted".format(args.delete_cvo_aw_id))
-              exit(0)
+              cvo=json.loads(cvo_info["cvo"])
+              if (args.json):
+                   print(json.dumps(cvo, indent=4))
+              else:
+                   print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-delete-aw-ha-force: Delete a Cloud Volumes ONTAP HA in AWS 
-    if args.delete_cvo_aw_ha_id:
+
+    # Arg --cvo-gcp-create-ha: Create a new Cloud Volumes ONTAP HA in GCP 
+    if args.create_cvo_gcp_ha_file:
 
          if ( account_id == "" ):
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
@@ -916,26 +1000,29 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Delete AWS cloud volumes ONTAP working environment ID: {0}".format(args.delete_cvo_aw_ha_id))
+         print("Creates a new Cloud Volumes ONTAP HA in GCP")
 
-         answer = ''
-         while ( answer != "y" and answer != "n" ):
-              answer=input('WARNING: do you want to delete the CVO ID [{0}] ? [y/n] : '.format(args.delete_cvo_aw_ha_id))
-
-         if ( answer != "y"):
-              exit(0)
+         print_deb("Create new CVO using file: {0}".format(args.create_cvo_gcp_ha_file))
+         if (os.path.isfile(args.create_cvo_gcp_ha_file) != True ):
+              print("Error: {0} : file not found".format(args.create_cvo_gcp_ha_file))
+              exit(1)
+         f = open(args.create_cvo_gcp_ha_file)
+         new_cvo_json=json.load(f)
+         print_deb(new_cvo_json)
+         f.close
 
          isHA = True 
-         cvo_info=netapp_api_cloud.cvo_aws_delete_vsa(API_TOKEN, account_id, agent_id, isHA, args.delete_cvo_aw_ha_id)
+         cvo_info=netapp_api_cloud.cvo_gcp_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
-              print("CVO Name:[{0}] deleted".format(args.delete_cvo_aw_ha_id))
-              exit(0)
+              cvo=json.loads(cvo_info["cvo"])
+              if (args.json):
+                   print(json.dumps(cvo, indent=4))
+              else:
+                   print("Name:[{0}] id:[{1}] HA:[{2}] svm:[{3}] provider[{4}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
               print("ERROR: {0}".format(cvo_info["message"]))
               exit(1)
-
-
 
     # Arg --check-token: Check if API token is still valid 
     if args.check_token:
