@@ -1573,7 +1573,7 @@ def cloudsync_get_relations (API_token, API_accountID):
          url = API_CLOUDSYNC + "/api/relationships-v2"
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-account-id": API_accountID }
+         headers = {"accept": "application/json", "x-account-id": API_accountID }
          response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
          print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
@@ -1642,7 +1642,7 @@ def cloudsync_sync_relation (API_token, API_accountID, relation_id):
          url = API_CLOUDSYNC + "/api/relationships/" + relation_id + "/sync"
          print_deb("url: {0} ".format(url))
          response={}
-         headers = {"Content-type": "application/json", "x-account-id": API_accountID }
+         headers = {"accept": "*/*", "x-account-id": API_accountID }
          response = requests.put(url, auth=BearerAuth(API_token), headers=headers)
     except BaseException as e:
          print_deb("ERROR: Request {0} Failed: {1}".format(url,e))

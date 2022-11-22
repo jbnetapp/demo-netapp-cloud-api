@@ -147,7 +147,10 @@ try:
               else:
                    print("Print NetApp data-borkers list:")
                    for databroker in databrokers:
-                        print("Name:[{0}] ID:[{1}] PrivateIP:[{2}] TransferRate:[{3}] Status:[{4}] ".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"], databroker["transferRate"],databroker["status"]))
+                        if (databroker["status"] == "COMPLETE"):
+                             print("Name:[{0}] ID:[{1}] PrivateIP:[{2}] TransferRate:[{3}] Status:[{4}] ".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"], databroker["transferRate"],databroker["status"]))
+                        else:
+                             print("Name:[{0}] ID:[{1}] Status:[{2}] ".format(databroker["name"], databroker["id"],databroker["status"]))
 
     # Arg --print-relations: print all cloudsync current relations
     if args.print_relations:
@@ -168,7 +171,6 @@ try:
                         activity=relation["activity"]
                         print("")
                         print("id: {0}".format(relation["id"]))
-                        print("account: {0}".format(relation["account"]))
                         print("dataBroker: {0}".format(relation["dataBroker"]))
                         print("source: {0}".format(relation["source"]))
                         print("target: {0}".format(relation["target"]))
@@ -194,7 +196,6 @@ try:
                    activity=relation["activity"]
                    print("")
                    print("id: {0}".format(relation["id"]))
-                   print("account: {0}".format(relation["account"]))
                    print("dataBroker: {0}".format(relation["dataBroker"]))
                    print("source: {0}".format(relation["source"]))
                    print("target: {0}".format(relation["target"]))
