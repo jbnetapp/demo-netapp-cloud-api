@@ -223,14 +223,14 @@ status: DONE
 
 ## Example: Sync a Cloud Sync Relation 
 ```
-# python3 cloudsync.py --account-id account-U0dbRcKS --sync 61c2e054b10e1f362ede48e1
+# python3 cloudsync.py --sync 61c2e054b10e1f362ede48e1
 Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
 
 ```
 
 Verify if the relation is in RUNNING state Print CloudSync Relation again:
 ```
-# python3 cloudsync.py --account-id account-U0dbRcKS --print
+# python3 cloudsync.py --print
 Print cloud sync relations:
 
 id: 61c2e054b10e1f362ede48e1
@@ -244,20 +244,20 @@ status: RUNNING
 
 if you Sync agin the Cloud Sync relation during an existing sync action the script will display error message : 
 ```
-# python3 cloudsync.py --account-id account-U0dbRcKS --sync 61c2e054b10e1f362ede48e1
+# python3 cloudsync.py --sync 61c2e054b10e1f362ede48e1
 Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ERROR: {"code":400,"message":"A sync action is running right now, can not run another action"}
 ```
 
 ## Example: Delete a Cloud Sync relation
 ```
-# python3 cloudsync.py --account-id account-U0dbRcKS --delete 61c2e054b10e1f362ede48e1 -d
+# python3 cloudsync.py --delete 61c2e054b10e1f362ede48e1 -d
 Delete cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ```
 
 ## Example: Display a Cloud Sync relation in JSON format
 ```
-# python3 cloudsync.py --account-id account-U0dbRcKS --print --json
+# python3 cloudsync.py --print --json
 [
     {
         "account": 5e528f4504a9a4d63d6962de
