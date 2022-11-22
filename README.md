@@ -169,9 +169,19 @@ The script **cloudsync.py** show how to work with NetApp Cloud API Sync API. The
 ```
 # python3 cloudsync.py --account-list
 Print NetApp Account list:
-Blanchet account_id: [account-yX7cS8vU]
+Blanchet account_id: [account-yX7cS8vU] Current:[X]
 Demo_SIM account_id: [account-j3aZttuL]
 NetAppHCL account_id: [account-U0dbRcKS]
+```
+
+## Example: Switch to the right NetApp Account
+```
+# python3 cloudaccount.py --account-switch account-U0dbRcKS
+# python3 cloudaccount.py --account-list
+Print NetApp Account list:
+Blanchet account_id: [account-yX7cS8vU] 
+Demo_SIM account_id: [account-j3aZttuL]
+NetAppHCL account_id: [account-U0dbRcKS] Current:[X]
 ```
 
 ## Example: Display your CloudSync Databrokers
@@ -184,7 +194,7 @@ Name:[vmazjb1] ID:[616d9c8d48301b1e6cdfe1df] PrivateIP:[172.30.31.5] TransferRat
 ## Example: Create a new Cloud Sync Relation 
 Example using the local [JSON file example file](https://github.com/jbnetapp/demo-netapp-cloud-api/blob/main/Example/new-cloudsync-relation-blob-to-blob-example.json) from this git repository to create a Cloud Sync relation between two Azure blobs.
 ```
-# python3 cloudsync.py  --account-id account-U0dbRcKS --create-relation ./Example/new-cloudsync-relation-blob-to-blob-example.json
+# python3 cloudsync.py --create-relation ./Example/new-cloudsync-relation-blob-to-blob-example.json
 New cloud Sync relationship successfully created
 ```
 
@@ -198,7 +208,7 @@ New cloud Sync relationship successfully created
 
 ## Example: Print Cloud Sync Relations list 
 ```
-# python3 cloudsync.py --account-id account-U0dbRcKS --print
+# python3 cloudsync.py --print
 Print cloudsync relations:
 
 id: 61c2e054b10e1f362ede48e1
