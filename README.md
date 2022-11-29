@@ -33,7 +33,7 @@ python3 -m pip install requests
 - **For Non-Federated users (Regular Access)** you need to enter username (email) and password:
     - Create the configuration file for Regular Access using **cloudaccount.py** script:
         ```
-        # python3 cloudaccount.py --setup
+        # cloudaccount --setup
         Is your NetApp Cloud Central use federated users ? [y/n] : n
         NetApp Cloud Central Email : <YOUR EMAIL NETAPP CLOUD CENTRAL>
         NetApp Cloud Central Password : <YOUR PASSWORD>       
@@ -45,7 +45,7 @@ python3 -m pip install requests
         <img src="Pictures/Refresh-Token-Generator.png" alt="NetApp Refresh Token" width="1100" height="350"> Copy your token and save it in to the **api.conf** in section header **[API_LOGIN]** in variable **refresh_token**, as shown in the following example.
     - Create the Configuration File for federated users using **cloudaccount.py** script: 
         ```
-        # python3 cloudaccount.py --setup
+        # cloudaccount --setup
         Is your NetApp Cloud Central use federated users ? [y/n] : y
         To get your Refresh Token please go to : https://services.cloud.netapp.com/refresh-token
         NetApp Cloud Central Refresh Token : <YOUR_REFRESH_TOKEN>
@@ -57,24 +57,24 @@ python3 -m pip install requests
 ## Check your JWT access token  
 When using **cloudaccount.py** script with option --setup to create the configuration file the **JWT access token** is automatically saved in the section header [API_TOKEN]. To Check if your **JWT access token** is valid you can use --token-check option.
 ```
-# python3 cloudaccount.py --token-check
+# cloudaccount --token-check
 Access Token is valid
 ```
 
 ## Get a new JWT access token  
 The **JWT access token** is limited in time and will expire after few days. If  **JWT access token** as expired a Code error **401** with message **TokenExpiredError: jwt expired** is return by the API:
 ```
-# python3 cloudaccount.py --token-check
+# cloudaccount --token-check
 ERROR: {"code":401,"message":"TokenExpiredError: jwt expired"}
 ```
 To Get a new **JWT access token** :
 ```
-# python3 cloudaccount.py --token-get-new
+# cloudaccount --token-get-new
 ```
 
 Check if your new **JWT access token** is valid and saved in your private **api.conf** configuration file.
 ```
-# python3 cloudsync.py --token-check
+# cloudsync --token-check
 Access Token is valid
 ```
 # How to Use the OCCM (Cloud Manager) Script:
@@ -82,7 +82,7 @@ The script **occm.py** show how to work with NetApp Cloud Manager API. The Cloud
 
 ## Display list of already deployed Cloud Volume ONTAP
 ```
-# python3 occm.py --cvo-list
+# occm --cvo-list
 Name:[cvoaz01][Azure] id:[VsaWorkingEnvironment-tNz1RNLH] HA:[False] status[ON]
 Name:[cvoaz02][Azure] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] status[ON]
 Name:[cvoaw03][Amazon] id:[VsaWorkingEnvironment-DPKWwhPC] HA:[False] status[ON]
@@ -100,12 +100,12 @@ Name:[cvoaz01][Azure] HA:[False] svm:[svm_cvoaz01] status[ON] mgmt[172.30.24.207
 
 ## Get creation Parameters of an already deployed Coud Volume ONTAP
 ```
-# python3 occm.py --cvo-get-creation-parameters VsaWorkingEnvironment-tNz1RNLH > /tmp/cvoaz01-config-parameters.json
+# occm --cvo-get-creation-parameters VsaWorkingEnvironment-tNz1RNLH > /tmp/cvoaz01-config-parameters.json
 ```
 
 ## Recreate a new Azure Cloud Volume ONTAP Using JSON file create with otpion --cvo-get-creation-parameters
 ```
-# python3 occm.py --cvo-az-create /tmp/cvoaz01-config-parameters.json
+# occm --cvo-az-create /tmp/cvoaz01-config-parameters.json
 Creates a new Azure Cloud Volumes ONTAP working environment
 Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] svm:[svm_cvoaz01b] provider[Azure]
 ```
@@ -119,7 +119,7 @@ Name:[cvoaz01] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] svm:[svm_cvoaz01b]
 
 ## Create a new Cloud Volume ONTAP HA in Azure
 ```
-# python3 occm.py --cvo-az-create-ha ./new-cvo-azure-ha-cvoaz02-ws1.json
+# occm --cvo-az-create-ha ./new-cvo-azure-ha-cvoaz02-ws1.json
 Creates a new Azure HA Cloud Volumes ONTAP working environment
 Name:[cvoaz02] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] svm:[svm_cvoaz02] provider[Azure]
 ```
@@ -167,7 +167,7 @@ The script **cloudsync.py** show how to work with NetApp Cloud API Sync API. The
 
 ## Example: Display NetApp Account list associate with your NetApp Central user
 ```
-# python3 cloudsync.py --account-list
+# cloudsync --account-list
 Print NetApp Account list:
 Blanchet account_id: [account-yX7cS8vU] Current:[X]
 Demo_SIM account_id: [account-j3aZttuL]
@@ -176,8 +176,8 @@ NetAppHCL account_id: [account-U0dbRcKS]
 
 ## Example: Switch to the right NetApp Account
 ```
-# python3 cloudaccount.py --account-switch account-U0dbRcKS
-# python3 cloudaccount.py --account-list
+# cloudaccount --account-switch account-U0dbRcKS
+# cloudaccount --account-list
 Print NetApp Account list:
 Blanchet account_id: [account-yX7cS8vU] 
 Demo_SIM account_id: [account-j3aZttuL]
@@ -186,7 +186,7 @@ NetAppHCL account_id: [account-U0dbRcKS] Current:[X]
 
 ## Example: Display your CloudSync Databrokers
 ```
-# python3 cloudsync.py --data-broker-list
+# cloudsync --data-broker-list
 Print NetApp data-borkers list:
 Name:[vmazjb1] ID:[616d9c8d48301b1e6cdfe1df] PrivateIP:[172.30.31.5] TransferRate:[1753.016465568962] Status:[COMPLETE]
 ```
@@ -194,7 +194,7 @@ Name:[vmazjb1] ID:[616d9c8d48301b1e6cdfe1df] PrivateIP:[172.30.31.5] TransferRat
 ## Example: Create a new Cloud Sync Relation 
 Example using the local [JSON file example file](https://github.com/jbnetapp/demo-netapp-cloud-api/blob/main/Example/new-cloudsync-relation-blob-to-blob-example.json) from this git repository to create a Cloud Sync relation between two Azure blobs.
 ```
-# python3 cloudsync.py --create-relation ./Example/new-cloudsync-relation-blob-to-blob-example.json
+# cloudsync --create-relation ./Example/new-cloudsync-relation-blob-to-blob-example.json
 New cloud Sync relationship successfully created
 ```
 
@@ -208,7 +208,7 @@ New cloud Sync relationship successfully created
 
 ## Example: Print Cloud Sync Relations list 
 ```
-# python3 cloudsync.py --print
+# cloudsync --print
 Print cloudsync relations:
 
 id: 61c2e054b10e1f362ede48e1
@@ -223,14 +223,14 @@ status: DONE
 
 ## Example: Sync a Cloud Sync Relation 
 ```
-# python3 cloudsync.py --sync 61c2e054b10e1f362ede48e1
+# cloudsync --sync 61c2e054b10e1f362ede48e1
 Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
 
 ```
 
 Verify if the relation is in RUNNING state Print CloudSync Relation again:
 ```
-# python3 cloudsync.py --print
+# cloudsync --print
 Print cloud sync relations:
 
 id: 61c2e054b10e1f362ede48e1
@@ -244,20 +244,20 @@ status: RUNNING
 
 if you Sync agin the Cloud Sync relation during an existing sync action the script will display error message : 
 ```
-# python3 cloudsync.py --sync 61c2e054b10e1f362ede48e1
+# cloudsync --sync 61c2e054b10e1f362ede48e1
 Sync cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ERROR: {"code":400,"message":"A sync action is running right now, can not run another action"}
 ```
 
 ## Example: Delete a Cloud Sync relation
 ```
-# python3 cloudsync.py --delete 61c2e054b10e1f362ede48e1 -d
+# cloudsync --delete 61c2e054b10e1f362ede48e1 -d
 Delete cloudsync relation ID: 61c2e054b10e1f362ede48e1
 ```
 
 ## Example: Display a Cloud Sync relation in JSON format
 ```
-# python3 cloudsync.py --print --json
+# cloudsync --print --json
 [
     {
         "account": 5e528f4504a9a4d63d6962de
@@ -379,7 +379,7 @@ Delete cloudsync relation ID: 61c2e054b10e1f362ede48e1
 
 ## Debug mode:
 ```
-# python3 cloudsync.py --account-id account-U0dbRcKS --account-list --debug
+# cloudsync --account-id account-U0dbRcKS --account-list --debug
 DEBUG: [DEFAULT: <Section: DEFAULT> ]
 DEBUG: [API_LOGIN: <Section: API_LOGIN> ]
 DEBUG: [API_TOKEN: <Section: API_TOKEN> ]
@@ -405,7 +405,7 @@ NetAppHCL account_id: [account-U0dbRcKS]
 
 ## Display CloudSnyc Script help option
 ```
-# python3 cloudsync.py --help
+# cloudsync --help
 usage: cloudsync.py [-h] [-d] [--account-id ACCOUNT_ID] [-j]
                     (--account-list | --data-broker-list | --create-relation CREATE_RELATION_FILE | --delete-relation DELETE_RELATION_ID | --sync-relation SYNC_RELATION_ID | --print-relations | --token-check | --token-get-new)
 
