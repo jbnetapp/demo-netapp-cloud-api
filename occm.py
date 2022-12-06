@@ -14,6 +14,7 @@ RELEASE='0.6.2'
 # Local API 
 #####################################################################
 Debug = False
+Verbose = False
 
 def print_vers():
       print (RELEASE)
@@ -51,6 +52,7 @@ if ( os.path.isdir(API_DIR) != True ):
 #####################################################################
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--debug", dest='debug', help="debug mode", action="store_true")
+parser.add_argument("-v", "--verbose", dest='verbose', help="verbose mode", action="store_true")
 parser.add_argument("--account-id", dest='account_id', help="select account ID")
 parser.add_argument("--agent-id", dest='agent_id', help="select cloud manager Connector")
 parser.add_argument("-j", "--json", dest='json', help="print in json format", action="store_true")
@@ -81,6 +83,8 @@ if args.debug:
       Debug = True
       netapp_api_cloud.Debug = True 
 
+if args.verbose:
+      Verbose = True
 try:
     file_info = netapp_api_cloud.check_API_config_file(API_CONFIG_FILE)
     if ( file_info["status"] != "success" ):
@@ -334,8 +338,28 @@ try:
                              cvo_lifs = cvo_node["lifs"]
                              for cvo_lif in cvo_lifs:
                                   if (cvo_lif["lifType"] == "Cluster Management"):
-                                      cvo_mgmt_ip = cvo_lif["ip"] 
+                                      cvo_mgmt_ip = cvo_lif["ip"]
                         print("Name:[{0}][{1}] HA:[{2}] svm:[{3}] status[{4}] mgmt[{5}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
+                        # Display more verbose usefull informations 
+                        if (Verbose):
+                             node_number = 1
+                             for cvo_node in cvo_nodes:
+                                  cvo_node_name = cvo_node["name"]
+                                  cvo_node_serial = cvo_node["serialNumber"]
+                                  cvo_node_sysid = cvo_node["systemId"]
+                                  print("Name:[{0}][{1}] Node{2}[{3}][{4}][{5}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_node_name,cvo_node_serial,cvo_node_sysid))
+                                  cvo_lifs = cvo_node["lifs"]
+                                  for cvo_lif in cvo_lifs:
+                                       if (cvo_lif["lifType"] == "Data"):
+                                            print("Name:[{0}][{1}] Node{2}[{3}][{4}][{5}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_lif["lifType"],cvo_lif["ip"],cvo_lif["dataProtocols"]))
+                                       else: 
+                                            print("Name:[{0}][{1}] Node{2}[{3}][{4}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_lif["lifType"],cvo_lif["ip"],))
+                                  node_number += 1
+                             if (cvo["isHA"] == True):
+                                  cvo_loadbalancer=cvo["haProperties"]["loadBalancerName"]
+                                  cvo_multizone=cvo["haProperties"]["multiZone"]
+                                  print("Name:[{0}][{1}] LoadBalancer[{2}]".format(cvo["name"],cvo["cloudProviderName"],cvo_loadbalancer))
+                                  print("Name:[{0}][{1}] MultiZone[{2}]".format(cvo["name"],cvo["cloudProviderName"],cvo_multizone))
                    exit(0)
               else:
                    print("ERROR: {0}".format(cvo_info["message"]))
