@@ -214,7 +214,7 @@ try:
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
               exit(1)
 
-         print("create new cloudsnyc relation form json file: {0}".format(args.create_relation_file))
+         print("create new cloudsnyc relation from json file: {0}".format(args.create_relation_file))
          if (os.path.isfile(args.create_relation_file) != True ):
              print("Error: {0} : file not found".format(args.create_relation_file))
              exit(1)
