@@ -20,7 +20,7 @@ def print_vers():
       print (RELEASE)
 
 def print_syntax_error(mess):
-      print ('ERROR: {0}'.format(mess))
+      print ('ERROR: {}'.format(mess))
 
 def print_deb (debug_var):
     if (Debug):
@@ -88,7 +88,7 @@ try:
          if (os.path.isfile(API_CONFIG_FILE) == True ):
               answer = ''
               while ( answer != "y" and answer != "n" ):
-                   answer=input('WARNING: File {0} already exist. Erase the file ? [y/n] : '.format(API_CONFIG_FILE))
+                   answer=input('WARNING: File {} already exist. Erase the file ? [y/n] : '.format(API_CONFIG_FILE))
               if ( answer != "y"):
                    exit(0)
          federated_user = '' ;  refresh_token = ''; password='' ; username = '' 
@@ -109,39 +109,39 @@ try:
          print_deb(account_info)
          file_info = netapp_api_cloud.create_API_config_file(API_CONFIG_FILE, account_info)
          if ( file_info["status"] != "success" ):
-              print("ERROR: {0}".format(file_info["message"]))
+              print("ERROR: {}".format(file_info["message"]))
               exit(1)
 
          # Create New Token during setup
          token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
-              print("ERROR: {0}".format(token_info["message"]))
+              print("ERROR: {}".format(token_info["message"]))
               exit(1)
          API_TOKEN=token_info["token"]
 
          # Select Account during setup
          accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
          if (accounts_info["status"] != "success"):
-              print("ERROR: {0}".format(accounts_info["message"]))
+              print("ERROR: {}".format(accounts_info["message"]))
          accounts=json.loads(accounts_info["accounts"])
          if (len(accounts) == 1):
               account=accounts[0]
               accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE,account["accountPublicId"])
               if (accounts_info["status"] != "success"):
-                   print("ERROR: {0}".format(accounts_info["message"]))
+                   print("ERROR: {}".format(accounts_info["message"]))
          else:
               for account in accounts:
-                   print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"]))
+                   print("Name:[{}] account_id:[{}]".format(account["accountName"], account["accountPublicId"]))
               accounts_info["status"] = ""
               while ( accounts_info["status"] != "success" ) :
                    current_account_id=input('Please select your current working account_id : ')
                    accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE,current_account_id)
                    if (accounts_info["status"] != "success"):
-                        print("ERROR: {0}".format(accounts_info["message"]))
+                        print("ERROR: {}".format(accounts_info["message"]))
     else: 
          file_info = netapp_api_cloud.check_API_config_file(API_CONFIG_FILE)
          if ( file_info["status"] != "success" ):
-              print("ERROR: {0}".format(file_info["message"]))
+              print("ERROR: {}".format(file_info["message"]))
               exit(1)
 
     if args.get_new_token:
@@ -149,19 +149,19 @@ try:
          token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
          if ( token_info["status"] == "success" ):
               API_TOKEN=token_info["token"]
-              print_deb("API_TOKEN: {0}".format(API_TOKEN))
+              print_deb("API_TOKEN: {}".format(API_TOKEN))
          else:
-              print("ERROR: {0}".format(token_info["message"]))
+              print("ERROR: {}".format(token_info["message"]))
               exit(1)
     else: 
 
-         print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
+         print_deb("API Configuration File: {}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] == "success" ):
               API_TOKEN=token_info["token"]
-              print_deb("API_TOKEN: {0}".format(API_TOKEN))
+              print_deb("API_TOKEN: {}".format(API_TOKEN))
          else:
-              print("ERROR: {0}".format(token_info["message"]))
+              print("ERROR: {}".format(token_info["message"]))
               exit(1)
 
     if args.account_list:
@@ -175,17 +175,17 @@ try:
          print_deb(accounts_info)
          if (accounts_info["status"] == "success"):
               accounts=json.loads(accounts_info["accounts"])
-              print("Print NetApp Account list[{0}]:".format(len(accounts)))
+              print("Print NetApp Account list[{}]:".format(len(accounts)))
               if (args.json):
                    print(json.dumps(accounts, indent=4))
               else:
                    for account in accounts:
                         if ( account["accountPublicId"] == current_account_id ):
-                             print("Name:[{0}] account_id:[{1}] Current:[X]".format(account["accountName"], account["accountPublicId"]))
+                             print("Name:[{}] account_id:[{}] Current:[X]".format(account["accountName"], account["accountPublicId"]))
                         else:
-                             print("Name:[{0}] account_id:[{1}]".format(account["accountName"], account["accountPublicId"]))
+                             print("Name:[{}] account_id:[{}]".format(account["accountName"], account["accountPublicId"]))
          else:
-              print("ERROR: {0}".format(accounts_info["message"]))
+              print("ERROR: {}".format(accounts_info["message"]))
               exit(1)
 
     if args.workspace_list:
@@ -194,34 +194,34 @@ try:
          print_deb(workspaces_info)
          if (workspaces_info["status"] == "success"):
               workspaces=json.loads(workspaces_info["accounts"])
-              print("Print NetApp Workspaceslist[{0}]:".format(len(workspaces)))
+              print("Print NetApp Workspaceslist[{}]:".format(len(workspaces)))
               if (args.json):
                    print(json.dumps(workspaces, indent=4))
               else:
                    for workspace in workspaces:
-                        print("Name:[{0}] id:[{1}]".format(workspace["workspaceName"], workspace["workspacePublicId"]))
+                        print("Name:[{}] id:[{}]".format(workspace["workspaceName"], workspace["workspacePublicId"]))
          else:
-              print("ERROR: {0}".format(workspaces_info["message"]))
+              print("ERROR: {}".format(workspaces_info["message"]))
               exit(1)
 
     if args.check_token:
          # Get Token and cloud manager account informations 
-         print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
+         print_deb("API Configuration File: {}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] == "unknown" ):
-              print("ERROR: {0}".format(token_info["message"]))
+              print("ERROR: {}".format(token_info["message"]))
               exit(1)
          print("Access Token is valid")
          exit(0)
 
     if args.switch_account_id:
          # Set default Account_id
-         print_deb("Swich to account: {0}".format(args.switch_account_id))
+         print_deb("Swich to account: {}".format(args.switch_account_id))
          accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE, args.switch_account_id)
          if (accounts_info["status"] == "success"):
-              print("Set default account to [{0}]".format(args.switch_account_id))
+              print("Set default account to [{}]".format(args.switch_account_id))
          else:
-              print("ERROR: {0}".format(accounts_info["message"]))
+              print("ERROR: {}".format(accounts_info["message"]))
               exit(1)
 
 except KeyboardInterrupt:

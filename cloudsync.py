@@ -20,7 +20,7 @@ def print_vers():
       print (RELEASE)
 
 def print_syntax_error(mess):
-      print ('ERROR: {0}'.format(mess))
+      print ('ERROR: {}'.format(mess))
 
 def print_deb (debug_var):
     if (Debug):
@@ -73,26 +73,26 @@ if args.debug:
 try:
     file_info = netapp_api_cloud.check_API_config_file(API_CONFIG_FILE)
     if ( file_info["status"] != "success" ):
-         print("ERROR: {0}".format(file_info["message"]))
+         print("ERROR: {}".format(file_info["message"]))
          exit(1)
 
     if args.get_new_token:
          # Create a new token
          token_info=netapp_api_cloud.create_new_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
-              print("ERROR: {0}".format(token_info["message"]))
+              print("ERROR: {}".format(token_info["message"]))
               exit(1)
     else:
          # Get Token and cloud manager account informations
-         print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
+         print_deb("API Configuration File: {}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
-              print("ERROR: {0}".format(token_info["message"]))
+              print("ERROR: {}".format(token_info["message"]))
               exit(1)
 
     API_TOKEN=token_info["token"]
 
-    print_deb("API_TOKEN: {0}".format(API_TOKEN))
+    print_deb("API_TOKEN: {}".format(API_TOKEN))
 
     # Get Account Information from the config file
     account_info=netapp_api_cloud.get_current_account(API_CONFIG_FILE)
@@ -107,10 +107,10 @@ try:
 
     accountName = netapp_api_cloud.occm_get_accountName(API_TOKEN,account_id)
     if ( accountName == ""):
-         print("ERRRO: Account {0} not found".format(account_id))
+         print("ERRRO: Account {} not found".format(account_id))
          exit(1)
     if ( accountName == "Demo_SIM"):
-         print("ERROR: API not supported with Account [Demo_SIM] [{0}]".format(account_id))
+         print("ERROR: API not supported with Account [Demo_SIM] [{}]".format(account_id))
          print("ERROR: Please switch to another Account")
          exit(1)
 
@@ -126,9 +126,9 @@ try:
               accounts=json.loads(accounts_info["accounts"])
               for account in accounts:
                    if ( account["accountId"] == current_account_id ):
-                        print("Name:[{0}] account_id:[{1}] Current:[X]".format(account["name"], account["accountId"]))
+                        print("Name:[{}] account_id:[{}] Current:[X]".format(account["name"], account["accountId"]))
                    else:
-                        print("Name:[{0}] account_id:[{1}]".format(account["name"], account["accountId"]))
+                        print("Name:[{}] account_id:[{}]".format(account["name"], account["accountId"]))
 
     # Arg --data-borker-list: print cloudsync databroker list
     if args.databroker_list:
@@ -148,9 +148,9 @@ try:
                    print("Print NetApp data-borkers list:")
                    for databroker in databrokers:
                         if (databroker["status"] == "COMPLETE"):
-                             print("Name:[{0}] ID:[{1}] PrivateIP:[{2}] TransferRate:[{3}] Status:[{4}] ".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"], databroker["transferRate"],databroker["status"]))
+                             print("Name:[{}] ID:[{}] PrivateIP:[{}] TransferRate:[{}] Status:[{}] ".format(databroker["name"], databroker["id"],databroker["placement"]["privateIp"], databroker["transferRate"],databroker["status"]))
                         else:
-                             print("Name:[{0}] ID:[{1}] Status:[{2}] ".format(databroker["name"], databroker["id"],databroker["status"]))
+                             print("Name:[{}] ID:[{}] Status:[{}] ".format(databroker["name"], databroker["id"],databroker["status"]))
 
     # Arg --print-relations: print all cloudsync current relations
     if args.print_relations:
@@ -170,13 +170,13 @@ try:
                    for relation in relations:
                         activity=relation["activity"]
                         print("")
-                        print("id: {0}".format(relation["id"]))
-                        print("dataBroker: {0}".format(relation["dataBroker"]))
-                        print("source: {0}".format(relation["source"]))
-                        print("target: {0}".format(relation["target"]))
-                        print("type: {0}".format(activity["type"]))
-                        print("status: {0}".format(activity["status"]))
-                        print("status: {0}".format(activity["progress"]))
+                        print("id: {}".format(relation["id"]))
+                        print("dataBroker: {}".format(relation["dataBroker"]))
+                        print("source: {}".format(relation["source"]))
+                        print("target: {}".format(relation["target"]))
+                        print("type: {}".format(activity["type"]))
+                        print("status: {}".format(activity["status"]))
+                        print("status: {}".format(activity["progress"]))
                         print("")
 
     # Arg --print-relation: print a single cloudsync relation
@@ -195,16 +195,16 @@ try:
               else:
                    activity=relation["activity"]
                    print("")
-                   print("id: {0}".format(relation["id"]))
-                   print("dataBroker: {0}".format(relation["dataBroker"]))
-                   print("source: {0}".format(relation["source"]))
-                   print("target: {0}".format(relation["target"]))
-                   print("type: {0}".format(activity["type"]))
-                   print("status: {0}".format(activity["status"]))
-                   print("status: {0}".format(activity["progress"]))
+                   print("id: {}".format(relation["id"]))
+                   print("dataBroker: {}".format(relation["dataBroker"]))
+                   print("source: {}".format(relation["source"]))
+                   print("target: {}".format(relation["target"]))
+                   print("type: {}".format(activity["type"]))
+                   print("status: {}".format(activity["status"]))
+                   print("status: {}".format(activity["progress"]))
                    print("")
          else:
-              print("ERROR: relation id: {0} not found".format(args.get_relation_id))
+              print("ERROR: relation id: {} not found".format(args.get_relation_id))
               exit(1)
 
     # Arg --create-relations: create a new cloudsync relation with create_relation_file JSON file
@@ -214,9 +214,9 @@ try:
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
               exit(1)
 
-         print("create new cloudsnyc relation from json file: {0}".format(args.create_relation_file))
+         print("create new cloudsnyc relation from json file: {}".format(args.create_relation_file))
          if (os.path.isfile(args.create_relation_file) != True ):
-             print("Error: {0} : file not found".format(args.create_relation_file))
+             print("Error: {} : file not found".format(args.create_relation_file))
              exit(1)
          f = open(args.create_relation_file)
          new_relation_json=json.load(f)
@@ -227,7 +227,7 @@ try:
          if (relations_info["status"] == "success"):
               print("New cloud Sync relationship successfully created")
          else:
-              print("ERROR: {0}".format(relations_info["message"]))
+              print("ERROR: {}".format(relations_info["message"]))
 
     # Arg --sync-relation: sync an existing cloudsync relation
     if args.sync_relation_id:
@@ -238,16 +238,16 @@ try:
 
          relation_info=netapp_api_cloud.cloudsync_get_relation(API_TOKEN, account_id,args.sync_relation_id)
          if (relation_info["status"] != "success"):
-              print("ERROR: relation id {0} not found".format(args.sync_relation_id))
+              print("ERROR: relation id {} not found".format(args.sync_relation_id))
               exit(1)
 
-         print("Sync cloudsync relation ID: {0}".format(args.sync_relation_id))
+         print("Sync cloudsync relation ID: {}".format(args.sync_relation_id))
          relation_info=netapp_api_cloud.cloudsync_sync_relation(API_TOKEN, account_id,args.sync_relation_id)
          if (relation_info["status"] != "success"):
               print_deb(relation_info["status"])
-              print("ERROR: {0}".format(relation_info["message"]))
+              print("ERROR: {}".format(relation_info["message"]))
          else:
-              print("relation ID: {0} synchronization in progresss".format(args.sync_relation_id))
+              print("relation ID: {} synchronization in progresss".format(args.sync_relation_id))
 
     # Arg --delete-relation: delete an existing cloudsync relation
     if args.delete_relation_id:
@@ -258,23 +258,23 @@ try:
 
          relation_info=netapp_api_cloud.cloudsync_get_relation(API_TOKEN, account_id,args.delete_relation_id)
          if (relation_info["status"] != "success"):
-              print("ERROR: relation id {0} not found".format(args.delete_relation_id))
+              print("ERROR: relation id {} not found".format(args.delete_relation_id))
               exit(1)
 
-         print("Delete cloudsync relation ID: {0}".format(args.delete_relation_id))
+         print("Delete cloudsync relation ID: {}".format(args.delete_relation_id))
          relation_info=netapp_api_cloud.cloudsync_delete_relation(API_TOKEN, account_id,args.delete_relation_id)
          if (relation_info["status"] != "success"):
               print_deb(relation_info["status"])
-              print("ERROR: {0}".format(relation_info["message"]))
+              print("ERROR: {}".format(relation_info["message"]))
          else:
-              print("relation ID: {0} deleted".format(args.delete_relation_id))
+              print("relation ID: {} deleted".format(args.delete_relation_id))
 
     # Arg --check-token: Check if the current token is valide
     if args.check_token:
-         print_deb("API Configuration File: {0}".format(API_CONFIG_FILE))
+         print_deb("API Configuration File: {}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] == "unknown" ):
-              print("ERROR: {0}".format(token_info["message"]))
+              print("ERROR: {}".format(token_info["message"]))
               exit(1)
          print("Access Token is valid")
          exit(0)
