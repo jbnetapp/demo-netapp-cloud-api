@@ -9,9 +9,9 @@ import configparser
 import json
 import os
 
-RELEASE='0.6.2'
+RELEASE='0.6.3'
 #####################################################################
-# Local API 
+# Local API
 #####################################################################
 Debug = False
 Verbose = False
@@ -24,11 +24,52 @@ def print_syntax_error(mess):
 
 def print_deb (debug_var):
     if (Debug):
-        print("DEBUG: [", end="") 
+        print("DEBUG: [", end="")
         print(debug_var,end="]\n")
 
+def print_verb (mess):
+    if (Verbose):
+        print(mess)
+
+def print_cvo_json(cvo):
+    cvo_name=cvo["name"]
+    cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
+    cvo_mgmt_ip = ""
+    node_number = 1
+    # nodes information
+    for cvo_node in cvo_nodes:
+         cvo_node_name = cvo_node["name"]
+         cvo_node_serial = cvo_node["serialNumber"]
+         cvo_node_sysid = cvo_node["systemId"]
+         print_verb("Name:[{}][{}] node{}:[{}][{}][{}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_node_name,cvo_node_serial,cvo_node_sysid))
+         cvo_lifs = cvo_node["lifs"]
+         for cvo_lif in cvo_lifs:
+              if (cvo_lif["lifType"] == "Cluster Management"):
+                   cvo_mgmt_ip = cvo_lif["ip"]
+              if (cvo_lif["lifType"] == "Data"):
+                   print_verb("Name:[{}][{}] node{}_lif:[{}][{}][{}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_lif["lifType"],cvo_lif["ip"],cvo_lif["dataProtocols"]))
+              else:
+                   print_verb("Name:[{}][{}] node{}_lif:[{}][{}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_lif["lifType"],cvo_lif["ip"],))
+         node_number += 1
+    # cluster information
+    print_verb("Name:[{}][{}] ontap_version:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["ontapClusterProperties"]["ontapVersion"]))
+    print_verb("Name:[{}][{}] license_name:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["ontapClusterProperties"]["licensePackageName"]))
+    print_verb("Name:[{}][{}] mgmt_ip:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo_mgmt_ip))
+    print_verb("Name:[{}][{}] svm_name:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["svmName"]))
+    print_verb("Name:[{}][{}] status:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["status"]["status"]))
+    if (cvo["isHA"] == True):
+         print_verb("Name:[{}][{}] HA:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"]))
+         if (cvo["cloudProviderName"] == "Azure" ):
+              cvo_loadbalancer=cvo["haProperties"]["loadBalancerName"]
+              cvo_multizone=cvo["haProperties"]["multiZone"]
+              print_verb("Name:[{}][{}] loadBalancer:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo_loadbalancer))
+              print_verb("Name:[{}][{}] resourceGroup:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["providerProperties"]["resourceGroup"]["name"]))
+              print_verb("Name:[{}][{}] multiZone:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo_multizone))
+    if (Verbose == False ):
+         print("Name:[{}][{}] HA:[{}] svm:[{}] status:[{}] mgmt:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
+
 #####################################################################
-# API Configuration file 
+# API Configuration file
 #####################################################################
 from sys import platform
 if (platform == "win32") :
@@ -69,8 +110,8 @@ group.add_argument("--cvo-stop", dest='stop_cvo_id', help="stop an existing Clou
 group.add_argument("--cvo-delete", dest='delete_cvo_id', help="delete an existing Cloud Volumes ONTAP working environment" )
 group.add_argument("--cvo-az-create", dest='create_cvo_az_file', help="create a new Cloud Volumes ONTAP in Azure")
 group.add_argument("--cvo-az-create-ha", dest='create_cvo_az_ha_file', help="create a new Cloud Volumes ONTAP HA in Azure")
-group.add_argument("--cvo-aw-create", dest='create_cvo_aw_file', help="create a new Cloud Volumes ONTAP in AWS ")
-group.add_argument("--cvo-aw-create-ha", dest='create_cvo_aw_ha_file', help="create a new Cloud Volumes ONTAP HA in AWS")
+group.add_argument("--cvo-aws-create", dest='create_cvo_aws_file', help="create a new Cloud Volumes ONTAP in AWS ")
+group.add_argument("--cvo-aws-create-ha", dest='create_cvo_aws_ha_file', help="create a new Cloud Volumes ONTAP HA in AWS")
 group.add_argument("--cvo-gcp-create", dest='create_cvo_gcp_file', help="create a new Cloud Volumes ONTAP in GCP ")
 group.add_argument("--cvo-gcp-create-ha", dest='create_cvo_gcp_ha_file', help="create a new Cloud Volumes ONTAP HA in GCP")
 group.add_argument("--token-check", dest='check_token', help="check NetApp Cloud access token", action="store_true" )
@@ -81,7 +122,7 @@ args = parser.parse_args()
 
 if args.debug:
       Debug = True
-      netapp_api_cloud.Debug = True 
+      netapp_api_cloud.Debug = True
 
 if args.verbose:
       Verbose = True
@@ -97,8 +138,8 @@ try:
          if ( token_info["status"] != "success" ):
               print("ERROR: {}".format(token_info["message"]))
               exit(1)
-    else: 
-         # Get Token and cloud manager account informations 
+    else:
+         # Get Token and cloud manager account informations
          print_deb("API Configuration File: {}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] != "success" ):
@@ -112,20 +153,20 @@ try:
     # Get Current Account_id from config file
     account_info=netapp_api_cloud.get_current_account(API_CONFIG_FILE)
     if (account_info["status"] == "success"):
-         account_id = account_info["current_account_id"] 
+         account_id = account_info["current_account_id"]
     else:
          account_id = ""
 
     # Get Current Cloud Manager agent_id from config file
     agent_info=netapp_api_cloud.get_current_occm_agent(API_CONFIG_FILE)
     if (agent_info["status"] == "success"):
-         agent_id = agent_info["current_agent_id"] 
+         agent_id = agent_info["current_agent_id"]
     else:
          agent_id = ""
 
     # Arg --account-id ID
     if args.account_id:
-         account_id = args.account_id 
+         account_id = args.account_id
 
     accountName = netapp_api_cloud.occm_get_accountName(API_TOKEN,account_id)
     if ( accountName == ""):
@@ -135,10 +176,10 @@ try:
          print("ERROR: API not supported with Account [Demo_SIM] [{}]".format(account_id))
          print("ERROR: Please switch to another Account")
          exit(1)
-    
-    # Arg --account-list: Print cloud central accounts 
+
+    # Arg --account-list: Print cloud central accounts
     if args.account_list:
-         current_account_id = account_id 
+         current_account_id = account_id
          print("Print NetApp Account list:")
          accounts_info=netapp_api_cloud.occm_get_accounts_list(API_TOKEN)
          print_deb(accounts_info)
@@ -157,13 +198,13 @@ try:
               print("ERROR: {}".format(accounts_info["message"]))
               exit(1)
 
-    # Arg --agent-id ID 
+    # Arg --agent-id ID
     if args.agent_id:
-         agent_id = args.agent_id 
+         agent_id = args.agent_id
 
-    # Arg --cloud-account-list: Print cloud Account registered 
+    # Arg --cloud-account-list: Print cloud Account registered
     if args.cloud_account_list:
-         
+
          if ( account_id == "" ):
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
               exit(1)
@@ -189,12 +230,12 @@ try:
                              print("provider: [{}] ".format(provider))
                         else:
                              for account in provider_accounts:
-                                  print("provider:[{}] Name:[{}] ID:[{}] Type[{}]".format(provider,account["accountName"], account["publicId"], account["accountType"]))
+                                  print("provider:[{}] Name:[{}] ID:[{}] Type:[{}]".format(provider,account["accountName"], account["publicId"], account["accountType"]))
          else:
               print("ERROR: {}".format(accounts_info["message"]))
               exit(1)
 
-    # Arg --connector-list: Print cloud Manager Agents list 
+    # Arg --connector-list: Print cloud Manager Agents list
     if args.agent_list:
 
          if ( account_id == "" ):
@@ -217,15 +258,15 @@ try:
                        if ( agent["status"] == "ready" ):
                             if ( agent["agent"]["agentId"] == current_agent_id ):
                                 print("Name:[{}] AgentID:[{}] [{}] [{}] [{}] Current [X]".format(agent["occmName"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
-                            else: 
+                            else:
                                 print("Name:[{}] AgentID:[{}] [{}] [{}] [{}]".format(agent["occmName"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
-                       else: 
+                       else:
                                 print("Name:[{}] AgentID:[{}] [{}]".format(agent["occmName"],agent["agent"]["agentId"],agent["status"]))
          else:
               print("ERROR: {}".format(agents_info["message"]))
               exit(1)
 
-    # Arg --agent-switch: Switch to a Connector using Agent_id 
+    # Arg --agent-switch: Switch to a Connector using Agent_id
     if args.switch_agent_id:
          if ( account_id == "" ):
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
@@ -260,12 +301,12 @@ try:
                         print(json.dumps(cvos_az, indent=4))
                    else:
                        for cvo in cvos_az:
-                            print("Name:[{}][{}] id:[{}] HA:[{}] status[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
+                            print("Name:[{}][{}] id:[{}] HA:[{}] status:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
          else:
               print("ERROR: {}".format(cvos_az_info["message"]))
               exit(1)
 
-         # List CVO AWS 
+         # List CVO AWS
          cvos_az_info=netapp_api_cloud.cvo_aws_get_vsa_list(API_TOKEN, account_id, agent_id )
          print_deb(cvos_az_info)
          if (cvos_az_info["status"] == "success"):
@@ -276,12 +317,12 @@ try:
                         print(json.dumps(cvos_az, indent=4))
                    else:
                        for cvo in cvos_az:
-                            print("Name:[{}][{}] id:[{}] HA:[{}] status[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
+                            print("Name:[{}][{}] id:[{}] HA:[{}] status:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
          else:
               print("ERROR: {}".format(cvos_az_info["message"]))
               exit(1)
 
-         # List CVO GCP 
+         # List CVO GCP
          cvos_gcp_info=netapp_api_cloud.cvo_gcp_get_vsa_list(API_TOKEN, account_id, agent_id )
          print_deb(cvos_gcp_info)
          if (cvos_gcp_info["status"] == "success"):
@@ -292,7 +333,7 @@ try:
                         print(json.dumps(cvos_gcp, indent=4))
                    else:
                        for cvo in cvos_gcp:
-                            print("Name:[{}][{}] id:[{}] HA:[{}] status[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
+                            print("Name:[{}][{}] id:[{}] HA:[{}] status:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
          else:
               print("ERROR: {}".format(cvos_gcp_info["message"]))
               exit(1)
@@ -331,41 +372,13 @@ try:
                    if (args.json):
                         print(json.dumps(cvo, indent=4))
                    else:
-                        cvo_name=cvo["name"]
-                        cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
-                        cvo_mgmt_ip = "" 
-                        for cvo_node in cvo_nodes:
-                             cvo_lifs = cvo_node["lifs"]
-                             for cvo_lif in cvo_lifs:
-                                  if (cvo_lif["lifType"] == "Cluster Management"):
-                                      cvo_mgmt_ip = cvo_lif["ip"]
-                        print("Name:[{}][{}] HA:[{}] svm:[{}] status[{}] mgmt[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
-                        # Display more verbose usefull informations 
-                        if (Verbose):
-                             node_number = 1
-                             for cvo_node in cvo_nodes:
-                                  cvo_node_name = cvo_node["name"]
-                                  cvo_node_serial = cvo_node["serialNumber"]
-                                  cvo_node_sysid = cvo_node["systemId"]
-                                  print("Name:[{}][{}] Node{}[{}][{}][{}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_node_name,cvo_node_serial,cvo_node_sysid))
-                                  cvo_lifs = cvo_node["lifs"]
-                                  for cvo_lif in cvo_lifs:
-                                       if (cvo_lif["lifType"] == "Data"):
-                                            print("Name:[{}][{}] Node{}[{}][{}][{}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_lif["lifType"],cvo_lif["ip"],cvo_lif["dataProtocols"]))
-                                       else: 
-                                            print("Name:[{}][{}] Node{}[{}][{}]".format(cvo["name"],cvo["cloudProviderName"],node_number,cvo_lif["lifType"],cvo_lif["ip"],))
-                                  node_number += 1
-                             if (cvo["isHA"] == True):
-                                  cvo_loadbalancer=cvo["haProperties"]["loadBalancerName"]
-                                  cvo_multizone=cvo["haProperties"]["multiZone"]
-                                  print("Name:[{}][{}] LoadBalancer[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo_loadbalancer))
-                                  print("Name:[{}][{}] MultiZone[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo_multizone))
+                        print_cvo_json(cvo)
                    exit(0)
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
 
-         # Cloud Provider Amazon 
+         # Cloud Provider Amazon
          if (cloudProviderName == "Amazon"):
               cvo_info=netapp_api_cloud.cvo_aws_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id)
               print_deb(cvo_info)
@@ -374,21 +387,13 @@ try:
                    if (args.json):
                         print(json.dumps(cvo, indent=4))
                    else:
-                        cvo_name=cvo["name"]
-                        cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
-                        cvo_mgmt_ip = "" 
-                        for cvo_node in cvo_nodes:
-                             cvo_lifs = cvo_node["lifs"]
-                             for cvo_lif in cvo_lifs:
-                                  if (cvo_lif["lifType"] == "Cluster Management"):
-                                      cvo_mgmt_ip = cvo_lif["ip"] 
-                        print("Name:[{}][{}] HA:[{}] svm:[{}] status[{}] mgmt[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
+                        print_cvo_json(cvo)
                    exit(0)
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
 
-         # Cloud Provider GCP 
+         # Cloud Provider GCP
          if (cloudProviderName == "GCP"):
               cvo_info=netapp_api_cloud.cvo_gcp_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id)
               print_deb(cvo_info)
@@ -397,15 +402,7 @@ try:
                    if (args.json):
                         print(json.dumps(cvo, indent=4))
                    else:
-                        cvo_name=cvo["name"]
-                        cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
-                        cvo_mgmt_ip = "" 
-                        for cvo_node in cvo_nodes:
-                             cvo_lifs = cvo_node["lifs"]
-                             for cvo_lif in cvo_lifs:
-                                  if (cvo_lif["lifType"] == "Cluster Management"):
-                                      cvo_mgmt_ip = cvo_lif["ip"] 
-                        print("Name:[{}][{}] HA:[{}] svm:[{}] status[{}] mgmt[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
+                        print_cvo_json(cvo)
                    exit(0)
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
@@ -413,7 +410,7 @@ try:
 
          print("ERROR: cloud provider  [{}] is not supported".format(cloudProviderName))
 
-    # Arg --cvo_get_creation_parameters: Print details of Cloud Volumes ONTAP creation parameters 
+    # Arg --cvo_get_creation_parameters: Print details of Cloud Volumes ONTAP creation parameters
     if args.get_cvo_id_creation_parameters:
 
          if ( account_id == "" ):
@@ -448,7 +445,7 @@ try:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
 
-         # Cloud Provider Amazon 
+         # Cloud Provider Amazon
          if (cloudProviderName == "Amazon"):
               cvo_info=netapp_api_cloud.cvo_aws_get_vsa_creation_parameters(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id_creation_parameters)
               print_deb(cvo_info)
@@ -460,7 +457,7 @@ try:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
 
-         # Cloud Provider  GCP 
+         # Cloud Provider  GCP
          if (cloudProviderName == "GCP"):
               cvo_info=netapp_api_cloud.cvo_gcp_get_vsa_creation_parameters(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id_creation_parameters)
               print_deb(cvo_info)
@@ -509,11 +506,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('Do you want to start CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -540,11 +537,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+ 
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('Do you want to start CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -571,11 +568,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('Do you want to start CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -629,11 +626,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+ 
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('WARNING: do you want to stop CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -660,11 +657,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+ 
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('WARNING: do you want to stop CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -691,11 +688,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] status:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+ 
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('WARNING: do you want to stop CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -750,11 +747,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('WARNING: do you want to delete the CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -781,11 +778,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('WARNING: do you want to delete the CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -812,11 +809,11 @@ try:
                         print(json.dumps(cvo, indent=4))
                    else:
                         cvo_name=cvo["name"]
-                        print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                        print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
               else:
                    print("ERROR: {}".format(cvo_info["message"]))
                    exit(1)
-         
+
               answer = ''
               while ( answer != "y" and answer != "n" ):
                    answer=input('WARNING: do you want to delete the CVO [{}] ? [y/n] : '.format(cvo["name"]))
@@ -835,7 +832,7 @@ try:
 
          print("ERROR: cloud provider  [{}] is not supported".format(cloudProviderName))
 
-    # Arg --cvo-az-create: Create a new Cloud Volumes ONTAP in Azure 
+    # Arg --cvo-az-create: Create a new Cloud Volumes ONTAP in Azure
     if args.create_cvo_az_file:
 
          if ( account_id == "" ):
@@ -865,13 +862,13 @@ try:
               if (args.json):
                    print(json.dumps(cvo, indent=4))
               else:
-                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
               print("ERROR: {}".format(cvo_info["message"]))
               exit(1)
 
 
-    # Arg --cvo-az-create-ha: Create a new Cloud Volumes ONTAP HA in Azure 
+    # Arg --cvo-az-create-ha: Create a new Cloud Volumes ONTAP HA in Azure
     if args.create_cvo_az_ha_file:
 
          if ( account_id == "" ):
@@ -893,7 +890,7 @@ try:
          print_deb(new_cvo_json)
          f.close
 
-         isHA = True 
+         isHA = True
          cvo_info=netapp_api_cloud.cvo_azure_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
@@ -901,13 +898,13 @@ try:
               if (args.json):
                    print(json.dumps(cvo, indent=4))
               else:
-                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
               print("ERROR: {}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-aw-create: Create a new Cloud Volumes ONTAP in AWS 
-    if args.create_cvo_aw_file:
+    # Arg --cvo-aws-create: Create a new Cloud Volumes ONTAP in AWS
+    if args.create_cvo_aws_file:
 
          if ( account_id == "" ):
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
@@ -919,11 +916,11 @@ try:
 
          print("Creates a new Cloud Volumes ONTAP in AWS")
 
-         print_deb("Create new CVO using file: {}".format(args.create_cvo_aw_file))
-         if (os.path.isfile(args.create_cvo_aw_file) != True ):
-              print("Error: {} : file not found".format(args.create_cvo_aw_file))
+         print_deb("Create new CVO using file: {}".format(args.create_cvo_aws_file))
+         if (os.path.isfile(args.create_cvo_aws_file) != True ):
+              print("Error: {} : file not found".format(args.create_cvo_aws_file))
               exit(1)
-         f = open(args.create_cvo_aw_file)
+         f = open(args.create_cvo_aws_file)
          new_cvo_json=json.load(f)
          print_deb(new_cvo_json)
          f.close
@@ -936,14 +933,14 @@ try:
               if (args.json):
                    print(json.dumps(cvo, indent=4))
               else:
-                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
               print("ERROR: {}".format(cvo_info["message"]))
               exit(1)
 
 
-    # Arg --cvo-aw-create-ha: Create a new Cloud Volumes ONTAP HA in AWS 
-    if args.create_cvo_aw_ha_file:
+    # Arg --cvo-aws-create-ha: Create a new Cloud Volumes ONTAP HA in AWS
+    if args.create_cvo_aws_ha_file:
 
          if ( account_id == "" ):
               print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
@@ -955,16 +952,16 @@ try:
 
          print("Creates a new Cloud Volumes ONTAP HA in AWS")
 
-         print_deb("Create new CVO using file: {}".format(args.create_cvo_aw_ha_file))
-         if (os.path.isfile(args.create_cvo_aw_ha_file) != True ):
-              print("Error: {} : file not found".format(args.create_cvo_aw_ha_file))
+         print_deb("Create new CVO using file: {}".format(args.create_cvo_aws_ha_file))
+         if (os.path.isfile(args.create_cvo_aws_ha_file) != True ):
+              print("Error: {} : file not found".format(args.create_cvo_aws_ha_file))
               exit(1)
-         f = open(args.create_cvo_aw_ha_file)
+         f = open(args.create_cvo_aws_ha_file)
          new_cvo_json=json.load(f)
          print_deb(new_cvo_json)
          f.close
 
-         isHA = True 
+         isHA = True
          cvo_info=netapp_api_cloud.cvo_aws_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
@@ -972,12 +969,12 @@ try:
               if (args.json):
                    print(json.dumps(cvo, indent=4))
               else:
-                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
               print("ERROR: {}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --cvo-gcp-create: Create a new Cloud Volumes ONTAP in GCP 
+    # Arg --cvo-gcp-create: Create a new Cloud Volumes ONTAP in GCP
     if args.create_cvo_gcp_file:
 
          if ( account_id == "" ):
@@ -1007,13 +1004,13 @@ try:
               if (args.json):
                    print(json.dumps(cvo, indent=4))
               else:
-                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
               print("ERROR: {}".format(cvo_info["message"]))
               exit(1)
 
 
-    # Arg --cvo-gcp-create-ha: Create a new Cloud Volumes ONTAP HA in GCP 
+    # Arg --cvo-gcp-create-ha: Create a new Cloud Volumes ONTAP HA in GCP
     if args.create_cvo_gcp_ha_file:
 
          if ( account_id == "" ):
@@ -1035,7 +1032,7 @@ try:
          print_deb(new_cvo_json)
          f.close
 
-         isHA = True 
+         isHA = True
          cvo_info=netapp_api_cloud.cvo_gcp_create_new(API_TOKEN, account_id, agent_id, isHA, new_cvo_json)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
@@ -1043,14 +1040,14 @@ try:
               if (args.json):
                    print(json.dumps(cvo, indent=4))
               else:
-                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
+                   print("Name:[{}] id:[{}] HA:[{}] svm:[{}] provider:[{}]".format(cvo["name"],cvo["publicId"],cvo["isHA"],cvo["svmName"],cvo["cloudProviderName"]))
          else:
               print("ERROR: {}".format(cvo_info["message"]))
               exit(1)
 
-    # Arg --check-token: Check if API token is still valid 
+    # Arg --check-token: Check if API token is still valid
     if args.check_token:
-         # Get Token and cloud manager account informations 
+         # Get Token and cloud manager account informations
          print_deb("API Configuration File: {}".format(API_CONFIG_FILE))
          token_info=netapp_api_cloud.check_current_token(API_CONFIG_FILE)
          if ( token_info["status"] == "unknown" ):
@@ -1059,7 +1056,7 @@ try:
          print("Access Token is valid")
          exit(0)
 
-    # Arg --version: Check if API token is still valid 
+    # Arg --version: Check if API token is still valid
     if args.version:
          print("Version {}".format(RELEASE))
          print("API Version {}".format(netapp_api_cloud.API_RELEASE))
