@@ -60,10 +60,13 @@ def print_cvo_json(cvo):
     if (cvo["isHA"] == True):
          print_verb("Name:[{}][{}] HA:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"]))
          if (cvo["cloudProviderName"] == "Azure" ):
+              cvo_resourcegroup=""
+              if (cvo["providerProperties"]["resourceGroup"] is not None) :
+                   cvo_resourcegroup=cvo["providerProperties"]["resourceGroup"]["name"]
               cvo_loadbalancer=cvo["haProperties"]["loadBalancerName"]
               cvo_multizone=cvo["haProperties"]["multiZone"]
               print_verb("Name:[{}][{}] loadBalancer:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo_loadbalancer))
-              print_verb("Name:[{}][{}] resourceGroup:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["providerProperties"]["resourceGroup"]["name"]))
+              print_verb("Name:[{}][{}] resourceGroup:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo_resourcegroup))
               print_verb("Name:[{}][{}] multiZone:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo_multizone))
     if (Verbose == False ):
          print("Name:[{}][{}] HA:[{}] svm:[{}] status:[{}] mgmt:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["isHA"],cvo["svmName"],cvo["status"]["status"],cvo_mgmt_ip))
