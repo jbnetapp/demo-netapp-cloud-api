@@ -1,5 +1,6 @@
 #####################################################################
 # occm python script for NetApp Cloud Manager
+# Jerome.Blanchet@NetApp.com
 #####################################################################
 import netapp_api_cloud
 import argparse
@@ -247,7 +248,6 @@ try:
 
          current_agent_id = agent_id
 
-         print("Print Cloud Manager Agents List")
          agents_info=netapp_api_cloud.occm_get_occms_list(API_TOKEN, account_id)
          print_deb(agents_info)
          if (agents_info["status"] == "success"):
@@ -258,13 +258,13 @@ try:
                    print(json.dumps(agents, indent=4))
               else:
                    for agent in agents:
-                       if ( agent["status"] == "ready" ):
+                       if ( agent["status"] == "active" ):
                             if ( agent["agent"]["agentId"] == current_agent_id ):
-                                print("Name:[{}] AgentID:[{}] [{}] [{}] [{}] Current [X]".format(agent["occmName"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
+                                print("Name:[{}] AgentID:[{}] [{}] [{}] [{}] Current [X]".format(agent["agent"]["name"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
                             else:
-                                print("Name:[{}] AgentID:[{}] [{}] [{}] [{}]".format(agent["occmName"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
+                                print("Name:[{}] AgentID:[{}] [{}] [{}] [{}]".format(agent["agent"]["name"],agent["agent"]["agentId"],agent["primaryCallbackUri"],agent["agent"]["provider"],agent["agent"]["status"]))
                        else:
-                                print("Name:[{}] AgentID:[{}] [{}]".format(agent["occmName"],agent["agent"]["agentId"],agent["status"]))
+                                print("Name:[{}] AgentID:[{}] [{}]".format(agent["agent"]["name"],agent["agent"]["agentId"],agent["status"]))
          else:
               print("ERROR: {}".format(agents_info["message"]))
               exit(1)

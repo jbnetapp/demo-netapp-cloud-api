@@ -1,6 +1,6 @@
 #####################################################################
 # cloudsync is a simple python script using NetApp Cloud Rest API
-# jerome.blanchet@netapp.com
+# Jerome.Blanchet@NetApp.com
 #####################################################################
 import netapp_api_cloud
 import argparse

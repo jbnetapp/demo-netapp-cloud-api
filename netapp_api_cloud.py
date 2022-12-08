@@ -1,5 +1,6 @@
 #################################################################################################
-# API Cloud NetApp Version 0.6.1
+# API Cloud NetApp Version 0.6.3
+# Jerome.Blanchet@NetApp.com
 #################################################################################################
 from re import I
 import ssl
@@ -22,14 +23,13 @@ class BearerAuth(requests.auth.AuthBase):
 # Global Parameters for ontap rest module 
 # https://docs.netapp.com/us-en/occm/api_sync.html
 #################################################################################################
-API_OCCM = "https://cloudmanager.cloud.netapp.com"
+API_OCCM = "https://api.bluexp.netapp.com"
 API_CLOUDSYNC = "https://api.cloudsync.netapp.com"
 API_CLOUDAUTH = "https://netapp-cloud-account.auth0.com"
 API_AUDIENCE = "https://api.cloud.netapp.com"
-API_SERVICES = "https://api.services.cloud.netapp.com"
 CLIENT_ID_REGULAR = "QC3AgHk6qdbmC7Yyr82ApBwaaJLwRrNO" 
 CLIENT_ID_REFRESH_TOKEN = "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC"
-API_RELEASE='0.6.2'
+API_RELEASE='0.6.3'
 #################################################################################################
 # Debug 
 #################################################################################################
@@ -513,7 +513,7 @@ def occm_get_occms_list (API_token, API_accountID):
          return occms_info
 
     try:
-         url = API_SERVICES + "/occm/list-occms/" + API_accountID
+         url = API_OCCM + "/agents-mgmt/list-connectors/" + API_accountID
          print_deb("url: {0} ".format(url))
          response={}
          headers = {'Content-type': 'application/json'}

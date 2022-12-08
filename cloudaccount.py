@@ -127,6 +127,7 @@ try:
          if (len(accounts) == 1):
               account=accounts[0]
               accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE,account["accountPublicId"])
+              current_account_id=account["accountPublicId"]
               if (accounts_info["status"] != "success"):
                    print("ERROR: {}".format(accounts_info["message"]))
          else:
@@ -138,6 +139,31 @@ try:
                    accounts_info=netapp_api_cloud.set_current_account(API_TOKEN, API_CONFIG_FILE,current_account_id)
                    if (accounts_info["status"] != "success"):
                         print("ERROR: {}".format(accounts_info["message"]))
+
+         # Select the BlueXP connector
+         agents_info=netapp_api_cloud.occm_get_occms_list(API_TOKEN, current_account_id)
+         print_deb(agents_info)
+         if (agents_info["status"] == "success"):
+              occms=json.loads(agents_info["occms"])
+              agents=occms["occms"]
+              print("Print NetApp OCCM Agent list[{}]:".format(len(agents)))
+              if (args.json):
+                   print(json.dumps(agents, indent=4))
+              else:
+                   if (len(agents) != 0 ):
+                        for agent in agents:
+                             print("Name:[{}] AgentID:[{}] [{}]".format(agent["agent"]["name"],agent["agent"]["agentId"],agent["status"]))
+                        agents_info["status"] = ""
+                        while (agents_info["status"] != "success"):
+                             current_agent_id=input('Please select your current BlueXP Connector agent_id : ')
+                             agents_info=netapp_api_cloud.set_current_occm_agent(API_TOKEN,API_CONFIG_FILE,current_account_id,current_agent_id)
+                             if (agents_info["status"] != "success"):
+                                  print("ERROR: {}".format(agents_info["message"]))
+                             else:
+                                  print("Set default occm agent to: [{}]".format(current_agent_id))
+         else:
+              print("ERROR: {}".format(agents_info["message"]))
+
     else: 
          file_info = netapp_api_cloud.check_API_config_file(API_CONFIG_FILE)
          if ( file_info["status"] != "success" ):
