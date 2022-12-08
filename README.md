@@ -6,7 +6,7 @@ Thes scripts need to be used with **python 3**
 The following python modules must be installed (Linux/Windows):
 ```
 python3 -m pip install pyopenssl
-python3 -m pip insatll urllib3
+python3 -m pip install urllib3
 python3 -m pip install requests
 ```
 # Install Cloud Manager Demo Scripts
