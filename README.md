@@ -19,7 +19,7 @@ python3 -m pip install requests
 ## For Unix create the following useful Aliases 
 ```
 echo "alias cloudaccount='python3 $PWD/demo-netapp-cloud-api/cloudaccount.py'" >> $HOME/.bashrc
-echo "alias cloudsync='python3 $PWD/demo-netapp-cloud-api/cloudsnyc.py'" >> $HOME/.bashrc
+echo "alias cloudsync='python3 $PWD/demo-netapp-cloud-api/cloudsync.py'" >> $HOME/.bashrc
 echo "alias occm='python3 $PWD/demo-netapp-cloud-api/occm.py'" >> $HOME/.bashrc
 source $HOME/.bashrc
 ```
