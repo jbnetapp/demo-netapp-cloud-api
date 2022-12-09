@@ -151,16 +151,23 @@ try:
                    print(json.dumps(agents, indent=4))
               else:
                    if (len(agents) != 0 ):
-                        for agent in agents:
-                             print("Name:[{}] AgentID:[{}] [{}]".format(agent["agent"]["name"],agent["agent"]["agentId"],agent["status"]))
-                        agents_info["status"] = ""
-                        while (agents_info["status"] != "success"):
-                             current_agent_id=input('Please select your current BlueXP Connector agent_id : ')
+                        if (len(agents) == 1 ):
+                             agent=agents[0]
+                             current_agent_id=agent["agent"]["agentID"]
                              agents_info=netapp_api_cloud.set_current_occm_agent(API_TOKEN,API_CONFIG_FILE,current_account_id,current_agent_id)
                              if (agents_info["status"] != "success"):
                                   print("ERROR: {}".format(agents_info["message"]))
-                             else:
-                                  print("Set default occm agent to: [{}]".format(current_agent_id))
+                        else:
+                             for agent in agents:
+                                  print("Name:[{}] AgentID:[{}] [{}]".format(agent["agent"]["name"],agent["agent"]["agentId"],agent["status"]))
+                             agents_info["status"] = ""
+                             while (agents_info["status"] != "success"):
+                                  current_agent_id=input('Please select your current BlueXP Connector agent_id : ')
+                                  agents_info=netapp_api_cloud.set_current_occm_agent(API_TOKEN,API_CONFIG_FILE,current_account_id,current_agent_id)
+                                  if (agents_info["status"] != "success"):
+                                       print("ERROR: {}".format(agents_info["message"]))
+                                  else:
+                                      print("Set default occm agent to: [{}]".format(current_agent_id))
          else:
               print("ERROR: {}".format(agents_info["message"]))
 
