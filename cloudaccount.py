@@ -153,7 +153,8 @@ try:
                    if (len(agents) != 0 ):
                         if (len(agents) == 1 ):
                              agent=agents[0]
-                             current_agent_id=agent["agent"]["agentID"]
+                             print("Name:[{}] AgentID:[{}] [{}]".format(agent["agent"]["name"],agent["agent"]["agentId"],agent["status"]))
+                             current_agent_id=agent["agent"]["agentId"]
                              agents_info=netapp_api_cloud.set_current_occm_agent(API_TOKEN,API_CONFIG_FILE,current_account_id,current_agent_id)
                              if (agents_info["status"] != "success"):
                                   print("ERROR: {}".format(agents_info["message"]))
