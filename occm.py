@@ -32,6 +32,9 @@ def print_verb (mess):
     if (Verbose):
         print(mess)
 
+def get_cvo_id_byname(cvo_name_or_id):
+    print_deb(cvo_name_or_id)
+
 def print_cvo_json(cvo):
     cvo_name=cvo["name"]
     cvo_nodes=cvo["ontapClusterProperties"]["nodes"]
@@ -310,16 +313,16 @@ try:
               exit(1)
 
          # List CVO AWS
-         cvos_az_info=netapp_api_cloud.cvo_aws_get_vsa_list(API_TOKEN, account_id, agent_id )
-         print_deb(cvos_az_info)
-         if (cvos_az_info["status"] == "success"):
-              cvos_az=json.loads(cvos_az_info["cvos"])
-              if ( len(cvos_az) > 0 ):
-                   print("Print AWS Cloud Volume ONTAP list[{}]:".format(len(cvos_az)))
+         cvos_aws_info=netapp_api_cloud.cvo_aws_get_vsa_list(API_TOKEN, account_id, agent_id )
+         print_deb(cvos_aws_info)
+         if (cvos_aws_info["status"] == "success"):
+              cvos_aws=json.loads(cvos_aws_info["cvos"])
+              if ( len(cvos_aws) > 0 ):
+                   print("Print AWS Cloud Volume ONTAP list[{}]:".format(len(cvos_aws)))
                    if (args.json):
-                        print(json.dumps(cvos_az, indent=4))
+                        print(json.dumps(cvos_aws, indent=4))
                    else:
-                       for cvo in cvos_az:
+                       for cvo in cvos_aws:
                             print("Name:[{}][{}] id:[{}] HA:[{}] status:[{}]".format(cvo["name"],cvo["cloudProviderName"],cvo["publicId"],cvo["isHA"],cvo["status"]["status"]))
          else:
               print("ERROR: {}".format(cvos_az_info["message"]))
