@@ -665,12 +665,12 @@ def occm_get_cloud_accounts_list (API_token, API_accountID, API_agentID):
 #################################################################################################
 # CVO Working Environments  
 #################################################################################################
-def cvo_get_working_environment (API_token, API_accountID, API_agentID, vsa_id):
+def cvo_get_working_environment (API_token, API_accountID, API_agentID, workingEnvironmentId):
     print_deb("FUNCTION: cvo_get_working_environments")
     cvo_info={}
     cvo_info["status"]="unknown"
 
-    url = API_OCCM + "/occm/api/working-environments/" + vsa_id
+    url = API_OCCM + "/occm/api/working-environments/" + workingEnvironmentId
 
     try:
          print_deb("url: {0} ".format(url))
@@ -739,16 +739,16 @@ def cvo_azure_get_vsa_list (API_token, API_accountID, API_agentID ):
               return cvos_info
 
 #################################################################################################
-def cvo_azure_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_azure_get_vsa (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_azure_get_vsa")
     cvo_info={}
     cvo_info["status"]="unknown"
 
     if( isHA == True ):
-         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + vsa_id + "?fields=*"
+         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + workingEnvironmentId + "?fields=*"
     else:
-         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "?fields=*"
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + workingEnvironmentId + "?fields=*"
 
     try:
          print_deb("url: {0} ".format(url))
@@ -779,16 +779,16 @@ def cvo_azure_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
               return cvo_info
 
 #################################################################################################
-def cvo_azure_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_azure_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_azure_get_vsa_creation_parameters")
     cvo_creation_parameters={}
     cvo_creation_parameters["status"]="unknown"
 
     if( isHA == True ):
-         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + vsa_id + "/create-request-parameters"
+         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + workingEnvironmentId + "/create-request-parameters"
     else:
-         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id + "/create-request-parameters"
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + workingEnvironmentId + "/create-request-parameters"
 
     try:
          print_deb("url: {0} ".format(url))
@@ -859,16 +859,16 @@ def cvo_azure_create_new (API_token, API_accountID, API_agentID, isHA, API_json 
          return cvo_info
 
 #################################################################################################
-def cvo_azure_delete_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_azure_delete_vsa (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_azure_delete_vsa")
     cvos_info={}
     cvos_info["status"]="unknown"
 
     if ( isHA == True ):
-         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + vsa_id
+         url = API_OCCM + "/occm/api/azure/ha/working-environments/" + workingEnvironmentId
     else:
-         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + vsa_id
+         url = API_OCCM + "/occm/api/azure/vsa/working-environments/" + workingEnvironmentId
 
     try:
          print_deb("url: {0} ".format(url))
@@ -899,7 +899,7 @@ def cvo_azure_delete_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
               return cvos_info
 
 #################################################################################################
-def cvo_azure_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, action):
+def cvo_azure_action_vsa (API_token, API_accountID, API_agentID, workingEnvironmentId, isHA, action):
 
     print_deb("FUNCTION: cvo_azure_stop_vsa")
     cvos_info={}
@@ -911,11 +911,11 @@ def cvo_azure_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, a
         API_PATH = "/occm/api/azure/vsa/working-environments/"
 
     if ( action == "start" ):
-        url = API_OCCM + API_PATH + vsa_id + "/start"
+        url = API_OCCM + API_PATH + workingEnvironmentId + "/start"
         action_check=True
 
     if ( action == "stop" ):
-        url = API_OCCM + API_PATH + vsa_id + "/stop"
+        url = API_OCCM + API_PATH + workingEnvironmentId + "/stop"
         action_check=True
 
     if (action_check != True ):
@@ -991,16 +991,16 @@ def cvo_aws_get_vsa_list (API_token, API_accountID, API_agentID ):
               return cvos_info
 
 #################################################################################################
-def cvo_aws_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_aws_get_vsa (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_aws_get_vsa")
     cvo_info={}
     cvo_info["status"]="unknown"
 
     if( isHA == True ):
-         url = API_OCCM + "/occm/api/aws/ha/working-environments/" + vsa_id + "?fields=*"
+         url = API_OCCM + "/occm/api/aws/ha/working-environments/" + workingEnvironmentId + "?fields=*"
     else:
-         url = API_OCCM + "/occm/api/vsa/working-environments/" + vsa_id + "?fields=*"
+         url = API_OCCM + "/occm/api/vsa/working-environments/" + workingEnvironmentId + "?fields=*"
 
     try:
          print_deb("url: {0} ".format(url))
@@ -1031,16 +1031,16 @@ def cvo_aws_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
               return cvo_info
 
 #################################################################################################
-def cvo_aws_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_aws_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_aws_get_vsa")
     cvo_creation_parameters={}
     cvo_creation_parameters["status"]="unknown"
 
     if( isHA == True ):
-         url = API_OCCM + "/occm/api/aws/ha/working-environments/" + vsa_id + "/create-request-parameters"
+         url = API_OCCM + "/occm/api/aws/ha/working-environments/" + workingEnvironmentId + "/create-request-parameters"
     else:
-         url = API_OCCM + "/occm/api/vsa/working-environments/" + vsa_id + "/create-request-parameters"
+         url = API_OCCM + "/occm/api/vsa/working-environments/" + workingEnvironmentId + "/create-request-parameters"
 
     try:
          print_deb("url: {0} ".format(url))
@@ -1111,16 +1111,16 @@ def cvo_aws_create_new (API_token, API_accountID, API_agentID, isHA, API_json ):
          return cvo_info
 
 #################################################################################################
-def cvo_aws_delete_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_aws_delete_vsa (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_aws_delete_vsa")
     cvos_info={}
     cvos_info["status"]="unknown"
 
     if ( isHA == True ):
-         url = API_OCCM + "/occm/api/aws/ha/working-environments/" + vsa_id
+         url = API_OCCM + "/occm/api/aws/ha/working-environments/" + workingEnvironmentId
     else:
-         url = API_OCCM + "/occm/api/vsa/working-environments/" + vsa_id
+         url = API_OCCM + "/occm/api/vsa/working-environments/" + workingEnvironmentId
 
     try:
          print_deb("url: {0} ".format(url))
@@ -1151,7 +1151,7 @@ def cvo_aws_delete_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
               return cvos_info
 
 #################################################################################################
-def cvo_aws_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, action):
+def cvo_aws_action_vsa (API_token, API_accountID, API_agentID, workingEnvironmentId, isHA, action):
 
     print_deb("FUNCTION: cvo_aws_stop_vsa")
     cvos_info={}
@@ -1163,11 +1163,11 @@ def cvo_aws_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, act
         API_PATH = "/occm/api/vsa/working-environments/"
 
     if ( action == "start" ):
-        url = API_OCCM + API_PATH + vsa_id + "/start"
+        url = API_OCCM + API_PATH + workingEnvironmentId + "/start"
         action_check=True
 
     if ( action == "stop" ):
-        url = API_OCCM + API_PATH + vsa_id + "/stop"
+        url = API_OCCM + API_PATH + workingEnvironmentId + "/stop"
         action_check=True
 
     if (action_check != True ):
@@ -1243,16 +1243,16 @@ def cvo_gcp_get_vsa_list (API_token, API_accountID, API_agentID ):
               return cvos_info
 
 #################################################################################################
-def cvo_gcp_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_gcp_get_vsa (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_gcp_get_vsa")
     cvo_info={}
     cvo_info["status"]="unknown"
 
     if( isHA == True ):
-         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + vsa_id + "?fields=*"
+         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + workingEnvironmentId + "?fields=*"
     else:
-         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + vsa_id + "?fields=*"
+         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + workingEnvironmentId + "?fields=*"
 
     try:
          print_deb("url: {0} ".format(url))
@@ -1283,16 +1283,16 @@ def cvo_gcp_get_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
               return cvo_info
 
 #################################################################################################
-def cvo_gcp_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_gcp_get_vsa_creation_parameters (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_gcp_get_vsa_creation_parameters")
     cvo_creation_parameters={}
     cvo_creation_parameters["status"]="unknown"
 
     if( isHA == True ):
-         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + vsa_id + "/create-request-parameters"
+         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + workingEnvironmentId + "/create-request-parameters"
     else:
-         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + vsa_id + "/create-request-parameters"
+         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + workingEnvironmentId + "/create-request-parameters"
 
     try:
          print_deb("url: {0} ".format(url))
@@ -1363,16 +1363,16 @@ def cvo_gcp_create_new (API_token, API_accountID, API_agentID, isHA, API_json ):
          return cvo_info
 
 #################################################################################################
-def cvo_gcp_delete_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
+def cvo_gcp_delete_vsa (API_token, API_accountID, API_agentID, isHA, workingEnvironmentId):
 
     print_deb("FUNCTION: cvo_gcp_delete_vsa")
     cvos_info={}
     cvos_info["status"]="unknown"
 
     if ( isHA == True ):
-         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + vsa_id
+         url = API_OCCM + "/occm/api/gcp/ha/working-environments/" + workingEnvironmentId
     else:
-         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + vsa_id
+         url = API_OCCM + "/occm/api/gcp/vsa/working-environments/" + workingEnvironmentId
 
     try:
          print_deb("url: {0} ".format(url))
@@ -1403,7 +1403,7 @@ def cvo_gcp_delete_vsa (API_token, API_accountID, API_agentID, isHA, vsa_id):
               return cvos_info
 
 #################################################################################################
-def cvo_gcp_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, action):
+def cvo_gcp_action_vsa (API_token, API_accountID, API_agentID, workingEnvironmentId, isHA, action):
 
     print_deb("FUNCTION: cvo_gcp_stop_vsa")
     cvos_info={}
@@ -1415,11 +1415,11 @@ def cvo_gcp_action_vsa (API_token, API_accountID, API_agentID, vsa_id, isHA, act
         API_PATH = "/occm/api/gcp/vsa/working-environments/"
 
     if ( action == "start" ):
-        url = API_OCCM + API_PATH + vsa_id + "/start"
+        url = API_OCCM + API_PATH + workingEnvironmentId + "/start"
         action_check=True
 
     if ( action == "stop" ):
-        url = API_OCCM + API_PATH + vsa_id + "/stop"
+        url = API_OCCM + API_PATH + workingEnvironmentId + "/stop"
         action_check=True
 
     if (action_check != True ):
