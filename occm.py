@@ -33,7 +33,45 @@ def print_verb (mess):
         print(mess)
 
 def get_cvo_id_byname(cvo_name_or_id):
-    print_deb(cvo_name_or_id)
+    if ( account_id == "" ):
+         print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+         exit(1)
+
+    if ( agent_id == "" ):
+         print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+         exit(1)
+
+    # List CVO Azure
+    we_info=netapp_api_cloud.get_working_environments_list(API_TOKEN, account_id, agent_id )
+    print_deb(we_info)
+    if (we_info["status"] == "success"):
+         we_list=json.loads(we_info["working-environments"])
+         if (args.json):
+              print(json.dumps(we_list, indent=4))
+         else:
+              cvos_aws=we_list["vsaWorkingEnvironments"]
+              cvos_az=we_list["azureVsaWorkingEnvironments"]
+              cvos_gcp=we_list["gcpVsaWorkingEnvironments"]
+              if ( len(cvos_aws) > 0 ):
+                   for cvo in cvos_aws:
+                        print_deb("Name:[{}][{}]".format(cvo["name"],cvo["publicId"]))
+                        if ((cvo["name"] == cvo_name_or_id) or (cvo["publicId"] == cvo_name_or_id)):
+                             return cvo["publicId"]
+              if ( len(cvos_az) > 0 ):
+                   for cvo in cvos_az:
+                        print_deb("Name:[{}][{}]".format(cvo["name"],cvo["publicId"]))
+                        if ((cvo["name"] == cvo_name_or_id) or (cvo["publicId"] == cvo_name_or_id)):
+                             return cvo["publicId"]
+              if ( len(cvos_gcp) > 0 ):
+                   for cvo in cvos_gcp:
+                        print_deb("Name:[{}][{}]".format(cvo["name"],cvo["publicId"]))
+                        if ((cvo["name"] == cvo_name_or_id) or (cvo["publicId"] == cvo_name_or_id)):
+                             return cvo["publicId"]
+              return None
+    else:
+         print("ERROR: {}".format(we_info["message"]))
+         return None
+#ASP
 
 def print_cvo_json(cvo):
     cvo_name=cvo["name"]
@@ -109,6 +147,7 @@ group.add_argument("--account-list", dest='account_list', help="print accounts l
 group.add_argument("--cloud-account-list", dest='cloud_account_list', help="print cloud accounts list", action="store_true" )
 group.add_argument("--agent-list", dest='agent_list', help="print cloud manager connectors list", action="store_true" )
 group.add_argument("--agent-switch", dest='switch_agent_id', help="switch to a connector using it agent_id" )
+group.add_argument("--we-list", dest='list_we', help="list all working environments", action="store_true" )
 group.add_argument("--cvo-list", dest='list_cvo', help="list all Cloud Volumes ONTAP working environments", action="store_true" )
 group.add_argument("--cvo-get", dest='get_cvo_id', help="get an existing Cloud Volumes ONTAP working environment details" )
 group.add_argument("--cvo-get-creation-parameters", dest='get_cvo_id_creation_parameters', help="get an existing Cloud Volumes ONTAP creation parameters" )
@@ -285,6 +324,45 @@ try:
               print("ERROR: {}".format(agents_info["message"]))
               exit(1)
 
+    # Arg --we-list: Print Working Environment list
+    if args.list_we:
+
+         if ( account_id == "" ):
+              print("ERROR: miss argument --account-id or current-account-id not set in configuration file")
+              exit(1)
+
+         if ( agent_id == "" ):
+              print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
+              exit(1)
+
+         # List CVO Azure
+         we_info=netapp_api_cloud.get_working_environments_list(API_TOKEN, account_id, agent_id )
+         print_deb(we_info)
+         if (we_info["status"] == "success"):
+              we_list=json.loads(we_info["working-environments"])
+              if (args.json):
+                   print(json.dumps(we_list, indent=4))
+              else:
+                   onPrems=we_list["onPremWorkingEnvironments"]
+                   cvos_aws=we_list["vsaWorkingEnvironments"]
+                   cvos_az=we_list["azureVsaWorkingEnvironments"]
+                   cvos_gcp=we_list["gcpVsaWorkingEnvironments"]
+                   if ( len(onPrems) > 0 ):
+                        for ontap in onPrems:
+                             print("Name:[{}][{}]".format(ontap["name"],ontap["publicId"]))
+                   if ( len(cvos_aws) > 0 ):
+                        for cvo in cvos_aws:
+                             print("Name:[{}][{}]".format(cvo["name"],cvo["publicId"]))
+                   if ( len(cvos_az) > 0 ):
+                        for cvo in cvos_az:
+                             print("Name:[{}][{}]".format(cvo["name"],cvo["publicId"]))
+                   if ( len(cvos_gcp) > 0 ):
+                        for cvo in cvos_gcp:
+                             print("Name:[{}][{}]".format(cvo["name"],cvo["publicId"]))
+         else:
+              print("ERROR: {}".format(we_info["message"]))
+              exit(1)
+
     # Arg --cvo-list: Print Cloud Volumes ONTAP list
     if args.list_cvo:
 
@@ -355,9 +433,16 @@ try:
               print("Error: miss argument --agent-id or current-agent-id not set in configuration file")
               exit(1)
 
-         print("Print details of Cloud Volumes ONTAP working environment ID: {}".format(args.get_cvo_id))
+         # ASP print("Print details of Cloud Volumes ONTAP working environment ID: {}".format(args.get_cvo_id))
+         cvo_id=get_cvo_id_byname(args.get_cvo_id)
+         if (cvo_id is None):
+               print("Error: [{}] not found".fromat(args.get_cvo_id))
+               exit(1)
+         print_deb("ASP")
+         print_deb(cvo_id)
+         print_deb("ASP")
 
-         cvo_info=netapp_api_cloud.cvo_get_working_environment(API_TOKEN, account_id, agent_id,args.get_cvo_id)
+         cvo_info=netapp_api_cloud.cvo_get_working_environment(API_TOKEN, account_id, agent_id,cvo_id)
          print_deb(cvo_info)
          if (cvo_info["status"] == "success"):
               cvo=json.loads(cvo_info["cvo"])
@@ -371,7 +456,7 @@ try:
 
          # Cloud Provider Azure
          if (cloudProviderName == "Azure"):
-              cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id)
+              cvo_info=netapp_api_cloud.cvo_azure_get_vsa(API_TOKEN, account_id, agent_id, isHA, cvo_id)
               print_deb(cvo_info)
               if (cvo_info["status"] == "success"):
                    cvo=json.loads(cvo_info["cvo"])
@@ -386,7 +471,7 @@ try:
 
          # Cloud Provider Amazon
          if (cloudProviderName == "Amazon"):
-              cvo_info=netapp_api_cloud.cvo_aws_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id)
+              cvo_info=netapp_api_cloud.cvo_aws_get_vsa(API_TOKEN, account_id, agent_id, isHA, cvo_id)
               print_deb(cvo_info)
               if (cvo_info["status"] == "success"):
                    cvo=json.loads(cvo_info["cvo"])
@@ -401,7 +486,7 @@ try:
 
          # Cloud Provider GCP
          if (cloudProviderName == "GCP"):
-              cvo_info=netapp_api_cloud.cvo_gcp_get_vsa(API_TOKEN, account_id, agent_id, isHA, args.get_cvo_id)
+              cvo_info=netapp_api_cloud.cvo_gcp_get_vsa(API_TOKEN, account_id, agent_id, isHA, cvo_id)
               print_deb(cvo_info)
               if (cvo_info["status"] == "success"):
                    cvo=json.loads(cvo_info["cvo"])

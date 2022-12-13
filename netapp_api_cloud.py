@@ -544,7 +544,7 @@ def occm_get_occms_list (API_token, API_accountID):
 #################################################################################################
 def get_current_occm_agent(API_config_file):
 
-    print_deb("FUNCTION: get_current_occm_agentt")
+    print_deb("FUNCTION: get_current_occm_agent")
     occm_info={}
     occm_info["status"]="unknow"
 
@@ -663,10 +663,48 @@ def occm_get_cloud_accounts_list (API_token, API_accountID, API_agentID):
          return cloudaccounts_info
 
 #################################################################################################
+# CVO Working Environments List ASP
+#################################################################################################
+def get_working_environments_list (API_token, API_accountID, API_agentID ):
+    print_deb("FUNCTION: get_working_environments_list")
+    we_info={}
+    we_info["status"]="unknown"
+
+    url = API_OCCM + "/occm/api/working-environments"
+
+    try:
+         print_deb("url: {0} ".format(url))
+         response={}
+         headers = {"Content-type": "application/json", "X-Tenancy-Account-Id": API_accountID , "X-Agent-Id": API_agentID }
+         print_deb("headers: {0} ".format(headers))
+         response = requests.get(url, auth=BearerAuth(API_token), headers=headers)
+    except BaseException as e:
+         print_deb("ERROR: Request {0} Failed: {1}".format(url,e))
+         we_info["status"]="failed"
+         we_info["message"]=e
+         return we_info
+
+    status_code=format(response.status_code)
+    print_deb("status_code: {0}".format(status_code))
+    print_deb ("text: {0}".format(response.text))
+    print_deb ("content: {0}".format(response.content))
+    print_deb ("reason: {0}".format(response.reason))
+
+    if ( response.ok ):
+         we_info["status"]="success"
+         we_info["message"]="ok"
+         we_info["working-environments"]=response.text
+         return we_info
+    else:
+              we_info["status"]="failed"
+              we_info["message"]=response.text
+              return we_info
+
+#################################################################################################
 # CVO Working Environments  
 #################################################################################################
 def cvo_get_working_environment (API_token, API_accountID, API_agentID, workingEnvironmentId):
-    print_deb("FUNCTION: cvo_get_working_environments")
+    print_deb("FUNCTION: cvo_get_working_environment")
     cvo_info={}
     cvo_info["status"]="unknown"
 
@@ -699,6 +737,7 @@ def cvo_get_working_environment (API_token, API_accountID, API_agentID, workingE
               cvo_info["status"]="failed"
               cvo_info["message"]=response.text
               return cvo_info
+#################################################################################################
 
 #################################################################################################
 # CVO Azure API
