@@ -665,8 +665,8 @@ def occm_get_cloud_accounts_list (API_token, API_accountID, API_agentID):
 #################################################################################################
 # CVO Working Environments List ASP
 #################################################################################################
-def get_working_environments_list (API_token, API_accountID, API_agentID ):
-    print_deb("FUNCTION: get_working_environments_list")
+def occm_get_working_environments_list (API_token, API_accountID, API_agentID ):
+    print_deb("FUNCTION: occm_get_working_environments_list")
     we_info={}
     we_info["status"]="unknown"
 
@@ -703,8 +703,8 @@ def get_working_environments_list (API_token, API_accountID, API_agentID ):
 #################################################################################################
 # CVO Working Environments  
 #################################################################################################
-def cvo_get_working_environment (API_token, API_accountID, API_agentID, workingEnvironmentId):
-    print_deb("FUNCTION: cvo_get_working_environment")
+def occm_get_working_environment (API_token, API_accountID, API_agentID, workingEnvironmentId):
+    print_deb("FUNCTION: occm_get_working_environment")
     cvo_info={}
     cvo_info["status"]="unknown"
 
