@@ -225,6 +225,51 @@ WARNING: do you want to delete the CVO [cvoaz01b] ? [y/n] : y
 CVO Name:[cvoaz01b] deleted
 ```
 
+## Occm help
+```
+# occm --help
+options:
+  -h, --help            show this help message and exit
+  -d, --debug           debug mode
+  -v, --verbose         verbose mode
+  -s, --status          display cvo status
+  --account-id ACCOUNT_ID
+                        select account ID
+  --agent-id AGENT_ID   select cloud manager Connector
+  -j, --json            print in json format
+  --account-list        print accounts list
+  --cloud-account-list  print cloud accounts list
+  --agent-list          print cloud manager connectors list
+  --agent-switch SWITCH_AGENT_ID
+                        switch to a connector using it agent_id
+  --we-list             list all working environments
+  --cvo-list            list all Cloud Volumes ONTAP working environments
+  --cvo-get GET_CVO_ID  get an existing Cloud Volumes ONTAP working environment details
+  --cvo-get-creation-parameters GET_CVO_ID_CREATION_PARAMETERS
+                        get an existing Cloud Volumes ONTAP creation parameters
+  --cvo-start START_CVO_ID
+                        start an existing Cloud Volumes ONTAP working environment
+  --cvo-stop STOP_CVO_ID
+                        stop an existing Cloud Volumes ONTAP working environment
+  --cvo-delete DELETE_CVO_ID
+                        delete an existing Cloud Volumes ONTAP working environment
+  --cvo-az-create CREATE_CVO_AZ_FILE
+                        create a new Cloud Volumes ONTAP in Azure
+  --cvo-az-create-ha CREATE_CVO_AZ_HA_FILE
+                        create a new Cloud Volumes ONTAP HA in Azure
+  --cvo-aws-create CREATE_CVO_AWS_FILE
+                        create a new Cloud Volumes ONTAP in AWS
+  --cvo-aws-create-ha CREATE_CVO_AWS_HA_FILE
+                        create a new Cloud Volumes ONTAP HA in AWS
+  --cvo-gcp-create CREATE_CVO_GCP_FILE
+                        create a new Cloud Volumes ONTAP in GCP
+  --cvo-gcp-create-ha CREATE_CVO_GCP_HA_FILE
+                        create a new Cloud Volumes ONTAP HA in GCP
+  --token-check         check NetApp Cloud access token
+  --token-get-new       get a new access token
+  --version             print release
+``` 
+
 # How to Use the CloudSync Script:
 The script **cloudsync.py** show how to work with NetApp Cloud API Sync API. The Cloud Sync API documentation is available here : https://api.cloudsync.netapp.com/docs/
 
