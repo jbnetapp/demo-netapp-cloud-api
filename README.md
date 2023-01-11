@@ -77,16 +77,79 @@ Check if your new **JWT access token** is valid and saved in your private **api.
 # cloudsync --token-check
 Access Token is valid
 ```
-# How to Use the OCCM (Cloud Manager) Script:
+# How to Use the OCCM (Cloud Manager) Script
 The script **occm.py** show how to work with NetApp Cloud Manager API. The Cloud Manager  API documentation is available here : https://cloudmanager.netapp.com/api-docs/
 
 ## Display list of already deployed Cloud Volume ONTAP
 ```
 # occm --cvo-list
-Name:[cvoaz01][Azure] id:[VsaWorkingEnvironment-tNz1RNLH] HA:[False] status[ON]
-Name:[cvoaz02][Azure] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] status[ON]
-Name:[cvoaw03][Amazon] id:[VsaWorkingEnvironment-DPKWwhPC] HA:[False] status[ON]
+Name:[cvoaz01][Azure] id:[VsaWorkingEnvironment-tNz1RNLH] HA:[False]
+Name:[cvoaz02][Azure] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True]
+Name:[cvoaw03][Amazon] id:[VsaWorkingEnvironment-yBHqMbb3] HA:[False]
 ```
+
+## Display list of already deployed Cloud Volume ONTAP with the status
+```
+# occm --cvo-list --status
+Name:[cvoaz01][Azure] id:[VsaWorkingEnvironment-tNz1RNLH] HA:[False] status[ON] mgmt:[172.16.1.23]
+Name:[cvoaz02][Azure] id:[VsaWorkingEnvironment-7HRP4PQL] HA:[True] status[ON] mgmt:[172.16.1.5]
+Name:[cvoaw03][Amazon] id:[VsaWorkingEnvironment-yBHqMbb3] HA:[False] status[ON] mgmt:[172.20.1.20]
+```
+
+## Display list of already deployed Cloud Volume ONTAP with the status with verbose
+```
+# occm --cvo-list --status
+Name:[cvoaz01][Azure] node1:[cvoaz01-01][90920130000001027571][2886730007]
+Name:[cvoaz01][Azure] node1_lif:[Data][172.16.1.27][['iscsi']]
+Name:[cvoaz01][Azure] node1_lif:[Node Management][172.16.1.23]
+Name:[cvoaz01][Azure] node1_lif:[Cluster Management][172.16.1.24]
+Name:[cvoaz01][Azure] node1_lif:[Intercluster][172.16.1.25]
+Name:[cvoaz01][Azure] node1_lif:[Data][172.16.1.26][['nfs', 'cifs']]
+Name:[cvoaz01][Azure] ontap_version:[9.12.1RC1P1]
+Name:[cvoaz01][Azure] license_name:[Freemium]
+Name:[cvoaz01][Azure] mgmt_ip:[172.16.1.24]
+Name:[cvoaz01][Azure] svm_name:[svm_cvoaz01]
+Name:[cvoaz01][Azure] status:[ON]
+
+Name:[cvoaz02][Azure] node1:[cvoaz02-01][90920140000001043426][2886729997]
+Name:[cvoaz02][Azure] node1_lif:[Intercluster][172.16.1.14]
+Name:[cvoaz02][Azure] node1_lif:[Cluster Management][172.16.1.5]
+Name:[cvoaz02][Azure] node1_lif:[Data][172.16.1.15][['iscsi']]
+Name:[cvoaz02][Azure] node1_lif:[Data][172.16.1.6][['nfs', 'cifs']]
+Name:[cvoaz02][Azure] node1_lif:[SVM Management][172.16.1.8]
+Name:[cvoaz02][Azure] node1_lif:[Node Management][172.16.1.13]
+Name:[cvoaz02][Azure] node1_lif:[Cluster][172.16.1.10]
+Name:[cvoaz02][Azure] node2:[cvoaz02-02][90920140000001043427][2886730001]
+Name:[cvoaz02][Azure] node2_lif:[Cluster][172.16.1.12]
+Name:[cvoaz02][Azure] node2_lif:[Node Management][172.16.1.17]
+Name:[cvoaz02][Azure] node2_lif:[Intercluster][172.16.1.18]
+Name:[cvoaz02][Azure] node2_lif:[Data][172.16.1.19][['iscsi']]
+Name:[cvoaz02][Azure] node2_lif:[Data][172.16.1.7][['nfs', 'cifs']]
+Name:[cvoaz02][Azure] ontap_version:[9.12.1RC1]
+Name:[cvoaz02][Azure] license_name:[Freemium]
+Name:[cvoaz02][Azure] mgmt_ip:[172.16.1.5]
+Name:[cvoaz02][Azure] svm_name:[svm_cvoaz02]
+Name:[cvoaz02][Azure] status:[ON]
+Name:[cvoaz02][Azure] HA:[True]
+Name:[cvoaz02][Azure] loadBalancer:[RT1927389_CVOHA-lb]
+Name:[cvoaz02][Azure] resourceGroup:[RT1927389_CVOHA]
+Name:[cvoaz02][Azure] multiZone:[False]
+
+Name:[cvoaw03][Amazon] node1:[cvoaw03-01][90920130000001027620][2886992148]
+Name:[cvoaw03][Amazon] node1_lif:[Data][172.20.1.111][['nfs', 'cifs']]
+Name:[cvoaw03][Amazon] node1_lif:[Data][172.20.1.193][['iscsi']]
+Name:[cvoaw03][Amazon] node1_lif:[Node Management][172.20.1.20]
+Name:[cvoaw03][Amazon] node1_lif:[SVM Management][172.20.1.168]
+Name:[cvoaw03][Amazon] node1_lif:[Cluster Management][172.20.1.32]
+Name:[cvoaw03][Amazon] node1_lif:[Intercluster][172.20.1.200]
+Name:[cvoaw03][Amazon] ontap_version:[9.12.1RC1]
+Name:[cvoaw03][Amazon] license_name:[Freemium]
+Name:[cvoaw03][Amazon] mgmt_ip:[172.20.1.32]
+Name:[cvoaw03][Amazon] svm_name:[svm_cvoaw03]
+Name:[cvoaw03][Amazon] status:[ON]
+
+```
+
 ## Get more details of an already deployed Cloud volume ONTAP
 ```
 # occm --cvo-get VsaWorkingEnvironment-tNz1RNLH
@@ -95,12 +158,12 @@ Name:[cvoaz01][Azure] HA:[False] svm:[svm_cvoaz01] status[ON] mgmt[172.30.24.207
 
 ## Get Full details in JSON format of an already deployed Cloud Volume ONTAP
 ```
-# occm --cvo-get VsaWorkingEnvironment-tNz1RNLH --json > /tmp/cvoaz01.json
+# occm --cvo-get cvoaz01 --json > /tmp/cvoaz01.json
 ```
 
 ## Get creation Parameters of an already deployed Coud Volume ONTAP
 ```
-# occm --cvo-get-creation-parameters VsaWorkingEnvironment-tNz1RNLH > /tmp/cvoaz01-config-parameters.json
+# occm --cvo-get-creation-parameters cvoaz01 > /tmp/cvoaz01-config-parameters.json
 ```
 
 ## Recreate a new Azure Cloud Volume ONTAP Using JSON file create with otpion --cvo-get-creation-parameters
@@ -138,7 +201,7 @@ Name:[cvoaw02] id:[VsaWorkingEnvironment-1uqJIydY] HA:[True] svm:[svm_cvoaw02] p
 ```
 ## Stop an existing Cloud Volumoe ONTAP
 ```
-# occm --cvo-stop VsaWorkingEnvironment-4DEHFQMN
+# occm --cvo-stop cvoaz01b
 Stop Cloud volumes ONTAP working environment ID: VsaWorkingEnvironment-4DEHFQMN
 Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] status:[ON] provider[Azure]
 WARNING: do you want to stop CVO [cvoaz01b] ? [y/n] : y
@@ -146,7 +209,7 @@ CVO Name:[cvoaz01b] stopped
 ```
 ## Start an existing Cloud Volumoe ONTAP
 ```
-# occm --cvo-start VsaWorkingEnvironment-4DEHFQMN
+# occm --cvo-start cvoaz01b
 Start Cloud volumes ONTAP working environment ID: VsaWorkingEnvironment-4DEHFQMN
 Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] status:[ON] provider[Azure]
 WARNING: do you want to stop CVO [cvoaz01b] ? [y/n] : y
@@ -154,7 +217,7 @@ CVO Name:[cvoaz01b] started
 ```
 ## Delete an existing Cloud Volumoe ONTAP
 ```
-# occm --cvo-delete VsaWorkingEnvironment-4DEHFQMN
+# occm --cvo-delete cvoaz01b
 Delete cloud volumes ONTAP working environment ID: VsaWorkingEnvironment-4DEHFQMN
 Name:[cvoaz01b] id:[VsaWorkingEnvironment-4DEHFQMN] HA:[False] svm:[svm_cvoaz01b] provider[Azure]
 WARNING: do you want to delete the CVO [cvoaz01b] ? [y/n] :
