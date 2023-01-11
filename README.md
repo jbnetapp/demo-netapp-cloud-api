@@ -77,7 +77,7 @@ Check if your new **JWT access token** is valid and saved in your private **api.
 # cloudsync --token-check
 Access Token is valid
 ```
-# How to Use the OCCM (Cloud Manager) Script
+# How to Use the OCCM (Cloud Manager BlueXP) Script
 The script **occm.py** show how to work with NetApp Cloud Manager API. The Cloud Manager  API documentation is available here : https://cloudmanager.netapp.com/api-docs/
 
 ## Display list of already deployed Cloud Volume ONTAP
