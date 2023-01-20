@@ -8,6 +8,7 @@ The following python modules must be installed (Linux/Windows):
 python3 -m pip install pyopenssl
 python3 -m pip install urllib3
 python3 -m pip install requests
+python3 -m pip install requests-toolbelt
 ```
 # Install Cloud Manager Demo Scripts
 
